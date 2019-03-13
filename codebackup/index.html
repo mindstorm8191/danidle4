@@ -1,0 +1,422 @@
+<html>
+    <head>
+        <title>Dan Idle (version 4)</title>
+        <link rel="stylesheet" type="text/css" href="include/style.css" />
+        <script src="include/jquery.js"            type="text/javascript"></script>
+        <script src="include/json2.js"             type="text/javascript"></script>
+        <script src="include/tippy.all.min.js"     type="text/javascript"></script>
+        <script src="include/mapmanager.js"        type="text/javascript"></script>
+        <script src="include/block_storage.js"     type="text/javascript"></script>
+        <script src="include/block_leanto.js"      type="text/javascript"></script>
+        <script src="include/block_foragepost.js"  type="text/javascript"></script>
+        <script src="include/block_rockknapper.js" type="text/javascript"></script>
+        <script src="include/block_twinemaker.js"  type="text/javascript"></script>
+        <script src="include/block_stickmaker.js"  type="text/javscript"></script>
+        <script type="text/javascript">
+            // DanIdle Version 4
+            // This time we want to use more functional programming concepts, and continue to find ways to improve the overall formatting of the code
+
+            // Instead of rewriting from the ground up, we have a lot of code that's already working (namely the map system) and we need to reuse
+            // that (or whatever parts of it we are able to)
+
+            // Task List
+            // 3) Start working on the Flint Tool Maker block... this will take some work
+            // 3) Build the hunting post, and allow it to produce dead animals
+            // 4) Set up the campfire block, to cook any meats
+            // 4) Start adding in code to consume foods, where-ever needed
+            // 5) Have population be determinant on food available
+            // 6) Start working on code to limit progress when workers aren't available
+            // 7) Allow blocks to be ordered based on priority
+            // 8) Start setting up farming (this will be a major opportunity towards automation)
+            // 9) Set up a butcher shop, to cut meats. Will also output bones and hides
+
+
+
+            // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
+
+            const mapkinddensity = 10;  // Determines how many land types are placed down, when generating maps
+            const chunksize = 32;       // Determines how large each map chunk is, squared
+            const TILE_GRASS = 1; // land type of grass
+            const TILE_FOREST = 2; // land type of forest
+            const TILE_ROCK = 3;   // land type of rocks
+            const TILE_WATER = 4;  // land type of water
+            
+            const blockdemands = [
+                {name: 'selector',      canBuildOn: [],                                   image: 'img/cursormove.png', state:0,
+                    highlight: 'Move cursor: Recenter the map to the square clicked',        prereq: []},
+                {name: 'storage',       canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK], image: 'img/storage.png', state:0,
+                    highlight: 'Storage: Keep items (like tools',                             prereq: []},
+                {name: 'leanto',        canBuildOn: [TILE_FOREST],                        image: 'img/leanto.png', state:0,
+                    highlight: 'Lean-to: Basic shelter of sticks and leaves',                prereq: []},
+                {name: 'foragepost',    canBuildOn: [TILE_GRASS],                         image: 'img/foragepost.png', state:0,
+                    highlight: 'Forage Post; College food from surrounding lands',            prereq: []},
+                {name: 'rockknapper',   canBuildOn: [TILE_ROCK],                          image: 'img/rockknapper.png', state:0,
+                    highlight: 'Rock Knapper; Smash rocks into basic tools',                  prereq: []},
+                {name: 'twinemaker',    canBuildOn: [TILE_FOREST],                        image: 'img/twinemaker.png', state:0,
+                    highlight: 'Twine Maker; cuts bark from trees to make rope',              prereq: [['Flint Knife']]},
+                {name: 'stickmaker',    canBuildOn: [TILE_FOREST],                        image: 'img/stickmaker.png', state:0,
+                    highlight: 'Stick Maker; cuts branches from trees for sticks',            prereq: [['Flint Stabber']]},
+                {name: 'flinttoolshop', canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK], image: 'img/flinttoolset.png', state:0,
+                    highlight: 'Flint Toolshop; makes larger tools from flint, wood & twine', prereq: [['Twine'],['Short Stick', 'Long Stick']]},
+                {name: 'huntingpost',   canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK], image: 'img/huntingpost.png', state:0,
+                    highlight: 'Hunting Post; Hunts for animals in local area',               prereq: [['Flint Spear']]}
+            ];
+            blockdemands.unlock = function() {
+                // Determines when a new block can be displayed on the left side of the screen.  This depends heavily on the contents of the
+                // unlockeditems array
+                blockdemands.filter(slot => {
+                    if(slot.state==1) return false;  // This has already been listed
+
+                    if(slot.prereq.length==0) return true; // This has no prereq's; this item should be available at the start of the game
+                    // Now, work with the prereqs structure that is tied to this element
+                    return slot.prereq.every(outele => {          // Determine that all elements in the array passed the test
+                        return outele.some(inele => {             // Determine that at least one hit was found in the array
+                            return unlockeditems.includes(inele);
+                        });
+                    });
+                }).map(element => {
+                    // With the misses filtered out, we now focus on processing the elements, which is adding them to the
+                    // left side of the screen
+
+                    element.state = 1;
+                    document.getElementById("blockselector").innerHTML += 
+                        '<div id="cursor'+ element.name +'" '+
+                            'class="blockchoice" '+
+                            'onclick="setcursor(\''+ element.name +'\')" '+
+                            'title="'+ element.highlight +'"> '+
+                            '<img src="'+ element.image +'" /> '+
+                        '</div>';
+                });
+            }
+
+                // This tutorial object is set up to handle what is displayed at the top for the tutorial section, as well as when that section
+                // moves to the next tutorial task
+            let tutorial = {curlevel:0, choices: [
+                {level:0, unlock:'cursor=selector',
+                    show:'Welcome! I\'ll help you get started. Step 1: Select the center-screen tool (with the 4 arrows). Click the map to re-center'},
+                {level:1, unlock:'build=leanto',
+                    show:'Step 2: Shelter. Find a wide area of grass with neighboring trees. Place a lean-to within the trees. You\'ll need two for '+
+                         'your 4 current colonists, more as your population grows'},
+                {level:2, unlock:'build=foragepost',
+                    show:'Step 3: Food. Place a foraging post in a nearby grass area'},
+                {level:3, unlock:'build=rockknapper',
+                    show:'Step 4: Tools. Find a rock area and place a Rock Knapper. Start building Flint Knives and Stabbers (you may want 2 Rock '+
+                         'Knappers with different outputs)'},
+                {level:4, unlock:'I dont know what to put here yet',
+                    show: 'Step 5: Tool Storage. Place a Storage unit beside your Rock Knapper. Set it to receive the tool you are crafting. Only '+
+                          'when it is in storage can another block use it.'}],
+                checkadvance: function(action) {
+                        // Handles updating whether the displayed tutorial mode is advanced or not, based on the action recieved
+                    if(tutorial.choices[tutorial.curlevel].unlock!=action) return;
+
+                    tutorial.curlevel++;
+                    $("#tutorialblock").html(tutorial.choices[tutorial.curlevel].show);
+                }
+            };
+
+            let unlockeditems = [];  // Array of all 
+            let lastblockid = 1;     // Last used ID for created activeblocks
+            let cursorselect = 'selector'; // Which item in the selection list (at left) the user currently has selected
+            let blockselect = null;        // Which block is currently being shown on the right side of the screen
+            let workpoints = 0; // This determines how much work can be done (by workers) each game tick. This is set to the number of workers
+                                // at the start of each tick cycle. The total idle workers is determined by this value after the tick cycle
+
+            let chunklist = [];
+            let maptileid;       // Used to allow individual map tiles to have unique ids
+            let blocklist = [];  // This is the list of all blocks actively in play in the game
+            blocklist.lastpriority = function() {
+                if(blocklist.length===0) return 0;
+                return blocklist[blocklist.length-1].priority;
+            }
+            blocklist.findOnGrid = function(xpos, ypos) {  // Returns an Activeblock based on its coordinates, or undefined if it isn't found
+                return blocklist.find( function(ele) {     // find() returns the first element that the attached function returns true for
+                    return ((ele.tile.xpos===xpos) && (ele.tile.ypos===ypos));
+                });
+            }
+            blocklist.neighbors = function(mappos) {
+                // Returns a list of all blocks that neighbor the provided block
+                return [blocklist.findOnGrid(mappos.xpos,   mappos.ypos-1),
+                        blocklist.findOnGrid(mappos.xpos+1, mappos.ypos),
+                        blocklist.findOnGrid(mappos.xpos,   mappos.ypos+1),
+                        blocklist.findOnGrid(mappos.xpos-1, mappos.ypos)].filter(function(ele) {
+                            return !(typeof ele==='undefined');
+                        });
+            }
+            blocklist.getById = function(id) {
+                return blocklist.find( function(ele) {
+                    return (ele.id===id);
+                });
+            }
+            blocklist.getInStorage = function(targetitem) {
+                let hold = blocklist.find( function(ele) {  // find will only return elements, but we're not really after that, this time
+                    if(ele.name==='Storage') return false;   // ignore any non-storage blocks
+                    if(typeof ele.onhand==="undefined") return false; // Not all activeblocks will contain an onhand array (such as housing)
+                    return ele.onhand.some( function(item) {
+                        return (item.name==targetitem);
+                    });
+                });
+                if(hold===undefined) return null;  // aka the item was not found in any storage unit
+                return hold.onhand.splice(hold.onhand.findIndex(ele => ele.name===targetitem), 1)[0];
+            }
+            blocklist.isInStorage = function(targetitem) {
+                return blocklist.includes( function(ele) {  // we want to return true if any activeblock satisfies the search function
+                    if(ele.name=='Storage') return false;
+                    if(typeof ele.onhand==="undefined") return false;
+                    return ele.onhand.includes( function(item) {  // return true if any item matches the search function
+                        return (item.name===targetitem);
+                    });
+                });
+            }
+
+            function getRandomFrom(choicelist) {
+                // Selects a random item from a list of choices.
+                // choicelist - list of objects to select from
+                // Example useage: myfood = randomfrom(['apple', 'mushroom', 'berry', 'treenut']); has 1 in 4 chance to return berry
+                return choicelist[Math.floor(Math.random()*choicelist.length)];
+            }
+
+            function multireplace(workstring, target, replacewith) {
+                // Works like string.replace(), but replaces all instances, instead of just one.
+                // We need this function to turn output options (which is full item names with spaces) into DOM ids (which cannot contain spaces)
+                let updated = workstring.replace(target, replacewith);
+                while(updated!=workstring) {
+                    workstring = updated;
+                    updated = workstring.replace(target, replacewith);
+                }
+                return updated;
+            }
+
+            function updatemapsize() {
+                // A simple function to adjust the height of the drawn map whenever the size of the screen is changed.
+                // I found that in other browsers (such as Firefox) the div for the map, using flexboxes, would not expand to fill the screen
+                // by using "height:100%;", and instead would assume a size of zero, showing none of the map. Rather than setting the displayed
+                // map to a fixed size, this will expand the map to full screen height.
+                // This is called whenever the window size changes, and immediately after startup
+                $("#centermapbox").css("height", $(window).height());
+            }
+
+            function setcursor(newvalue) {
+                // Changes the value of cursorselect, based on which square (on the left) the user clicks on
+                $("#cursor"+ cursorselect).css("background-color", "white");
+                cursorselect = newvalue;
+                $("#cursor"+ cursorselect).css("background-color", "red");
+                tutorial.checkadvance("cursor="+ newvalue);
+            }
+
+            function start() {
+                // Called when the window finishes loading
+                
+                $("#game").html('');  // Clear the game section, and display a new map chunk
+                new mapchunk(0,0);
+                updatemapsize();
+                document.getElementById("blockselector").innerHTML = '';
+                blockdemands.unlock();
+                cursorselect = 'selector';
+                //let maker = leanto(2, 5);
+                //maker.update(4);
+                setInterval(updateblocks, 1000);
+            }
+
+            function updateblocks() {
+                // Handles updating all blocks each second (or game tick).
+                let workpoints = 4;
+                blocklist.forEach((ele) => {
+                    ele.update();
+                });
+                console.log('Finished with '+ workpoints +' workpoints');
+
+                // While we're here, let's update the currently selected block's side panel
+                if(blockselect!=null) blockselect.updatepanel();
+            }
+
+            function handlegameboxclick(xpos, ypos) {
+                // Handles all clicks on the game map
+
+                let mappos = chunklist[0][0].map[ypos][xpos];
+                if(cursorselect==='selector') {  // Use the cursor to decide where to center the screen at
+                        // This is probably not the most ideal setup, but will do for now
+                    $("#game").css("top",  (330-(ypos*66)) +"px");
+                    $("#game").css("left", (330-(xpos*66)) +"px");
+                    if(mappos.structure!=null) {
+                        blockselect = mappos.structure;
+                        blockselect.drawpanel();
+                    }
+                    return;
+                }
+
+                if(mappos.structure===null) {
+                    // Nothing is here yet. Add the selected building type (if possible)
+                    if(!blockdemands.find(ele => { return ele.name===cursorselect; }).canBuildOn.includes(mappos.tile)) {
+                        console.log('Alert! Wrong land type');
+                        return;
+                    }
+                    switch(cursorselect) {
+                        case 'storage':     r = storage(mappos);     break;
+                        case 'leanto':      r = leanto(mappos);      break;
+                        case 'foragepost':  r = foragepost(mappos);  break;
+                        case 'rockknapper': r = rockknapper(mappos); break;
+                        case 'twinemaker':  r = twinemaker(mappos);  break;
+                        case 'stickmaker':  r = stickmaker(mappos);  break;
+                    }
+                    // Now that this has been constructed, let's show this on the right panel
+                    blockselect = r;
+                    r.drawpanel();
+                    tutorial.checkadvance("build="+cursorselect);
+                }
+            }
+
+                // Manages each item in the game
+            let item = (itemname) => {
+                let state = {
+                    name: itemname,
+                }
+                // Now, add this to the list of unlocked items, if not already in it
+                if(!unlockeditems.some(function (ele) {
+                    return (ele===itemname);
+                })) {
+                    unlockeditems.push(itemname);
+                    // Now, run the unlock function of the blockdemands structure. This will enable new blocks whenever available
+                    blockdemands.unlock();
+                }
+                return Object.assign(state);
+            }
+
+                // Tools are very much like items, but have additional properties
+            let tool = (toolname, efficiency, endurance) => {
+                let state = {
+                    name: toolname,
+                    efficiency,
+                    endurance
+                }
+                if(!unlockeditems.some(function (ele) {
+                    return (ele===toolname);
+                })) {
+                    unlockeditems.push(toolname);
+                    // Also, run the unlock function of the blockdemands structure. This will enable new blocks whenever available
+                    blockdemands.unlock();
+                }
+                return Object.assign(state);
+            }
+
+            const blockHandlesItems = (state) => ({
+                getItem: (findlist) => {
+                    // Add-on function for all block types. Returns a target item with a matching name, or null if none was found in this block.
+                    // Not all blocks will use this specific function; special cases will be managed internal to the blocks (such as those blocks
+                    // that don't output anything).
+                    // state - state object of the block we are using.
+                    //         Must contain an onhand array, containing output items of this block
+                    //         Must also contain an allowOutput variable; set to true to allow the block to output items
+                    // findlist - Array of potential items we want to find
+                    if(state.allowOutput===false) return null;
+                    for(let i=0; i<findlist.length; i++) {
+                        let spot = state.onhand.map(function (ele) {
+                            return ele.name;
+                        }).indexOf(findlist[i]);
+                        console.log('Comparing '+ findlist[i] +', found at '+ spot);
+                        if(spot===-1) continue;
+                        return state.onhand.splice(spot, 1)[0];
+                    }
+                    return null;
+                }
+            });
+
+            const flinttoolmaker = (mapsquare) => {
+                let state = {
+                    name: 'Flint Tool Maker',
+                    tile: mapsquare,
+                    priority: blocklist.lastpriority(),
+                    id: lastblockid,
+                    counter: 0,
+                    allowOutput: true,
+                    onhand: [],         // This handles output items only
+                    outputitems: ['None', 'Short Stick', 'Long Stick'],
+                    currentcraft: 'None',
+                    targetcraft: 'None',
+                    stocklist: [{name: "Short Stick", hold: []},    // This manages holding input items
+                                {name: "Long Stick", hold: []},
+                                {name: "Twine", hold: []},
+                                {name: "Flint Hatchet Head", hold: []},
+                                {name: "Flint Hoe Head", hold: []},
+                                {name: "Flint Spear Head", hold: []}
+                                ],
+                    itemsneeded: [{tool: "None", needs: []}, // 'none' is included so we can simply list all the items later
+                                    {tool: "Flint Hatchet", needs: [{item: "Short Stick",        qty: 1},
+                                                                    {item: "Twine",              qty: 1},
+                                                                    {item: "Flint Hatchet Head", qty: 1}]},
+                                    {tool: "Flint Hoe", needs: [{item: "Long Stick",     qty: 1},
+                                                                {item: "Twine",          qty: 1},
+                                                                {item: "Flint Hoe Head", qty: 1}]},
+                                    {tool: "Flint Spear", need: [{item: "Long Stick",      qty: 1},
+                                                                {item: "Twine",            qty: 1},
+                                                                {item: "Flint Spear Head", qty: 1}]},
+                                    {tool: "Twine Table", need: [{item: "Long Stick",  qty: 5},
+                                                                {item: "Short Stick", qty: 16},
+                                                                {item: "Twine",       qty: 5}]},
+                                    {tool: "Twine Sled", need: [{item: "Long Stick",  qty: 8},
+                                                                {item: "Short Stick", qty: 8},
+                                                                {item: "Twine",       qty: 5}]},
+                                    {tool: "Twine Raft", need: [{item: "Long Stick",  qty: 6},
+                                                                {item: "Short Stick", qty: 3},
+                                                                {item: "Twine",       qty: 3}]}],
+                    
+                    possibleoutputs: function() {
+                            // Rather than returning a fixed array, let's feed data from our tables. If those tables change, we won't
+                            // have to modify this to update its output
+                        return state.itemsneeded.map(function (inner) {
+                            return inner.tool;
+                        });
+                    },
+
+                    update: function() {
+
+                        // Start by ensuring we have something to work on
+                        if(state.targetcraft==='None' && state.currentcraft==='None') return;
+                        if(state.currentcraft==='None') state.currentcraft = state.targetcraft;
+
+                        // Get to the tool type we are trying to craft
+                        const crafting = state.itemsneeded[state.itemsneeded.findIndex(function (ele) {
+                            return (ele.tool===state.currentcraft);
+                        })];
+
+                        // Now, determine if we have all the resources we need to produce this
+                        if(!crafting.need.every( function (listing) {
+                                // This section runs through each element in the itemsneeded for the particular tool we're making
+                            return state.stocklist.find(function (ele) {
+                                return (listing.item === ele.name);
+                            }).hold.length >= listing.qty;
+                        })) return;
+
+                        // With assurance that 
+                    }
+                }
+            };
+            
+        </script>
+    </head>
+    <body onload="start()" onresize="updatemapsize()">
+        <div style="display:flex; justify-content: center; width:100%;">
+            <div style="max-width:205px;">
+                <div>
+                    Idle: <span id="showpopulation">3/4</span>  Food: <span id="showfood">0</span><br />
+                    Lvngqtr: <span id="showlivingspace">0</span>  Clthng: <span id="showclothing">0</span><br />
+                    <a href="#" onclick="savegame()">Save Game</a> / <a href="#" onclick="loadgame()">Load Game</a><br />
+                </div>
+                <br />
+                <div id="blockselector">
+                    Waiting for startup...
+                </div>
+            </div>
+            <div id="centermapbox" style="flex-grow:100; justify-content:center; overflow:hidden; align-items:center; height:100%; position:relative">
+                <div id="tutorialblock" style="padding:6px; border:2px solid; border-color:red; background-color:white; z-index:1; position:absolute; top:6px; left:6px;">
+                    Welcome! I'll help you get started. Step 1: Select the center-screen tool (with the 4 arrows). Click the map to re-center
+                </div>
+                <div id="game">
+                    Building map...
+                </div>
+            </div>
+            <div style="width:200px; margin-left:10px;">
+                <div id="sidepanel">Waiting for selection...</div>
+            </div>
+        </div>
+    </body>
+</html>

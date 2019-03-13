@@ -1,0 +1,33 @@
+<html>
+    <body>
+        <script type="text/javascript">
+            const flintmaker = callby => {
+                let state = {
+                    name: "FlintMaker",
+                    assignedby: callby,
+                    output: function() {
+                        console.log("We're smashing rocks! " + state.assignedby + " told me to");
+                    }
+                };
+                return Object.assign(state);
+            };
+            const woodcutter = callby => {
+                let state = {
+                    name: "WoodMaker",
+                    assignedby: callby,
+                    output: function() {
+                        console.log("We're punching wood! " + state.assignedby + " needs it done");
+                    }
+                };
+                return Object.assign(state);
+            };
+            const storing = [
+                { name: "flint", needs: "nothing", output: "Oh hi Mark", generator: flintmaker },
+                { name: "wood", needs: "no idea", output: "Who was that?", generator: woodcutter }
+            ];
+            let red = storing[0].generator("Dave");
+            red.output();
+            let blue = storing[0].generator("Pete");
+        </script>
+    </body>
+</html>
