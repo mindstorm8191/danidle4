@@ -67,6 +67,8 @@ let butchershop = mapsquare => {
                     'Current progress: <span id="sidepanelprogress">' +
                     Math.floor((state.counter / craftTime) * 100) +
                     "</span><br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
                     "Output items on hand:" +
                     '<div id="sidepanelonhand">' +
                     state.displayItemsOnHand() +
@@ -92,6 +94,10 @@ let butchershop = mapsquare => {
                 $("#sidepanelprogress").html("n/a");
             }
             $("#sidepanelonhand").html(state.displayItemsOnHand());
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
 
@@ -105,6 +111,7 @@ let butchershop = mapsquare => {
         blockRequiresTool(state),
         blockHasOutputsPerInput(state),
         blockShowsOutputItems(state),
-        blockHasWorkerPriority(state)
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state)
     );
 };

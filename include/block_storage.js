@@ -58,6 +58,8 @@ let storage = mapsquare => {
                     'Items on hand: <div id="sidepanelonhand">' +
                     state.displayItemsOnHand() +
                     "</div><br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
                     "<br />" +
                     "<b>Items to store</b><br />"
             );
@@ -114,6 +116,11 @@ let storage = mapsquare => {
                 state.targetitems.push(itemname);
                 $("#sidepanelpick" + multireplace(itemname, " ", "")).css({ "background-color": "green" });
             }
+        },
+
+        deleteblock: function() {
+            state.deleteWithFood();
+            state.finishDelete();
         }
     };
     lastblockid++;
@@ -125,6 +132,7 @@ let storage = mapsquare => {
         blockOutputsItems(state),
         blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
-        blockHandlesFood(state)
+        blockHandlesFood(state),
+        blockDeletesClean(state)
     );
 };

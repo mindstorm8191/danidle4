@@ -121,6 +121,9 @@ const flinttoolmaker = mapsquare => {
                     'Finished tools on hand: <span id="sidepanelonhand">' +
                     state.onhand.length +
                     "</span><br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
+                    "<br />" +
                     state.drawOutputChoices()
             );
         },
@@ -137,6 +140,10 @@ const flinttoolmaker = mapsquare => {
             $("#sidepanelchoice" + multireplace(state.targetcraft, " ", "")).css({
                 "background-color": "green"
             });
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
 
@@ -148,6 +155,7 @@ const flinttoolmaker = mapsquare => {
         state,
         blockOutputsItems(state),
         blockHasSelectableCrafting(state),
-        blockHasWorkerPriority(state)
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state)
     );
 };

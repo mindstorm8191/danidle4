@@ -37,13 +37,18 @@ let firewoodmaker = mapsquare => {
                     "</span>%<br />" +
                     'Wood on hand: <span id="sidepanelonhand">' +
                     state.onhand.length +
-                    "</span>"
+                    "</span><br />" +
+                    state.showDeleteLink()
             );
         },
 
         updatepanel: function() {
             $("#sidepanelprogress").html(Math.floor((state.counter / state.craftTime) * 100));
             $("#sidepanelonhand").html(state.onhand.length);
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
     lastblockid++;
@@ -55,6 +60,7 @@ let firewoodmaker = mapsquare => {
         blockOutputsItems(state),
         blockHasRandomizedOutput(state),
         blockHasWorkerPriority(state),
-        blockShowsOutputItems(state)
+        blockShowsOutputItems(state),
+        blockDeletesClean(state)
     );
 };

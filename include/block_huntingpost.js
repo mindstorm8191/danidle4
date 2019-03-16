@@ -40,6 +40,7 @@ const huntingpost = mapsquare => {
                     'Hunting progress: <span id="sidepanelprogress">' +
                     Math.floor((this.counter * 100) / state.craftTime) +
                     "</span><br />" +
+                    state.showDeleteLink() +
                     "<br />" +
                     "<br />"
             );
@@ -51,6 +52,10 @@ const huntingpost = mapsquare => {
             // Handle updating any fields in the side panel that may change between ticks
             $("#sidepanelprogress").html(Math.floor((this.counter * 100) / state.craftTime));
             state.updateOutput();
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
     lastblockid++;
@@ -63,6 +68,7 @@ const huntingpost = mapsquare => {
         blockRequiresTool(state),
         blockHasRandomizedOutput(state),
         blockHasWorkerPriority(state),
-        blockShowsOutputItems(state)
+        blockShowsOutputItems(state),
+        blockDeletesClean(state)
     );
 };

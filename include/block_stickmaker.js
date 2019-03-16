@@ -52,6 +52,8 @@ const stickmaker = mapsquare => {
                     'Current progress: <span id="sidepanelprogress">' +
                     Math.floor((state.counter * 100) / 30) +
                     "</span>%<br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
                     "<br />" +
                     state.drawOutputChoices()
             );
@@ -62,6 +64,10 @@ const stickmaker = mapsquare => {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepanelcurrent").html(state.currentcraft);
             $("#sidepanelprogress").html(Math.floor((state.counter * 100) / 30));
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
         /*
         pickcraft: function(newcraft) {
@@ -87,6 +93,7 @@ const stickmaker = mapsquare => {
         blockOutputsItems(state),
         blockRequiresTool(state),
         blockHasSelectableCrafting(state),
-        blockHasWorkerPriority(state)
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state)
     );
 };

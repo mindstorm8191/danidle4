@@ -37,13 +37,24 @@ let foragepost = mapsquare => {
                     "</span><br />" +
                     'Progress to next: <span id="sidepanelprogress">' +
                     Math.floor((state.counter / 30) * 100) +
-                    "</span>%"
+                    "</span>%<br />" +
+                    "<br />" +
+                    state.showDeleteLink()
             );
         },
 
         updatepanel: function() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
             $("#sidepanelprogress").html(Math.floor((state.counter / 30) * 100));
+        },
+
+        deleteblock: function() {
+            // Deletes this block from the map.
+
+            // Start by clearing up the food items we have here, since they are also in the foodlist array
+            state.deleteWithFood();
+            // Now complete the deletion process
+            state.finishDelete();
         }
     };
     lastblockid++;
@@ -56,6 +67,7 @@ let foragepost = mapsquare => {
         blockHasRandomizedOutput(state),
         blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
-        blockHandlesFood(state)
+        blockHandlesFood(state),
+        blockDeletesClean(state)
     );
 };

@@ -39,6 +39,7 @@ let leanto = mapsquare => {
                 }
             }
         },
+
         drawpanel: function() {
             $("#sidepanel").html(
                 "<b>Lean-To</b><br />" +
@@ -66,7 +67,9 @@ let leanto = mapsquare => {
                         "% lifespan remaining</span>"
                 );
             }
+            $("#sidepanel").append("<br />" + state.showDeleteLink());
         },
+
         updatepanel: function() {
             if (state.status == 0) {
                 $("#sidepanelstatus").html("Building: " + Math.floor(state.counter / 1.2) + "% complete");
@@ -76,13 +79,18 @@ let leanto = mapsquare => {
                 );
             }
         },
+
         getItem: function(itemlist) {
             return null; // This block has no items and outputs no items
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
     lastblockid++;
     blocklist.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
-    return Object.assign(state, blockHasWorkerPriority(state));
+    return Object.assign(state, blockHasWorkerPriority(state), blockDeletesClean(state));
 };

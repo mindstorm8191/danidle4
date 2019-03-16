@@ -10,6 +10,7 @@
         <script src="include/blockAddon_HasRandomizedOutput.js" type="text/javascript"></script>
         <script src="include/blockAddon_HasSelectableCrafting.js" type="text/javascript"></script>
         <script src="include/blockAddon_HasOutputsPerInput.js" type="text/javascript"></script>
+        <script src="include/block_hauler.js" type="text/javascript"></script>
         <script src="include/block_storage.js" type="text/javascript"></script>
         <script src="include/block_leanto.js" type="text/javascript"></script>
         <script src="include/block_foragepost.js" type="text/javascript"></script>
@@ -32,8 +33,10 @@
             // Task List
             // 2) Start setting up farming (this will be a major opportunity towards automation in late-game)
             // 3) Start working on building the item hauler block. This will be critical for early work, especially with the butcher shop
-            // 4) Add code to remove blocks. Don't forget to have any blocks using food remove their food entries from foodList first.
+            // 4) Determine why the population isn't growing when using cheats, even with plenty of food on hand
             // 5) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
+            // 6) Add an update function to the RequiresTool add-on, to change the displayed color based on whether tools are available or not.
+            //    Change its tooltip text at the same time.
 
             // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
@@ -51,7 +54,7 @@
             //                                     block_twinemaker.js
             // 593+259+209+61+236+82+130+88+61+109+67+92+153+68+226+60+110+79 = 2683 lines
 
-            const cheatenabled = false; // Set this to true to enable the AutoProvider to be displayed.
+            const cheatenabled = true; // Set this to true to enable the AutoProvider to be displayed.
             const mapkinddensity = 10; // Determines how many land types are placed down, when generating maps
             const chunksize = 32; // Determines how large each map chunk is, squared
             const TILE_GRASS = 1; // land type of grass
@@ -66,6 +69,14 @@
                     image: "img/cursormove.png",
                     state: 0,
                     highlight: "Move cursor: Recenter the map to the square clicked",
+                    prereq: []
+                },
+                {
+                    name: "hauler",
+                    canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
+                    image: "img/bucketline_right.png",
+                    state: 0,
+                    highlight: "Item hauler: Move items between blocks",
                     prereq: []
                 },
                 {
@@ -341,8 +352,12 @@
                         return item.name == targetitem;
                     });
                 });
+                // hold now contains the storage block which has the tool we are after
                 if (hold === undefined) return null; // aka the item was not found in any storage unit
-                return hold.onhand.splice(hold.onhand.findIndex(ele => ele.name === targetitem), 1)[0];
+                let item = hold.onhand.splice(hold.onhand.findIndex(ele => ele.name === targetitem), 1)[0];
+                // Here, we need to add the storage source to the item before returning it
+                item.storageSource = hold.id;
+                return item;
             };
             blocklist.isInStorage = function(targetitem) {
                 return blocklist.includes(function(ele) {
@@ -501,7 +516,8 @@
             // Manages each item in the game
             let item = itemname => {
                 let state = {
-                    name: itemname
+                    name: itemname,
+                    kind: "item" // this is a classification (but 'class' is a keyword)
                 };
                 // Now, add this to the list of unlocked items, if not already in it
                 if (
@@ -521,7 +537,8 @@
                 let state = {
                     name: toolname,
                     efficiency,
-                    endurance
+                    endurance,
+                    kind: "tool" // item classification
                 };
                 if (
                     !unlockeditems.some(function(ele) {
@@ -541,7 +558,8 @@
                     name: foodname,
                     life: lifespan,
                     id: lastFoodID,
-                    location: inBlock.id
+                    location: inBlock.id,
+                    kind: "food" // item classification
                 };
                 lastFoodID++;
                 foodList.push(state);

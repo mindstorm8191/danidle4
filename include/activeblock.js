@@ -15,7 +15,7 @@ const blockOutputsItems = state => ({
         //         Must also contain an allowOutput variable; set to true to allow the block to output items
         // findlist - Array of potential items we want to find
         if (state.allowOutput === false) {
-            console.log("This block (" + state.name + ") has outputs disabled");
+            if (debug === true) console.log("This block (" + state.name + ") has outputs disabled");
             return null;
         }
         if (debug === true)
@@ -30,9 +30,10 @@ const blockOutputsItems = state => ({
                 .indexOf(findlist[i]);
             //console.log("Comparing " + findlist[i] + ", found at " + spot);
             if (spot === -1) {
-                //if (debug === true) console.log("Did not find " + findlist[i] + " in list");
+                if (debug === true) console.log("Did not find " + findlist[i] + " in list");
                 continue;
             }
+            if (debug === true) console.log("Found " + state.onhand[spot].name + ", sending away");
             return state.onhand.splice(spot, 1)[0];
         }
         return null;
@@ -190,6 +191,17 @@ const blockRequiresTool = state => ({
         $("#sidepaneltool" + multireplace(state.targetTool, " ", "")).css({ "background-color": "red" });
         state.targetTool = newtool;
         $("#sidepaneltool" + multireplace(state.targetTool, " ", "")).css({ "background-color": "green" });
+    },
+
+    returnTool: function() {
+        // Manages returning a used tool when this block is being deleted
+        if (state.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
+
+        var storageSource = blocklist.getById(state.currentTool.storageSource);
+        if (storageSource === undefined) return; // failed to find the source block to store this in. We'll just have to drop the tool.
+        if (storageSource.onhand.length > 10) return; // We have the block, but we have no space left in it. Loosing a used
+        // We could correct the storage source (or blank it out), but if the tool is selected again, it will be set anyway
+        storageSource.onhand.push(state.currentTool);
     }
 });
 
@@ -205,5 +217,46 @@ const blockHandlesFood = state => ({
         if (foodspot === -1) return false;
         state.onhand.splice(foodspot, 1);
         return true;
+    },
+
+    deleteWithFood: function() {
+        // Handles all blocks that may be deleted while it contains food. Call this before actually deleting the block in question
+
+        for (let i = 0; i < state.onhand.length; i++) {
+            let pos = foodList.findIndex(ele => {
+                return state.onhand[i].id === ele.id;
+            });
+            if (pos === -1) {
+                console.log("Failed to find " + state.onhand[i].name + " (id=" + state.onhand[i].id + ") in foodList");
+                continue;
+            }
+            foodList.splice(pos, 1);
+        }
+        // This doesn't null out anything in the onhand array, but once deleted, this block won't have any back-references
+    }
+});
+
+const blockDeletesClean = state => ({
+    //Add-on block for any block that can be deleted without any remaining parts left behind
+
+    showDeleteLink: function() {
+        // Returns a string used to show the delete-block button.
+        return '<a href="#" onclick="blockselect.deleteblock()">Delete Block</a>';
+    },
+
+    finishDelete: function() {
+        // Handles removing the block from the game.
+
+        // Rather than have each block call these functions manually, we'll just run them if they can be found here.
+        if (state.deleteWithFood !== undefined) state.deleteWithFood();
+        if (state.returnTool !== undefined) state.returnTool();
+
+        // While deleting this block, let's make sure we clear out the progress bar as well.
+        $("#" + state.tile.id + "progress").css({ width: 0, "background-color": "green" });
+        $("#" + state.tile.id + "imageholder").html("");
+        state.tile.structure = null;
+        $("#sidepanel").html(" ");
+        blocklist.splice(blocklist.indexOf(this), 1);
+        blockselect = null;
     }
 });

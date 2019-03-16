@@ -49,6 +49,8 @@ const twinemaker = mapsquare => {
                     'Progress: <span id="sidepanelprogress">' +
                     Math.floor((state.counter * 100) / 20) +
                     "</span>%<br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
                     "<br />"
             );
             state.showTools();
@@ -57,11 +59,22 @@ const twinemaker = mapsquare => {
         updatepanel: function() {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepanelprogress").html(Math.floor((state.counter * 100) / 20));
+        },
+
+        deleteblock: function() {
+            // Need to finish this
+            state.finishDelete();
         }
     };
     lastblockid++;
     blocklist.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/twinemaker.png" />');
-    return Object.assign(state, blockOutputsItems(state), blockRequiresTool(state), blockHasWorkerPriority(state));
+    return Object.assign(
+        state,
+        blockOutputsItems(state),
+        blockRequiresTool(state),
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state)
+    );
 };

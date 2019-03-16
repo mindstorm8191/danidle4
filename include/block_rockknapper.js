@@ -84,6 +84,8 @@ let rockknapper = mapsquare => {
                     'Current progress: <span id="sidepanelprogress">' +
                     Math.floor((state.counter / 20) * 100) +
                     "</span>%<br />" +
+                    state.showDeleteLink() +
+                    "<br />" +
                     "<br />" +
                     state.drawOutputChoices()
             );
@@ -94,6 +96,10 @@ let rockknapper = mapsquare => {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepaneltarget").html(state.currentCraft);
             $("#sidepanelprogress").html(Math.floor((state.counter / 20) * 100));
+        },
+
+        deleteblock: function() {
+            state.finishDelete();
         }
     };
     lastblockid++;
@@ -104,6 +110,7 @@ let rockknapper = mapsquare => {
         state,
         blockOutputsItems(state),
         blockHasSelectableCrafting(state),
-        blockHasWorkerPriority(state)
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state)
     );
 };
