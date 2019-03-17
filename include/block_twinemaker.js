@@ -1,4 +1,10 @@
-const twinemaker = mapsquare => {
+// Twine Maker
+// for DanIdle version 4
+// Cuts bark off certain trees in the forests to produce twine, for use as a primitive rope
+
+import { blockOutputsItems, blockRequiresTool, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+
+export const twinemaker = mapsquare => {
     // Early tech block to produce twine rope.  Minimum tool is a flint knife. Has no automation abilities
     let state = {
         name: "Twine Maker",
@@ -9,12 +15,17 @@ const twinemaker = mapsquare => {
         toolChoices: ["None", "Flint Knife"], // List of tools this block can use. There's only one possible tool at this time.
         // Later on we will move this list to an external source, and utilize all knives possible
 
-        possibleoutputs: function() {
+        possibleoutputs() {
             // Unlike other block types, this will only have one available output item
             return ["Twine"];
         },
 
-        update: function() {
+        inputsAccepted() {
+            // This item does not accept any items as input
+            return [];
+        },
+
+        update() {
             // Start by ensuring we have enough space, and a tool selected
 
             if (state.onhand.length >= 15) return;
@@ -33,7 +44,7 @@ const twinemaker = mapsquare => {
             $("#" + state.tile.id + "progress").css({ width: state.counter * 3 });
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Twine Maker</b><br />" +
                     "<br />" +
@@ -56,12 +67,12 @@ const twinemaker = mapsquare => {
             state.showTools();
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepanelprogress").html(Math.floor((state.counter * 100) / 20));
         },
 
-        deleteblock: function() {
+        deleteblock() {
             // Need to finish this
             state.finishDelete();
         }

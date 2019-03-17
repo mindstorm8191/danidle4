@@ -1,4 +1,8 @@
-const blockHasSelectableCrafting = state => ({
+// blockHasSelectableCrafting
+// for DanIdle version 4
+// Provides functionality for any block that has multiple possible outputs, which are selected by the user
+
+export const blockHasSelectableCrafting = state => ({
     // Add-on unit to handle blocks that have multiple output items.
     // state - state object of the block we are using.
     //         Must contain an outputItems array. This should be in the following structure:
@@ -28,7 +32,7 @@ const blockHasSelectableCrafting = state => ({
     // Stores all the items that are stored in this block. This list will (well, should) be filled out as items are collected by the block.
     // This will contain objects with name and qty values. When the item is crafted, these items will be removed as needed
 
-    possibleoutputs: function() {
+    possibleoutputs() {
         // Rather than returning a fixed array, let's feed data from our tables. If those tables change, we won't
         // have to modify this to update its output
         return state.outputItems
@@ -47,7 +51,22 @@ const blockHasSelectableCrafting = state => ({
             });
     },
 
-    readyToCraft: function() {
+    inputsAccepted() {
+        // Returns an array containing any items that can be accepted here.
+        // We have decided to return all possible items, instead of only the ones related to the current block
+        return removeduplicates(
+            flatten(
+                state.outputItems.map(outitem => {
+                    return outitem.parts.map(ele => ele.name);
+                })
+            )
+        ).filter(item => {
+            // We need to exclude any items that has not been unlocked yet.
+            return unlockeditems.includes(item);
+        });
+    },
+
+    readyToCraft() {
         // Determines if this block is ready to start crafting an item.  This mainly checks that an item has been selected.
         // Use this in the update() function. Returns true if this block can proceed with crafting, or false if not.
 
@@ -64,7 +83,7 @@ const blockHasSelectableCrafting = state => ({
         return state.partsPending().length === 0;
     },
 
-    partsPending: function() {
+    partsPending() {
         // Returns an array containing the names of all items we still need before crafting the current part
 
         if (state.currentCraft === "None") return [];
@@ -88,7 +107,7 @@ const blockHasSelectableCrafting = state => ({
             });
     },
 
-    processCraft: function(efficiency) {
+    processCraft(efficiency) {
         // Handles advancing the crafting process. Use this in update().
         //      efficiency - how much progress to apply to the production of the current item. Use one for most processes. If a tool
         //                   is being used, you will provide that tool's efficiency value
@@ -131,7 +150,7 @@ const blockHasSelectableCrafting = state => ({
         $("#" + state.tile.id + "progress").css({ width: (state.counter / crafting.craftTime) * 60 });
     },
 
-    searchForItems: function() {
+    searchForItems() {
         // Searches neighbor blocks for items that this block needs before it can craft its target item
 
         const needed = state.partsPending();
@@ -155,7 +174,7 @@ const blockHasSelectableCrafting = state => ({
         });
     },
 
-    drawStocks: function() {
+    drawStocks() {
         // Returns a string for the drawPanel to show the items remaining that this block needs, before it can craft the target item
         // Note that this does not provide the 'header' of the section, or the div block. You will have to provide that yourself
         // However, with this format, it can be used within updatepanel too - simply feed its result to the correct div.
@@ -183,7 +202,7 @@ const blockHasSelectableCrafting = state => ({
             .join("");
     },
 
-    drawOutputChoices: function() {
+    drawOutputChoices() {
         // Appends content to the side panel. Use this in drawpanel(); assumes any other content has been generated
         return (
             "<b>Select an output:</b><br />" +
@@ -223,7 +242,7 @@ const blockHasSelectableCrafting = state => ({
         );
     },
 
-    pickcraft: function(newcraft) {
+    pickcraft(newcraft) {
         // Handles changing state.targetcraft, which decides what is crafted next
         $("#sidepanelchoice" + multireplace(state.targetCraft, " ", "")).css({
             "background-color": "grey"

@@ -2,7 +2,10 @@
 // For DanIdle Version 4
 // Allows colonists to collect loose dried wood from the local area, for burning in fires
 
-let firewoodmaker = mapsquare => {
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput.js";
+
+export const firewoodmaker = mapsquare => {
     let state = {
         name: "firewoodmaker",
         tile: mapsquare,
@@ -17,12 +20,19 @@ let firewoodmaker = mapsquare => {
             { name: "Large Firewood", isFood: false }
         ],
 
-        update: function() {
+        //possibleoutputs is defined in HasRandomizedOutput
+
+        inputsAccepted() {
+            // This block does not have any inputs
+            return [];
+        },
+
+        update() {
             if (state.onhand.length >= 15) return; // We already have a bunch of sticks. Time to stop
             state.processCraft(1);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b><center>Firewood Collector</center></b><br />" +
                     "<br />" +
@@ -42,12 +52,12 @@ let firewoodmaker = mapsquare => {
             );
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelprogress").html(Math.floor((state.counter / state.craftTime) * 100));
             $("#sidepanelonhand").html(state.onhand.length);
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };
@@ -58,9 +68,9 @@ let firewoodmaker = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockHasRandomizedOutput(state),
         blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasRandomizedOutput(state)
     );
 };

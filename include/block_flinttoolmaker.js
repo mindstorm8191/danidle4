@@ -1,4 +1,11 @@
-const flinttoolmaker = mapsquare => {
+// Flint Tool Maker
+// for DanIdle version 4
+// Produces more advanced (aka less primitive) tools out of flint, sticks and twine
+
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
+
+export const flinttoolmaker = mapsquare => {
     let state = {
         name: "Flint Tool Maker",
         tile: mapsquare,
@@ -96,7 +103,10 @@ const flinttoolmaker = mapsquare => {
             }
         ],
 
-        update: function() {
+        //possibleoutputs is already defined in HasSelectableCrafting
+        //inputsAccepted is already defined in HasSelectableCrafting
+
+        update() {
             // Handles updating the stats of this block
             if (!state.readyToCraft()) {
                 return state.searchForItems();
@@ -104,7 +114,7 @@ const flinttoolmaker = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Flint Tool Maker</b><br />" +
                     "<br />" +
@@ -128,21 +138,13 @@ const flinttoolmaker = mapsquare => {
             );
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelparts").html(state.drawStocks());
         },
 
-        pickcraft: function(newcraft) {
-            $("#sidepanelchoice" + multireplace(state.targetcraft, " ", "")).css({
-                "background-color": "grey"
-            });
-            state.targetcraft = newcraft;
-            $("#sidepanelchoice" + multireplace(state.targetcraft, " ", "")).css({
-                "background-color": "green"
-            });
-        },
+        // pickcraft used to be here, but it is already defined in HasSelectableCrafting
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };
@@ -154,8 +156,8 @@ const flinttoolmaker = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockHasSelectableCrafting(state),
         blockHasWorkerPriority(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasSelectableCrafting(state)
     );
 };

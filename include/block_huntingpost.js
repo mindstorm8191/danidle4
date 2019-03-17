@@ -1,7 +1,17 @@
 // block_huntingpost.js
-// The place where players hunt for nearby game animals. Produces meats, along with other animal-based resources (such as )
+// for DanIdle version 4
+// The place where players hunt for nearby game animals. Produces meats, along with other animal-based resources (such as furs, bones and feathers)
 
-const huntingpost = mapsquare => {
+import {
+    blockOutputsItems,
+    blockShowsOutputItems,
+    blockRequiresTool,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeblock.js";
+import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput.js";
+
+export const huntingpost = mapsquare => {
     let state = {
         name: "huntingpost",
         tile: mapsquare,
@@ -17,7 +27,14 @@ const huntingpost = mapsquare => {
         toolChoices: ["None", "Flint Spear"],
         craftTime: 30,
 
-        update: function() {
+        // possibleoutputs is defined in HasRandomizedOutput
+
+        inputsAccepted() {
+            // This does not have any inputs
+            return [];
+        },
+
+        update() {
             // Start by checking the size of our onhand array
             if (state.onhand.length > 15) return;
             // Next, verify our tools will allow us to continue
@@ -27,7 +44,7 @@ const huntingpost = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Hunting Post</b><br />" +
                     "<br />" +
@@ -48,13 +65,13 @@ const huntingpost = mapsquare => {
             state.showTools();
         },
 
-        updatepanel: function() {
+        updatepanel() {
             // Handle updating any fields in the side panel that may change between ticks
             $("#sidepanelprogress").html(Math.floor((this.counter * 100) / state.craftTime));
             state.updateOutput();
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };
@@ -65,10 +82,10 @@ const huntingpost = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockRequiresTool(state),
-        blockHasRandomizedOutput(state),
-        blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
-        blockDeletesClean(state)
+        blockRequiresTool(state),
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state),
+        blockHasRandomizedOutput(state)
     );
 };

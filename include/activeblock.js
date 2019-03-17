@@ -1,12 +1,12 @@
 // activeblock.js
 // Just a place to put all the add-on function groups we have created
 
-const blockOutputsItems = state => ({
+export const blockOutputsItems = state => ({
     // Add-on code block for all blocks that output items
 
     onhand: [], // Array containing all items produced by this block, which is ready for output
 
-    getItem: function(findlist, debug = false) {
+    getItem(findlist, debug = false) {
         // Add-on function for all block types. Returns a target item with a matching name, or null if none was found in this block.
         // Not all blocks will use this specific function; special cases will be managed internal to the blocks (such as those blocks
         // that don't output anything).
@@ -37,14 +37,21 @@ const blockOutputsItems = state => ({
             return state.onhand.splice(spot, 1)[0];
         }
         return null;
+    },
+
+    willOutput(itemname) {
+        // Returns true if the specific item will be output, if getItem is called for that specific item
+        // Anything in the onhand array can be output here.
+        if (state.allowOutput === false) return false;
+        return state.onhand.map(ele => ele.name).includes(itemname);
     }
 });
 
-const blockShowsOutputItems = state => ({
+export const blockShowsOutputItems = state => ({
     // Add-on unit for blocks that show multiple output items in drawpanel.  Note this only includes one function; two different
     // add-on units use this already
 
-    displayItemsOnHand: function() {
+    displayItemsOnHand() {
         // Handles generating the content displayed for the items available on hand
 
         // Providing a count of the items in the onhand array is harder than simply iterating through all the items.
@@ -78,7 +85,7 @@ const blockShowsOutputItems = state => ({
     }
 });
 
-const blockHasWorkerPriority = state => ({
+export const blockHasWorkerPriority = state => ({
     // Add-on unit for any blocks that use workers, and thus have work priority levels. Provides buttons to allow a user to
     // change the block's priority value
     // state - state object of the block we are using
@@ -86,7 +93,7 @@ const blockHasWorkerPriority = state => ({
 
     priority: blocklist.lastpriority() + 1,
 
-    setPriority: function(direction) {
+    setPriority(direction) {
         state.priority = Math.max(0, state.priority + direction);
         // Note we cannot have priority values below zero
         // Also note that 'direction' can be any positive or negative value (that will help when jumping by 10 or 100)
@@ -94,7 +101,7 @@ const blockHasWorkerPriority = state => ({
         blocklist.sort(blocklist.compare); // With the new priority level, sort all the blocks again
     },
 
-    showPriority: function() {
+    showPriority() {
         // Returns a string that can be shown in drawpanel. Note that the number of arrows shown will change, based on last-used priority
         let output = "Priority: ";
         const top = blocklist.lastpriority();
@@ -115,7 +122,7 @@ const blockHasWorkerPriority = state => ({
 });
 
 // We will also need a block where tools are optional - call it blockVoluntaryTool
-const blockRequiresTool = state => ({
+export const blockRequiresTool = state => ({
     // Add-on unit for blocks that require one (and only one) tool before it can complete any tasks. Allows the user to select
     // which tool to use in this block. New tools are grabbed automatically when one breaks.
     // state - state object of the block we are using
@@ -126,7 +133,7 @@ const blockRequiresTool = state => ({
     currentTool: null, // Loaded tool that is being used
     targetTool: "None", // Which tool the user wants to use when the current tool breaks
 
-    checkTool: function() {
+    checkTool() {
         // Used in the block's update() function. Returns the efficiency value for this tool, or null if no tool is available.
         // If a tool can be used, its endurance counter is deducted from. Once a tool's endurance reaches zero, it will be destroyed;
         // another tool can then be loaded automatically at that point (if one is selected)
@@ -148,7 +155,7 @@ const blockRequiresTool = state => ({
         return state.currentTool.efficiency;
     },
 
-    showTools: function() {
+    showTools() {
         // Provides a list of tools for the user to select
 
         $("#sidepanel").append("<br />" + "<b>Tools:</b><br />");
@@ -184,7 +191,7 @@ const blockRequiresTool = state => ({
 
     // Note, we don't have a function to be used in updatepanel(); we have nothing to update in there that is specific to tools
 
-    picktool: function(newtool) {
+    picktool(newtool) {
         // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
         // need to access it directly
 
@@ -193,7 +200,7 @@ const blockRequiresTool = state => ({
         $("#sidepaneltool" + multireplace(state.targetTool, " ", "")).css({ "background-color": "green" });
     },
 
-    returnTool: function() {
+    returnTool() {
         // Manages returning a used tool when this block is being deleted
         if (state.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
 
@@ -205,12 +212,12 @@ const blockRequiresTool = state => ({
     }
 });
 
-const blockHandlesFood = state => ({
+export const blockHandlesFood = state => ({
     // Add-on block for any block that handles food items
     // The block will require an onhand array, which will hold all food items. (This is mostly a work-around until we find a better way
     // to determine where food items could be).
 
-    consumeFood: function(foodID) {
+    consumeFood(foodID) {
         let foodspot = state.onhand.findIndex(ele => {
             return ele.id === foodID;
         });
@@ -219,7 +226,7 @@ const blockHandlesFood = state => ({
         return true;
     },
 
-    deleteWithFood: function() {
+    deleteWithFood() {
         // Handles all blocks that may be deleted while it contains food. Call this before actually deleting the block in question
 
         for (let i = 0; i < state.onhand.length; i++) {
@@ -236,15 +243,15 @@ const blockHandlesFood = state => ({
     }
 });
 
-const blockDeletesClean = state => ({
+export const blockDeletesClean = state => ({
     //Add-on block for any block that can be deleted without any remaining parts left behind
 
-    showDeleteLink: function() {
+    showDeleteLink() {
         // Returns a string used to show the delete-block button.
         return '<a href="#" onclick="blockselect.deleteblock()">Delete Block</a>';
     },
 
-    finishDelete: function() {
+    finishDelete() {
         // Handles removing the block from the game.
 
         // Rather than have each block call these functions manually, we'll just run them if they can be found here.

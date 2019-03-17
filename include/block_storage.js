@@ -1,5 +1,15 @@
 // Storage space for users to put things (especially tools)
-let storage = mapsquare => {
+// For DanIdle version 4
+
+import {
+    blockOutputsItems,
+    blockShowsOutputItems,
+    blockHasWorkerPriority,
+    blockHandlesFood,
+    blockDeletesClean
+} from "./activeblock.js";
+
+export const storage = mapsquare => {
     let state = {
         name: "storage",
         tile: mapsquare,
@@ -8,11 +18,12 @@ let storage = mapsquare => {
         allowOutput: false, // Determines if this block will output items. Note that this setting can be adjusted within this block
         targetitems: [], // list of items we want to store here
 
-        consumeFood: function(foodID) {
+        consumeFood(foodID) {
             // We don't have a means to transfer foods yet, but we will need this eventually anyway.
+            console.log("Error - game trying to remove food from storage unit - code hasn't been built for that yet");
         },
 
-        possibleoutputs: function() {
+        possibleoutputs() {
             // This only outputs the names of the items
             if (state.outputtoggle === 0) return [];
             // I couldn't come up with a reasonable way to do this with functional programming (besides using Set(), which just feels
@@ -24,7 +35,13 @@ let storage = mapsquare => {
             }
             return build;
         },
-        update: function() {
+
+        inputsAccepted() {
+            // Since this will accept any item, we need to build a special case to handle its output
+            return "any";
+        },
+
+        update() {
             // Here, we will search nearby blocks for items to pull in, if they are allowed
 
             if (state.targetitems.length == 0) return; // There's nothing here to collect anyway, don't bother
@@ -44,7 +61,7 @@ let storage = mapsquare => {
                 return true;
             });
         },
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Storage Unit</b><br />" +
                     "<br />" +
@@ -102,11 +119,11 @@ let storage = mapsquare => {
             // Note that this list can be changed when a new block gets placed nearby and this is loaded again.
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
         },
 
-        toggleinput: function(itemname) {
+        toggleinput(itemname) {
             if (state.targetitems.includes(itemname)) {
                 // Item is currently in the grab-list. Remove it now
                 state.targetitems.splice(state.targetitems.indexOf(itemname), 1);
@@ -118,8 +135,8 @@ let storage = mapsquare => {
             }
         },
 
-        deleteblock: function() {
-            state.deleteWithFood();
+        deleteblock() {
+            //state.deleteWithFood(); We currently have deleteWithFood being called within finishDelete (if such exists, which we check for)
             state.finishDelete();
         }
     };
@@ -130,8 +147,8 @@ let storage = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
+        blockHasWorkerPriority(state),
         blockHandlesFood(state),
         blockDeletesClean(state)
     );

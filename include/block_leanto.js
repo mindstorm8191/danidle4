@@ -8,7 +8,22 @@ let leanto = mapsquare => {
         // total endurance we can generate within the 'construction' time (based on what tools are used)
         status: 0,
 
-        update: function() {
+        possibleoutputs() {
+            // This block does not output any items
+            return [];
+        },
+
+        inputsAccepted() {
+            // This block does not accept any items as input
+            return [];
+        },
+
+        willOutput(itemname) {
+            // This block doesn't output any items
+            return false;
+        },
+
+        update() {
             // Handles updating this block every tick
 
             if (state.status == 0) {
@@ -40,7 +55,7 @@ let leanto = mapsquare => {
             }
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Lean-To</b><br />" +
                     "Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; " +
@@ -70,7 +85,7 @@ let leanto = mapsquare => {
             $("#sidepanel").append("<br />" + state.showDeleteLink());
         },
 
-        updatepanel: function() {
+        updatepanel() {
             if (state.status == 0) {
                 $("#sidepanelstatus").html("Building: " + Math.floor(state.counter / 1.2) + "% complete");
             } else {
@@ -80,11 +95,11 @@ let leanto = mapsquare => {
             }
         },
 
-        getItem: function(itemlist) {
+        getItem(itemlist) {
             return null; // This block has no items and outputs no items
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };

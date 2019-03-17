@@ -1,4 +1,17 @@
-let butchershop = mapsquare => {
+// Butcher Shop
+// for DanIdle version 4
+// Cuts dead animals into smaller meats, easy for cooking. Also outputs animal byproducts, such as fur, bones and feathers
+
+import {
+    blockOutputsItems,
+    blockShowsOutputItems,
+    blockRequiresTool,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeblock.js";
+import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput";
+
+export const butchershop = mapsquare => {
     let state = {
         name: "butchershop",
         tile: mapsquare,
@@ -23,6 +36,9 @@ let butchershop = mapsquare => {
             }
         ],
         toolChoices: ["None", "Flint Knife"],
+
+        // possibleoutputs is already defined in HasOutputsPerInput
+        // inputsAccepted is already defined in HasOutputsPerInput
 
         update: function() {
             // Handles updating this block once every turn
@@ -108,10 +124,10 @@ let butchershop = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockRequiresTool(state),
-        blockHasOutputsPerInput(state),
         blockShowsOutputItems(state),
+        blockRequiresTool(state),
         blockHasWorkerPriority(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasOutputsPerInput(state)
     );
 };

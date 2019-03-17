@@ -1,7 +1,10 @@
 // Stick Maker
-// Allows the user to
+// Allows the user to cut branches from trees for sticks, of various uses
 
-const stickmaker = mapsquare => {
+import { blockOutputsItems, blockRequiresTool, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
+
+export const stickmaker = mapsquare => {
     let state = {
         name: "Stick Maker",
         tile: mapsquare,
@@ -18,13 +21,10 @@ const stickmaker = mapsquare => {
             { name: "Log", prereq: ["Flint Hatchet"], parts: [], isTool: false, craftTime: 80 }
         ],
 
-        possibleoutputs: function() {
-            return outputItems.map(function(ele) {
-                return ele.name;
-            });
-        },
+        // possibleoutputs is defined in HasSelectableCrafting
+        // inputsAccepted is defined in HasSelectableCrafting
 
-        update: function() {
+        update() {
             if (state.onhand.length >= 15) return;
             if (!state.readyToCraft()) return;
             const eff = state.checkTool();
@@ -32,7 +32,7 @@ const stickmaker = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Stick Maker</b><br />" +
                     "<br />" +
@@ -60,28 +60,15 @@ const stickmaker = mapsquare => {
             state.showTools();
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepanelcurrent").html(state.currentcraft);
             $("#sidepanelprogress").html(Math.floor((state.counter * 100) / 30));
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
-        /*
-        pickcraft: function(newcraft) {
-            $("#sidepanelchoice" + multireplace(state.targetcraft, " ", "")).css({ "background-color": "grey" });
-            state.targetcraft = newcraft;
-            $("#sidepanelchoice" + multireplace(state.targetcraft, " ", "")).css({ "background-color": "green" });
-        },
-
-        picktool: function(newtool) {
-            $("#sidepaneltool" + multireplace(state.targettool, " ", "")).css({ "background-color": "red" });
-            state.targettool = newtool;
-            $("#sidepaneltool" + multireplace(state.targettool, " ", "")).css({ "background-color": "green" });
-        }
-*/
     };
 
     lastblockid++;
@@ -92,8 +79,8 @@ const stickmaker = mapsquare => {
         state,
         blockOutputsItems(state),
         blockRequiresTool(state),
-        blockHasSelectableCrafting(state),
         blockHasWorkerPriority(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasSelectableCrafting(state)
     );
 };

@@ -1,4 +1,17 @@
-let foragepost = mapsquare => {
+// Forage Post
+// For DanIdle version 4
+// Provides an early access to food for a users' colonists
+
+import {
+    blockOutputsItems,
+    blockShowsOutputItems,
+    blockHasWorkerPriority,
+    blockHandlesFood,
+    blockDeletesClean
+} from "./activeblock.js";
+import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput";
+
+export const foragepost = mapsquare => {
     let state = {
         name: "foragepost",
         tile: mapsquare,
@@ -14,13 +27,20 @@ let foragepost = mapsquare => {
         ],
         craftTime: 30,
 
-        update: function() {
+        // possibleoutputs is already defined in HasRandomizedOutput
+
+        inputsAccepted() {
+            // This block doesn't accept any items as input
+            return [];
+        },
+
+        update() {
             if (state.onhand.length >= 15) return; // cannot proceed if this inventory is full
             if (workpoints <= 0) return;
             state.processCraft(1);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Foraging Post</b><br />" +
                     "<br />" +
@@ -43,12 +63,12 @@ let foragepost = mapsquare => {
             );
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
             $("#sidepanelprogress").html(Math.floor((state.counter / 30) * 100));
         },
 
-        deleteblock: function() {
+        deleteblock() {
             // Deletes this block from the map.
 
             // Start by clearing up the food items we have here, since they are also in the foodlist array
@@ -64,10 +84,10 @@ let foragepost = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockHasRandomizedOutput(state),
-        blockHasWorkerPriority(state),
         blockShowsOutputItems(state),
+        blockHasWorkerPriority(state),
         blockHandlesFood(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasRandomizedOutput(state)
     );
 };

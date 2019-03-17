@@ -1,4 +1,11 @@
-const campfire = mapsquare => {
+// Campfire
+// For DanIdle version 4
+// Provides warmth for the colonists, as well as a way to cook meats they collect
+
+import { blockOutputsItems, blockHasWorkerPriority, blockHandlesFood } from "./activeblock.js";
+// import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput.js";  We need to add this... eventually. Hasn't been done yet.
+
+export const campfire = mapsquare => {
     let state = {
         name: "campfire",
         tile: mapsquare,
@@ -57,6 +64,12 @@ const campfire = mapsquare => {
         possibleoutputs: function() {
             // we should probably update this to generate output based on the itemsConversion structure instead
             return ["Deer Meat", "Wolf Meat", "Chicken Meat"];
+        },
+
+        inputsAccepted() {
+            // Returns an array of items that this block accepts
+            return itemsConversion.map(ele => ele.name).filter(iname => unlockeditems.includes(iname));
+            // We will filter out any items that has not been unlocked yet
         },
 
         update() {

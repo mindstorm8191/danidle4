@@ -1,7 +1,7 @@
 // DanIdle Version 4
 // Auto-provider - A cheat-block
 
-let autoprovider = mapsquare => {
+export const autoprovider = mapsquare => {
     // This is a cheat-block. When placed, it will generate multiple storage blocks (to its right) to provide the resources needed below
     // This may also set other game states, such as unlocked items and blocks
     let state = {
@@ -23,7 +23,11 @@ let autoprovider = mapsquare => {
         isActivated: false, // On this block's first run, we will generate all the storage blocks we need. This determines if we have
         // done that already or not.
 
-        update: function() {
+        possibleoutputs() {
+            return [];
+        },
+
+        update() {
             // Allows this block to handle the tasks it needs. Mainly we'll work on filling up the storage chests we have been assigned
             // to put resources into
 
@@ -60,7 +64,7 @@ let autoprovider = mapsquare => {
             population = Math.min(population, 10);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>AutoProvider</b><br />" +
                     "<br />" +
@@ -68,7 +72,7 @@ let autoprovider = mapsquare => {
             );
         },
 
-        updatepanel: function() {} // We probably won't need this for anything here
+        updatepanel() {} // We probably won't need this for anything here
     };
 
     lastblockid++;

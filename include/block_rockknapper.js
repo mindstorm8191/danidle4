@@ -1,4 +1,11 @@
-let rockknapper = mapsquare => {
+// Rock Knapper
+// for DanIdle version 4
+// Produces primitive tools out of rocks
+
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
+
+export const rockknapper = mapsquare => {
     let state = {
         name: "rockknapper",
         tile: mapsquare,
@@ -58,13 +65,16 @@ let rockknapper = mapsquare => {
             }
         ],
 
-        update: function() {
+        // possibleoutputs is defined in HasSelectableCrafting
+        // inputsAccepted is defined in HasSelectableCrafting
+
+        update() {
             if (state.onhand.length > 15) return; // Stop when this reaches a capacity limit
             if (!state.readyToCraft()) return;
             state.processCraft(1);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             $("#sidepanel").html(
                 "<b>Rock Knapper</b><br />" +
                     "<br />" +
@@ -91,14 +101,14 @@ let rockknapper = mapsquare => {
             );
         },
 
-        updatepanel: function() {
+        updatepanel() {
             // This only manages the few stats shown before the output selection
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepaneltarget").html(state.currentCraft);
             $("#sidepanelprogress").html(Math.floor((state.counter / 20) * 100));
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };
@@ -109,8 +119,8 @@ let rockknapper = mapsquare => {
     return Object.assign(
         state,
         blockOutputsItems(state),
-        blockHasSelectableCrafting(state),
         blockHasWorkerPriority(state),
-        blockDeletesClean(state)
+        blockDeletesClean(state),
+        blockHasSelectableCrafting(state)
     );
 };

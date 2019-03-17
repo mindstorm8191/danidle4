@@ -1,4 +1,8 @@
-const blockHasOutputsPerInput = state => ({
+// blockHasOutputsPerInput
+// for DanIdle version 4
+// Provides extra functionality for any blocks where their output is determined by what items are put into it.
+
+export const blockHasOutputsPerInput = state => ({
     // Add-on unit to handle blocks that have outputs based on input types
     // state - state block unit that this is to be added to
     //   must contain a itemsConversion array. This will consist of individual objects for each possible input:
@@ -10,9 +14,9 @@ const blockHasOutputsPerInput = state => ({
 
     inItems: [],
 
-    possibleoutputs: function() {
+    possibleoutputs() {
         // Returns all possible outputs that this block has
-        const red = state.outputitems.map(ele => {
+        const red = state.outputItems.map(ele => {
             return ele.output.map(inner => {
                 return inner.name;
             });
@@ -21,13 +25,18 @@ const blockHasOutputsPerInput = state => ({
         return [...new Set([].concat.apply([], red))];
     },
 
-    readyToCraft: function() {
+    inputsAccepted() {
+        // returns an array of all items this block will accept as an input
+        return state.outputItems.map(ele => ele.name).filter(iname => unlockeditems.includes(iname));
+    },
+
+    readyToCraft() {
         // Returns true if this block is ready to craft an item (aka there's something on hand to work on), or false if not
         if (state.inItems.length > 0) return true;
         return false;
     },
 
-    searchForItems: function(useWorkPoints) {
+    searchForItems(useWorkPoints) {
         // Searches neighboring blocks for valid input items
         // useWorkPoints - Set to true to consume a work point if an item is found
 
@@ -44,7 +53,7 @@ const blockHasOutputsPerInput = state => ({
         });
     },
 
-    processCraft: function(efficiency) {
+    processCraft(efficiency) {
         // Handles progressing the construction of the item we are working on
 
         // Start by determining what we are currently crafting
@@ -62,7 +71,7 @@ const blockHasOutputsPerInput = state => ({
         $("#" + state.tile.id + "progress").css({ width: (state.counter / crafting.craftTime) * 60 });
     },
 
-    completeProduction: function() {
+    completeProduction() {
         // Handles completing the production of the target item. This is placed separately for blocks that don't follow the standard
         // object crafting process.
         // Assumes the first item in the inItems array will need to be produced
