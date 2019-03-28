@@ -9,7 +9,8 @@
     "devDependencies": {
         "cssnano": "^4.1.10",
         "eslint": "^5.15.3",
-        "parcel": "^1.12.3"
+        "parcel": "^1.12.3",
+        "parcel-bundler": "^1.12.3"
     },
     "scripts": {
         "test": "whatever",
