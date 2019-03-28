@@ -1,26 +1,28 @@
 {
-  "name": "danidle4",
-  "version": "1.0.0",
-  "description": "An Idle game climbing a tech tree, starting from nothing but sticks & dirt, working up to advanced tech through automation",
-  "main": "index.js",
-  "dependencies": {
-    "jquery": "^3.3.1"
-  },
-  "devDependencies": {
-    "cssnano": "^4.1.10",
-    "eslint": "^5.15.3"
-  },
-  "scripts": {
-    "test": "whatever"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mindstorm8191/danidle4.git"
-  },
-  "author": "Daniel Bartsch",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mindstorm8191/danidle4/issues"
-  },
-  "homepage": "https://github.com/mindstorm8191/danidle4#readme"
+    "name": "danidle4",
+    "version": "1.0.0",
+    "description": "An Idle game climbing a tech tree, starting from nothing but sticks & dirt, working up to advanced tech through automation",
+    "main": "index.js",
+    "dependencies": {
+        "jquery": "^3.3.1"
+    },
+    "devDependencies": {
+        "cssnano": "^4.1.10",
+        "eslint": "^5.15.3",
+        "parcel": "^1.12.3"
+    },
+    "scripts": {
+        "test": "whatever",
+        "build": "parcel build index.html"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mindstorm8191/danidle4.git"
+    },
+    "author": "Daniel Bartsch",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/mindstorm8191/danidle4/issues"
+    },
+    "homepage": "https://github.com/mindstorm8191/danidle4#readme"
 }
