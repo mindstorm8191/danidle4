@@ -10,12 +10,14 @@ import {
     blockDeletesClean
 } from "./activeblock.js";
 import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput";
+import { game } from "./game.js";
+import $ from "jquery";
 
 export const foragepost = mapsquare => {
     let state = {
         name: "foragepost",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // and potentially other output types (like seeds to plant)
@@ -34,10 +36,23 @@ export const foragepost = mapsquare => {
             return [];
         },
 
+        // willOutput() is already defined in blockOutputsItems
+
+        willAccept() {
+            // Returns true if this block will accept the specified item right now.
+            // This block has no inputs
+            return false;
+        },
+
+        receiveItem() {
+            // Accepts an item as input. Returns true when successful, or false if not.
+            // This block does not accept any input.
+            return false;
+        },
+
         update() {
             if (state.onhand.length >= 15) return; // cannot proceed if this inventory is full
-            if (workpoints <= 0) return;
-            state.processCraft(1);
+            state.processCraft(1); // this function now handles checking & using workPoints.
         },
 
         drawpanel() {
@@ -49,23 +64,26 @@ export const foragepost = mapsquare => {
                     "<br />" +
                     "Collects edible foods from the surrounding environment.  Local supplies can only support up to " +
                     "4 workers. Cannot place another one in this area<br />" +
-                    "<br />" +
-                    state.showPriority() +
+                    "<br />"
+            );
+            state.showPriority();
+            $("#sidepanel").append(
+                "<br />" +
                     "Food on-hand:<br />" +
                     '<span id="sidepanelonhand">' +
                     state.displayItemsOnHand() +
                     "</span><br />" +
                     'Progress to next: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter / 30) * 100) +
+                    Math.floor((state.counter / state.craftTime) * 100) +
                     "</span>%<br />" +
-                    "<br />" +
-                    state.showDeleteLink()
+                    "<br />"
             );
+            state.showDeleteLink();
         },
 
         updatepanel() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
-            $("#sidepanelprogress").html(Math.floor((state.counter / 30) * 100));
+            $("#sidepanelprogress").html(Math.floor((state.counter / state.craftTime) * 100));
         },
 
         deleteblock() {
@@ -77,8 +95,8 @@ export const foragepost = mapsquare => {
             state.finishDelete();
         }
     };
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/foragepost.png" />');
     return Object.assign(

@@ -1,6 +1,11 @@
 // mapmanager.js
 // Classes and other functions to help manage the map
 
+import $ from "jquery";
+import { handlegameboxclick } from "../index.js";
+import { game } from "./game.js";
+// These are essentially input parameters for our code
+
 const directionmap = [
     [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }],
     [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }],
@@ -28,6 +33,13 @@ const directionmap = [
     [{ x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 1 }, { x: 1, y: 0 }]
 ];
 
+let lastMapTileId = 0;
+function nextMapTileId() {
+    // Returns a new unique for a new tile to be used
+    lastMapTileId++;
+    return lastMapTileId;
+}
+
 class maptile {
     constructor(chunk, x, y) {
         this.chunk = chunk;
@@ -35,12 +47,7 @@ class maptile {
         this.ypos = y;
         this.tile = 0; // When generating new land areas, tiles won't be able to contain a land type yet. This will have to be set later
         this.structure = null;
-        if (typeof maptileid === "undefined") {
-            console.log("Fixed maptileid value");
-            maptileid = 0;
-        }
-        this.id = maptileid;
-        maptileid++;
+        this.id = nextMapTileId();
 
         this.vegetation = Math.random(); // we'll store a value between 0 and 1 for this
         // Vegetation determines how quickly weeds and additional trees regrow.  Does not apply to all blocks (such as rocks or water)
@@ -76,11 +83,12 @@ class maptile {
                 "px; left:" +
                 this.xpos * 66 +
                 'px;" ' +
-                '     onclick="handlegameboxclick(' +
-                this.xpos +
-                "," +
-                this.ypos +
-                ')">' +
+                //'     onclick="handlegameboxclick(' +
+                //this.xpos +
+                //"," +
+                //this.ypos +
+                //')"
+                ">" +
                 '  <div class="gametile" id="' +
                 this.id +
                 'gametile" style="background-image:url(' +
@@ -97,6 +105,9 @@ class maptile {
                 "  </div>" +
                 "</div>"
         );
+        document
+            .getElementById(this.id + "gametileholder")
+            .addEventListener("click", () => handlegameboxclick(this.xpos, this.ypos));
         //$("#"+ this.id +"gametile").css("background-image", "url("+ this.image +")");
     }
 }
@@ -105,21 +116,21 @@ class mapchunk {
     // Class to manage map chunks. Chunks (at this time) are 50 squares tall by 50 squares wide. Whenever a new chunk is generated that is a neighbor of another existing chunk,
     // it will generate boimepoints for all shared edges, so the map is more seamless
     constructor(chunkxpos, chunkypos) {
-        if (typeof chunklist[chunkypos] === "undefined") {
+        if (typeof game.chunkList[chunkypos] === "undefined") {
             console.log("Generating 1d array...");
-            chunklist = [];
-            chunklist[chunkypos] = [];
+            //chunkList = [];
+            game.chunkList[chunkypos] = [];
         }
-        if (typeof chunklist[chunkypos][chunkxpos] === "undefined") {
+        if (typeof game.chunkList[chunkypos][chunkxpos] === "undefined") {
             console.log("Generating 2d array...");
-            chunklist[chunkypos] = [];
+            game.chunkList[chunkypos] = [];
         }
 
-        chunklist[chunkypos][chunkxpos] = this;
+        game.chunkList[chunkypos][chunkxpos] = this;
         this.map = [];
-        for (let y = 0; y < chunksize; y++) {
+        for (let y = 0; y < game.chunkSize; y++) {
             this.map[y] = [];
-            for (let x = 0; x < chunksize; x++) {
+            for (let x = 0; x < game.chunkSize; x++) {
                 this.map[y][x] = new maptile(this, x, y);
             }
         }
@@ -128,16 +139,16 @@ class mapchunk {
         // Now check to see if there are any neighboring chunks to use for generating biomepoints
         // start with the top direction
         if (
-            typeof chunklist[chunkypos - 1] != "undefined" &&
-            typeof chunklist[chunkypos - 1][chunkxpos] != "undefined"
+            typeof game.chunkList[chunkypos - 1] != "undefined" &&
+            typeof game.chunkList[chunkypos - 1][chunkxpos] != "undefined"
         ) {
-            // At this point, we can assume that chunklist[y-1][x] is another mapchunk. Run across its bottom edge and generate new biomepoints
+            // At this point, we can assume that chunkList[y-1][x] is another mapchunk. Run across its bottom edge and generate new biomepoints
             console.log("New chunk has a northern neighbor");
-            let sourcechunk = chunklist[chunkypos - 1][chunkxpos];
+            let sourcechunk = game.chunkList[chunkypos - 1][chunkxpos];
             let lastcolormatch = -1;
             let lastpoint = 0;
-            for (let x = 0; x < chunksize; x++) {
-                if (sourcechunk.map[chunksize][x].tile == lastcolormatch) {
+            for (let x = 0; x < game.chunkSize; x++) {
+                if (sourcechunk.map[game.chunkSize][x].tile == lastcolormatch) {
                     lastpoint.stretchcount++; // Same color as last square. Expand that point's range
                 } else {
                     if (lastpoint != 0) {
@@ -145,7 +156,7 @@ class mapchunk {
                         lastpoint.x = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, x, 0, sourcechunk.map[chunksize][x].tile);
+                    lastpoint = new biomepoint(this, x, 0, sourcechunk.map[game.chunkSize][x].tile);
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -157,14 +168,14 @@ class mapchunk {
         }
         // now do the bottom direction
         if (
-            typeof chunklist[chunkypos + 1] != "undefined" &&
-            typeof chunklist[chunkypos + 1][chunkxpos] != "undefined"
+            typeof game.chunkList[chunkypos + 1] != "undefined" &&
+            typeof game.chunkList[chunkypos + 1][chunkxpos] != "undefined"
         ) {
             console.log("New chunk has a southern neighbor");
-            let sourcechunk = chunklist[chunkypos + 1][chunkxpos];
+            let sourcechunk = game.chunkList[chunkypos + 1][chunkxpos];
             let lastcolormatch = -1;
             let lastpoint = 0;
-            for (let x = 0; x < chunksize; x++) {
+            for (let x = 0; x < game.chunkSize; x++) {
                 if (sourcechunk.map[0][x].tile == lastcolormatch) {
                     lastpoint.stretchcount++;
                 } else {
@@ -173,7 +184,7 @@ class mapchunk {
                         lastpoint.x = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, x, chunksize, sourcechunk.map[0][x].tile);
+                    lastpoint = new biomepoint(this, x, game.chunkSize, sourcechunk.map[0][x].tile);
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -182,21 +193,21 @@ class mapchunk {
             lastpoint.x = Math.floor(lastpoint.stretchcount / 2);
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
-        // left side... we can assume that chunklist[chunkypos] already exists
-        if (typeof chunklist[chunkypos][chunkxpos - 1] != "undefined") {
+        // left side... we can assume that chunkList[chunkypos] already exists
+        if (typeof game.chunkList[chunkypos][chunkxpos - 1] != "undefined") {
             console.log("New chunk has a western neighbor");
-            let sourcechunk = chunklist[chunkypos][chunkxpos - 1];
+            let sourcechunk = game.chunkList[chunkypos][chunkxpos - 1];
             let lastcolormatch = -1;
             let lastpoint = 0;
-            for (let y = 0; y < chunksize; y++) {
-                if (sourcechunk.map[y][chunksize].tile == lastcolormatch) {
+            for (let y = 0; y < game.chunkSize; y++) {
+                if (sourcechunk.map[y][game.chunkSize].tile == lastcolormatch) {
                     lastpoint.stretchcount++;
                 } else {
                     if (lastpoint != 0) {
                         lastpoint.y = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, 0, y, sourcechunk.map[y][chunksize].tile);
+                    lastpoint = new biomepoint(this, 0, y, sourcechunk.map[y][game.chunkSize].tile);
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -206,12 +217,12 @@ class mapchunk {
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
         // right side
-        if (typeof chunklist[chunkypos][chunkxpos + 1] != "undefined") {
+        if (typeof game.chunkList[chunkypos][chunkxpos + 1] != "undefined") {
             console.log("New chunk has an eastern neighbor");
-            let sourcechunk = chunklist[chunkypos][chunkxpos + 1];
+            let sourcechunk = game.chunkList[chunkypos][chunkxpos + 1];
             let lastcolormatch = -1;
             let lastpoint = 0;
-            for (let y = 0; y < chunksize; y++) {
+            for (let y = 0; y < game.chunkSize; y++) {
                 if (sourcechunk.map[y][0].tile == lastcolormatch) {
                     lastpoint.stretchcount++;
                 } else {
@@ -219,7 +230,7 @@ class mapchunk {
                         lastpoint.y = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, chunksize, y, sourcechunk.map[y][0].tile);
+                    lastpoint = new biomepoint(this, game.chunkSize, y, sourcechunk.map[y][0].tile);
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -230,14 +241,14 @@ class mapchunk {
         }
 
         // With all the sides considered, we can now generate points for inside the chunk
-        let count = Math.floor((chunksize * chunksize) / mapkinddensity);
+        let count = Math.floor((game.chunkSize * game.chunkSize) / game.mapKindDensity);
         console.log("We have " + count + " new points to generate");
         for (let i = 0; i < count; i++) {
             this.biomepoints.push(
                 new biomepoint(
                     this,
-                    Math.floor(Math.random() * (chunksize - 2)) + 1,
-                    Math.floor(Math.random() * (chunksize - 2)) + 1,
+                    Math.floor(Math.random() * (game.chunkSize - 2)) + 1,
+                    Math.floor(Math.random() * (game.chunkSize - 2)) + 1,
                     Math.floor(Math.random() * 4) + 1
                 )
             );
@@ -287,9 +298,9 @@ class biomepoint {
             let targety = this.points[pickedspot].y + directionmap[pickeddir][i].y;
             //console.log("Trying ["+ targetx +","+ targety +"]");
             if (targety < 0) continue;
-            if (targety >= chunksize) continue;
+            if (targety >= game.chunkSize) continue;
             if (targetx < 0) continue;
-            if (targetx >= chunksize) continue;
+            if (targetx >= game.chunkSize) continue;
             //console.log('Trying at ['+ targetx +','+ targety +'], curtile='+ map[targety][targetx].tile);
             if (this.chunk.map[targety][targetx].tile == 0) {
                 this.chunk.map[targety][targetx].settile(this.c);
@@ -305,5 +316,6 @@ class biomepoint {
 // Now, export these classes so they can be used elsewhere
 module.exports = {
     maptile,
-    mapchunk
+    mapchunk,
+    nextMapTileId
 };

@@ -4,12 +4,14 @@
 
 import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
+import { game } from "./game.js";
+import $ from "jquery";
 
 export const flinttoolmaker = mapsquare => {
     let state = {
         name: "Flint Tool Maker",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         allowOutput: true,
 
@@ -103,8 +105,11 @@ export const flinttoolmaker = mapsquare => {
             }
         ],
 
-        //possibleoutputs is already defined in HasSelectableCrafting
-        //inputsAccepted is already defined in HasSelectableCrafting
+        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // inputsAccepted() is already defined in blockHasSelectableCrafting
+        // willOutput() is already defined in blockOutputsItems
+        // willAccept() is already defined in blockHasSelectableCrafting
+        // receiveItem() is already defined in blockHasSelectableCrafting
 
         update() {
             // Handles updating the stats of this block
@@ -122,24 +127,31 @@ export const flinttoolmaker = mapsquare => {
                     "wooden handles onto your flint blades gives you a few better tools.<br />" +
                     "<br />" +
                     "Provide with twine, sticks and flint tool heads to produce a new variety of tools<br />" +
-                    "<br />" +
-                    state.showPriority() +
+                    "<br />"
+            );
+            state.showPriority();
+            $("#sidepanel").append(
+                "<br />" +
                     "<b>Items Needed</b><br />" +
                     '<div id="sidepanelparts">' +
                     state.drawStocks() +
                     "</div>" +
+                    'Progress: <span id="sidepanelprogress">' +
+                    state.drawProgressPercent() +
+                    "</span></br>" +
                     'Finished tools on hand: <span id="sidepanelonhand">' +
                     state.onhand.length +
-                    "</span><br />" +
-                    state.showDeleteLink() +
-                    "<br />" +
-                    "<br />" +
-                    state.drawOutputChoices()
+                    "</span><br />"
             );
+            state.showDeleteLink();
+            $("#sidepanel").append("<br /><br />");
+            state.drawOutputChoices();
         },
 
         updatepanel() {
             $("#sidepanelparts").html(state.drawStocks());
+            state.updateOutputChoices();
+            $("#sidepanelprogress").html(state.drawProgressPercent());
         },
 
         // pickcraft used to be here, but it is already defined in HasSelectableCrafting
@@ -149,8 +161,8 @@ export const flinttoolmaker = mapsquare => {
         }
     };
 
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/flinttoolset.png" />');
     return Object.assign(

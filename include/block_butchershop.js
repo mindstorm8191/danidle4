@@ -2,20 +2,17 @@
 // for DanIdle version 4
 // Cuts dead animals into smaller meats, easy for cooking. Also outputs animal byproducts, such as fur, bones and feathers
 
-import {
-    blockOutputsItems,
-    blockShowsOutputItems,
-    blockRequiresTool,
-    blockHasWorkerPriority,
-    blockDeletesClean
-} from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
 import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput";
+import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
+import { game } from "./game.js";
+import $ from "jquery";
 
 export const butchershop = mapsquare => {
     let state = {
         name: "butchershop",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         allowOutput: true, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         outputItems: [
@@ -37,33 +34,37 @@ export const butchershop = mapsquare => {
         ],
         toolChoices: ["None", "Flint Knife"],
 
-        // possibleoutputs is already defined in HasOutputsPerInput
-        // inputsAccepted is already defined in HasOutputsPerInput
+        // getItem() is already defined in blockOutputsItems
+        // possibleoutputs() is already defined in blockHasOutputsPerInput
+        // inputsAccepted() is already defined in blockHasOutputsPerInput
+        // willOutput() is already defined in blockOutputsItems
+        // willAccept() is already defined in blockHasOutputsPerInput
+        // receiveItem() is already defined in blockHasOutputsPerInput
 
-        update: function() {
+        update() {
             // Handles updating this block once every turn
             // Most of this is handled by our add-on code blocks
             if (!state.readyToCraft()) {
-                if (workpoints <= 0) return; // We have no workers to work this block anyway
+                if (game.workPoints <= 0) return; // We have no workers to work this block anyway
                 state.searchForItems();
                 return;
             }
-            if (workpoints <= 0) return;
+            if (game.workPoints <= 0) return;
             const eff = state.checkTool();
             if (eff === null) return;
-            workpoints--;
+            game.workPoints--;
             state.processCraft(eff);
         },
 
-        drawpanel: function() {
+        drawpanel() {
             // Handles drawing the contents on the side panel
             let curjob = "n/a";
-            let craftTime = 1;
+            let craftPercent = "n/a";
             if (state.inItems.length > 0) {
                 curjob = state.inItems[0].name;
-                craftTime = state.outputItems.find(ele => {
-                    return ele.name === state.inItems[0].name;
-                }).craftTime;
+                craftPercent = Math.floor(
+                    (state.counter * 100) / state.outputItems.find(ele => ele.name === state.inItems[0].name).craftTime
+                );
             }
             $("#sidepanel").html(
                 "<b><center>Butcher Shop</center></b><br />" +
@@ -72,8 +73,11 @@ export const butchershop = mapsquare => {
                     "faster cooking. Plus, other resources can be extracted from your catches.<br />" +
                     "<br />" +
                     "Chops dead animals into raw meats and other resources.  Requires a knife.<br />" +
-                    "<br />" +
-                    state.showPriority() +
+                    "<br />"
+            );
+            state.showPriority();
+            $("#sidepanel").append(
+                "<br />" +
                     'Items to butcher:<span id="sidepanelinput">' +
                     state.inItems.length +
                     "</span><br />" +
@@ -81,10 +85,12 @@ export const butchershop = mapsquare => {
                     curjob +
                     "</span><br />" +
                     'Current progress: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter / craftTime) * 100) +
-                    "</span><br />" +
-                    state.showDeleteLink() +
-                    "<br />" +
+                    craftPercent +
+                    "</span>%<br />"
+            );
+            state.showDeleteLink();
+            $("#sidepanel").append(
+                "<br />" +
                     "Output items on hand:" +
                     '<div id="sidepanelonhand">' +
                     state.displayItemsOnHand() +
@@ -93,16 +99,14 @@ export const butchershop = mapsquare => {
             state.showTools();
         },
 
-        updatepanel: function() {
+        updatepanel() {
             $("#sidepanelinput").html(state.inItems.length);
             if (state.inItems.length > 0) {
                 $("#sidepanelworking").html(state.inItems[0].name);
                 $("#sidepanelprogress").html(
                     Math.floor(
                         (state.counter * 100) /
-                            state.outputItems.find(ele => {
-                                return ele.name === state.inItems[0].name;
-                            }).craftTime
+                            state.outputItems.find(ele => ele.name === state.inItems[0].name).craftTime
                     )
                 );
             } else {
@@ -110,15 +114,16 @@ export const butchershop = mapsquare => {
                 $("#sidepanelprogress").html("n/a");
             }
             $("#sidepanelonhand").html(state.displayItemsOnHand());
+            state.updateToolPanel();
         },
 
-        deleteblock: function() {
+        deleteblock() {
             state.finishDelete();
         }
     };
 
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/butcher.png" />');
     return Object.assign(

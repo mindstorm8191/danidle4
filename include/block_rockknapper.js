@@ -4,12 +4,14 @@
 
 import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
+import { game } from "./game.js";
+import $ from "jquery";
 
 export const rockknapper = mapsquare => {
     let state = {
         name: "rockknapper",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         allowOutput: true,
         currentcraft: "None", // What this block is currently working on. Note that this is only changed when the crafting cycle resets
@@ -65,8 +67,11 @@ export const rockknapper = mapsquare => {
             }
         ],
 
-        // possibleoutputs is defined in HasSelectableCrafting
-        // inputsAccepted is defined in HasSelectableCrafting
+        // possibleoutputs is already defined in blockHasSelectableCrafting
+        // inputsAccepted is already defined in blockHasSelectableCrafting
+        // willOutput() is already defined in blockOutputsItems
+        // willAccept() is already defined in blockHasSelectableCrafting
+        // receiveItem() is already defined in blockHasSelectableCrafting
 
         update() {
             if (state.onhand.length > 15) return; // Stop when this reaches a capacity limit
@@ -83,37 +88,39 @@ export const rockknapper = mapsquare => {
                     "<br />" +
                     "Knapp rocks to craft either knives or stabbers - you must select one before crafting can begin. " +
                     "Once crafted, place into a storage unit to use where-ever needed.<br />" +
-                    "<br />" +
-                    state.showPriority() +
-                    'Items on hand: <span id="sidepanelonhand">' +
+                    "<br />"
+            );
+            state.showPriority();
+            $("#sidepanel").append(
+                '<br />Items on hand: <span id="sidepanelonhand">' +
                     state.onhand.length +
                     "</span><br />" +
                     'Currently building: <span id="sidepaneltarget">' +
                     state.currentcraft +
                     "</span><br />" +
                     'Current progress: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter / 20) * 100) +
-                    "</span>%<br />" +
-                    state.showDeleteLink() +
-                    "<br />" +
-                    "<br />" +
-                    state.drawOutputChoices()
+                    state.drawProgressPercent() +
+                    "</span>%<br />"
             );
+            state.showDeleteLink();
+            $("#sidepanel").append("<br /><br />");
+            state.drawOutputChoices();
         },
 
         updatepanel() {
             // This only manages the few stats shown before the output selection
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepaneltarget").html(state.currentCraft);
-            $("#sidepanelprogress").html(Math.floor((state.counter / 20) * 100));
+            $("#sidepanelprogress").html(state.drawProgressPercent());
+            state.updateOutputChoices();
         },
 
         deleteblock() {
             state.finishDelete();
         }
     };
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/rockknapper.png" />');
     return Object.assign(

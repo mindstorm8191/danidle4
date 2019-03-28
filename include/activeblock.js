@@ -1,6 +1,9 @@
 // activeblock.js
 // Just a place to put all the add-on function groups we have created
 
+import { game } from "./game.js";
+import $ from "jquery";
+
 export const blockOutputsItems = state => ({
     // Add-on code block for all blocks that output items
 
@@ -57,10 +60,8 @@ export const blockShowsOutputItems = state => ({
         // Providing a count of the items in the onhand array is harder than simply iterating through all the items.
         // We will create a list of items, coupled with the number of occurrences of that item
         let itemslist = [];
-        state.onhand.forEach(function(ele) {
-            const myspot = itemslist.find(function(inlist) {
-                return inlist.name === ele.name;
-            });
+        state.onhand.forEach(ele => {
+            const myspot = itemslist.find(inlist => inlist.name === ele.name);
             if (myspot === undefined) {
                 // This item is not in the list already. Add it now.
                 itemslist.push({ name: ele.name, count: 1 });
@@ -78,9 +79,7 @@ export const blockShowsOutputItems = state => ({
 
         // With our list generated, run through it and output the content we're after
         return itemslist
-            .map(function(ele) {
-                return '<span style="margin-left:30px">' + ele.name + ": <b>" + ele.count + "</b></span><br />";
-            })
+            .map(ele => '<span style="margin-left:30px">' + ele.name + ": <b>" + ele.count + "</b></span><br />")
             .join("");
     }
 });
@@ -91,124 +90,59 @@ export const blockHasWorkerPriority = state => ({
     // state - state object of the block we are using
     //      adds a priority value to the state, which can be adjusted
 
-    priority: blocklist.lastpriority() + 1,
+    priority: game.blockList.lastPriority() + 1,
 
     setPriority(direction) {
         state.priority = Math.max(0, state.priority + direction);
         // Note we cannot have priority values below zero
         // Also note that 'direction' can be any positive or negative value (that will help when jumping by 10 or 100)
         $("#sidepanelpriority").html(state.priority);
-        blocklist.sort(blocklist.compare); // With the new priority level, sort all the blocks again
+        game.blockList.sort(game.blockList.compare); // With the new priority level, sort all the blocks again
     },
 
     showPriority() {
-        // Returns a string that can be shown in drawpanel. Note that the number of arrows shown will change, based on last-used priority
-        let output = "Priority: ";
-        const top = blocklist.lastpriority();
-        if (state.priority > 111) output += '<img src="img/arrowleft3.png" onclick="blockselect.setPriority(-100)"> ';
-        if (state.priority > 11) output += '<img src="img/arrowleft2.png" onclick="blockselect.setPriority(-10)"> ';
-        output +=
-            '<img src="img/arrowleft.png" onclick="blockselect.setPriority(-1)"> ' +
-            '<span id="sidepanelpriority">' +
-            state.priority +
-            "</span> " +
-            '<img src="img/arrowright.png" onclick="blockselect.setPriority(1)">';
-        if ((top > 11) & (state.priority < top - 10))
-            output += '<img src="img/arrowright2.png" onclick="blockselect.setPriority(10)"> ';
-        if ((top > 111) & (state.priority < top - 100))
-            output += '<img src="img/arrowright3.png" onclick="blockselect.setPriority(100)"> ';
-        return output + "<br />";
-    }
-});
+        // Appends data to the side panel to show a priority value, along with arrow buttons to update its value.
+        // Note that the number of arrows shown will change, based on last-used priority
 
-// We will also need a block where tools are optional - call it blockVoluntaryTool
-export const blockRequiresTool = state => ({
-    // Add-on unit for blocks that require one (and only one) tool before it can complete any tasks. Allows the user to select
-    // which tool to use in this block. New tools are grabbed automatically when one breaks.
-    // state - state object of the block we are using
-    //      Must contain a toolChoices array, containing the name (only) of all possible tools that can be used by this block.
-    //          Any tools that have not been unlocked will not be displayed for selection.  This array must contain a 'None'
-    //          option (capitalized), which is what users will start with, and allow them to disable picking up tools
-
-    currentTool: null, // Loaded tool that is being used
-    targetTool: "None", // Which tool the user wants to use when the current tool breaks
-
-    checkTool() {
-        // Used in the block's update() function. Returns the efficiency value for this tool, or null if no tool is available.
-        // If a tool can be used, its endurance counter is deducted from. Once a tool's endurance reaches zero, it will be destroyed;
-        // another tool can then be loaded automatically at that point (if one is selected)
-
-        if (state.currentTool === null) {
-            if (state.targetTool === "None") return null; // We are currently not after any tools
-            state.currentTool = blocklist.getInStorage(state.targetTool);
-            if (state.currentTool === null) return null; // No matching tool was found anywhere
+        $("#sidepanel").append("Priority: ");
+        const top = game.blockList.lastPriority();
+        if (state.priority > 111) {
+            $("#sidepanel").append('<img src="img/arrowleft3.png" id="sidepanelprioritydown3" /> ');
+            document
+                .getElementById("sidepanelprioritydown3")
+                .addEventListener("click", () => game.blockSelect.setPriority(-100));
         }
-        // Now, use the tool
-        state.currentTool.endurance--;
-        if (state.currentTool.endurance <= 0) {
-            let eff = state.currentTool.efficiency;
-            state.currentTool = null;
-            return eff;
-            // Note that, even after the tool is deleted, the block can still progress. We will load a new tool at the next cycle
+        if (state.priority > 11) {
+            $("#sidepanel").append('<img src="img/arrowleft2.png" id="sidepanelprioritydown2" /> ');
+            document
+                .getElementById("sidepanelprioritydown2")
+                .addEventListener("click", () => game.blockSelect.setPriority(-10));
         }
-
-        return state.currentTool.efficiency;
-    },
-
-    showTools() {
-        // Provides a list of tools for the user to select
-
-        $("#sidepanel").append("<br />" + "<b>Tools:</b><br />");
         $("#sidepanel").append(
-            state.toolChoices
-                .filter(function(tool) {
-                    if (tool === "None") return true; // This one gets a free pass
-                    if (unlockeditems.includes(tool)) return true;
-                    return false;
-                })
-                .map(function(ele) {
-                    let color = ele === state.targetTool ? "green" : "red";
-                    return (
-                        '<span class="sidepanelbutton" ' +
-                        'id="sidepaneltool' +
-                        multireplace(ele, " ", "") +
-                        '" ' +
-                        'style="background-color:' +
-                        color +
-                        ';" ' +
-                        'onclick="blocklist.getById(' +
-                        state.id +
-                        ").picktool('" +
-                        ele +
-                        "')\">" +
-                        ele +
-                        "</span>"
-                    );
-                })
-                .join("")
+            '<img src="img/arrowleft.png" id="sidepanelprioritydown1" /> ' +
+                '<span id="sidepanelpriority">' +
+                state.priority +
+                "</span>" +
+                '<img src="img/arrowright.png" id="sidepanelpriorityup1" />'
         );
-    },
-
-    // Note, we don't have a function to be used in updatepanel(); we have nothing to update in there that is specific to tools
-
-    picktool(newtool) {
-        // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
-        // need to access it directly
-
-        $("#sidepaneltool" + multireplace(state.targetTool, " ", "")).css({ "background-color": "red" });
-        state.targetTool = newtool;
-        $("#sidepaneltool" + multireplace(state.targetTool, " ", "")).css({ "background-color": "green" });
-    },
-
-    returnTool() {
-        // Manages returning a used tool when this block is being deleted
-        if (state.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
-
-        var storageSource = blocklist.getById(state.currentTool.storageSource);
-        if (storageSource === undefined) return; // failed to find the source block to store this in. We'll just have to drop the tool.
-        if (storageSource.onhand.length > 10) return; // We have the block, but we have no space left in it. Loosing a used
-        // We could correct the storage source (or blank it out), but if the tool is selected again, it will be set anyway
-        storageSource.onhand.push(state.currentTool);
+        document
+            .getElementById("sidepanelprioritydown1")
+            .addEventListener("click", () => game.blockSelect.setPriority(-1));
+        document
+            .getElementById("sidepanelpriorityup1")
+            .addEventListener("click", () => game.blockSelect.setPriority(1));
+        if (top > 11 && state.priority < top - 10) {
+            $("#sidepanel").append('<img src="img/arrowright2.png" id="sidepanelpriorityup2" /> ');
+            document
+                .getElementById("sidepanelpriorityup2")
+                .addEventListener("click", () => game.blockSelect.setPriority(10));
+        }
+        if (top > 111 && state.priority < top - 100) {
+            $("#sidepanel").append('<img src="img/arrowright3.png" id="sidepanelpriorityup3" /> ');
+            document
+                .getElementById("sidepanelpriorityup3")
+                .addEventListener("click", () => game.blockSelect.setPriority(100));
+        }
     }
 });
 
@@ -218,9 +152,7 @@ export const blockHandlesFood = state => ({
     // to determine where food items could be).
 
     consumeFood(foodID) {
-        let foodspot = state.onhand.findIndex(ele => {
-            return ele.id === foodID;
-        });
+        let foodspot = state.onhand.findIndex(ele => ele.id === foodID);
         if (foodspot === -1) return false;
         state.onhand.splice(foodspot, 1);
         return true;
@@ -230,14 +162,12 @@ export const blockHandlesFood = state => ({
         // Handles all blocks that may be deleted while it contains food. Call this before actually deleting the block in question
 
         for (let i = 0; i < state.onhand.length; i++) {
-            let pos = foodList.findIndex(ele => {
-                return state.onhand[i].id === ele.id;
-            });
+            let pos = game.foodList.findIndex(ele => state.onhand[i].id === ele.id);
             if (pos === -1) {
                 console.log("Failed to find " + state.onhand[i].name + " (id=" + state.onhand[i].id + ") in foodList");
                 continue;
             }
-            foodList.splice(pos, 1);
+            game.foodList.splice(pos, 1);
         }
         // This doesn't null out anything in the onhand array, but once deleted, this block won't have any back-references
     }
@@ -247,8 +177,10 @@ export const blockDeletesClean = state => ({
     //Add-on block for any block that can be deleted without any remaining parts left behind
 
     showDeleteLink() {
-        // Returns a string used to show the delete-block button.
-        return '<a href="#" onclick="blockselect.deleteblock()">Delete Block</a>';
+        // Adds a string to the sidepanel to allow the user to delete the displayed block
+        //return '<a href="#" onclick="blockselect.deleteblock()">Delete Block</a>';
+        $("#sidepanel").append('<a href="#" id="sidepaneldelete">Delete Block</a>');
+        document.getElementById("sidepaneldelete").addEventListener("click", () => game.blockSelect.deleteblock());
     },
 
     finishDelete() {
@@ -263,7 +195,7 @@ export const blockDeletesClean = state => ({
         $("#" + state.tile.id + "imageholder").html("");
         state.tile.structure = null;
         $("#sidepanel").html(" ");
-        blocklist.splice(blocklist.indexOf(this), 1);
-        blockselect = null;
+        game.blockList.splice(game.blockList.indexOf(this), 1);
+        game.blockSelect = null;
     }
 });

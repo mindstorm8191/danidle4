@@ -2,6 +2,11 @@
 // for DanIdle version 4
 // Provides functionality for any block that has multiple possible outputs, which are selected by the user
 
+import { game } from "./game.js";
+import { danCommon } from "./dancommon.js";
+import { item, tool } from "../index.js";
+import $ from "jquery";
+
 export const blockHasSelectableCrafting = state => ({
     // Add-on unit to handle blocks that have multiple output items.
     // state - state object of the block we are using.
@@ -36,34 +41,56 @@ export const blockHasSelectableCrafting = state => ({
         // Rather than returning a fixed array, let's feed data from our tables. If those tables change, we won't
         // have to modify this to update its output
         return state.outputItems
-            .filter(function(inner) {
+            .filter(inner => {
                 if (inner.name === "None") return false; // we don't need to show this item to other blocks
                 // Determine if the prerequisite items has been reached for this possible output
                 if (inner.prereq.length == 0) return true; // This block has no prerequisites anyway
-                return inner.prereq.every(function(needed) {
-                    // ensure that every item in this prereqs list has been unlocked
-                    return unlockeditems.includes(needed);
-                });
+                // ensure that every item in this prereqs list has been unlocked
+                return inner.prereq.every(needed => game.unlockedItems.includes(needed));
             })
-            .map(function(inner) {
-                // Output the only name
-                return inner.name;
-            });
+            .map(inner => inner.name);
+        // Only return the name, as that's all we need
     },
 
     inputsAccepted() {
         // Returns an array containing any items that can be accepted here.
         // We have decided to return all possible items, instead of only the ones related to the current block
-        return removeduplicates(
-            flatten(
-                state.outputItems.map(outitem => {
-                    return outitem.parts.map(ele => ele.name);
-                })
+        return danCommon
+            .removeDuplicates(
+                danCommon.flatten(
+                    state.outputItems.map(outitem => {
+                        // Some elements (such as None) have no parts array. Check that one exists first
+                        if (outitem.parts === undefined) return []; // not to worry, this will factor out through flatten
+                        return outitem.parts.map(ele => ele.name);
+                    })
+                )
             )
-        ).filter(item => {
-            // We need to exclude any items that has not been unlocked yet.
-            return unlockeditems.includes(item);
-        });
+            .filter(item => game.unlockedItems.includes(item));
+        // We need to exclude any items that has not been unlocked yet.
+    },
+
+    willAccept(itemname) {
+        // Returns true if this block will accept the specified item right now.
+
+        return state.partsPending().includes(itemname);
+        //... well THAT turned out to be easier than expected. The partsPending returns a list of everything we are currently waiting,
+        // before we can craft the target item
+    },
+
+    receiveItem(item) {
+        // Accepts an item as input. Returns true when successful, or false if not.
+        //state.stockList.push(item);
+        const slot = state.stockList.find(ele => ele.name == item.name);
+        if (slot === undefined) {
+            state.stockList.push({ name: item.name, hold: [item] });
+            return true;
+        }
+        slot.hold.push(item);
+        return true;
+        // This works for now, but I worry that it may allow resources on-hand to grow to crazy amounts. Yet I'm not sure how to
+        // prevent that. Setting a fixed limit on input resources may lead to some items being uncraftable (you could get 100 of
+        // part A and be unable to receive part B).  However, the chances of this item getting over-filled (as of right now)
+        // are kinda slim.
     },
 
     readyToCraft() {
@@ -76,7 +103,7 @@ export const blockHasSelectableCrafting = state => ({
         }
 
         // Also report if we have work points available
-        if (workpoints <= 0) return false;
+        if (game.workPoints <= 0) return false;
 
         // Now, we need to determine if we have all the parts needed. Doing so can be difficult, but we have a function that
         // returns an array of each item we need. We can simply re-purpose that
@@ -89,22 +116,16 @@ export const blockHasSelectableCrafting = state => ({
         if (state.currentCraft === "None") return [];
 
         return state.outputItems
-            .find(function(ele) {
-                return ele.name === state.currentCraft;
-            })
-            .parts.filter(function(listing) {
+            .find(ele => ele.name === state.currentCraft)
+            .parts.filter(listing => {
                 // Here, we should return true whenever there isn't enough of that element on-hand to produce the target item
-                const inStock = state.stockList.find(function(ele) {
-                    return listing.name === ele.name;
-                });
+                const inStock = state.stockList.find(ele => listing.name === ele.name);
                 // Since stockList is built on an as-needed basis, we might not have results from this
                 if (!inStock) return true;
                 return inStock.hold.length < listing.qty;
             })
-            .map(function(ele) {
-                // With our array of part objects, we need to convert this into single item names
-                return ele.name;
-            });
+            .map(ele => ele.name);
+        // With our array of part objects, we need to convert this into only item names
     },
 
     processCraft(efficiency) {
@@ -116,34 +137,42 @@ export const blockHasSelectableCrafting = state => ({
         if (state.currentCraft === "None") return;
 
         // Next, we should get access to the object we are crafting, since we'll be reaching for this information frequently
-        const crafting = state.outputItems.find(function(ele) {
-            return ele.name === state.currentCraft;
-        });
+        const crafting = state.outputItems.find(ele => ele.name === state.currentCraft);
 
-        workpoints--;
+        game.workPoints--;
         state.counter += efficiency;
+        //console.log("Block " + state.name + " using " + efficiency + " efficiency");
         if (state.counter >= crafting.craftTime) {
             state.counter -= crafting.craftTime;
+            // We need to account for the quantity of output items here. Not all items have a specified output quantity, so we
+            // we need to check for a value first.
+            let craftQty = 1;
+            if (!(crafting.craftQty === undefined)) craftQty = crafting.craftQty;
             if (crafting.isTool === false) {
-                state.onhand.push(item(crafting.name));
+                for (let i = 0; i < craftQty; i++) {
+                    state.onhand.push(item(crafting.name));
+                }
             } else {
-                state.onhand.push(tool(crafting.name, crafting.efficiency, crafting.endurance));
-                // Adjust the endurance (and gains) amounts
-                crafting.endurance += crafting.enduranceGain;
-                crafting.efficiency += crafting.efficiencyGain;
-                crafting.enduranceGain = Math.max(0, crafting.enduranceGain - crafting.enduranceTaper);
-                crafting.efficiencyGain = Math.max(0, crafting.efficiencyGain - crafting.efficiencyTaper);
-                // Now, switch to the next item the user wants us to craft
+                for (let i = 0; i < craftQty; i++) {
+                    state.onhand.push(tool(crafting.name, crafting.efficiency, crafting.endurance));
+                    // Adjust the endurance (and gains) amounts
+                    crafting.endurance += crafting.enduranceGain;
+                    crafting.efficiency += crafting.efficiencyGain;
+                    crafting.enduranceGain = Math.max(0, crafting.enduranceGain - crafting.enduranceTaper);
+                    crafting.efficiencyGain = Math.max(0, crafting.efficiencyGain - crafting.efficiencyTaper);
+                    // Now, switch to the next item the user wants us to craft
+                }
             }
             state.currentCraft = state.targetCraft;
+            // Ensure we can start this.  If not, we should set the progress counter to zero. This will allow us to change crafting targets
+            // if the current one cannot be done.
+            if (!state.readyToCraft()) {
+                state.counter = 0;
+            }
 
             // Run through all parts this item needs, and remove those items from the stockList
-            crafting.parts.forEach(function(ele) {
-                state.stockList
-                    .find(function(inner) {
-                        return inner.name === ele.name;
-                    })
-                    .hold.splice(0, ele.qty);
+            crafting.parts.forEach(ele => {
+                state.stockList.find(inner => inner.name === ele.name).hold.splice(0, ele.qty);
             });
         }
         // Now update the displayed progress bar for this block. This will be highly dependent on what is being crafted here
@@ -154,16 +183,21 @@ export const blockHasSelectableCrafting = state => ({
         // Searches neighbor blocks for items that this block needs before it can craft its target item
 
         const needed = state.partsPending();
+        let cyclecount = 0;
         if (needed.length === 0) return; // We already have everything we need here
-        blocklist.neighbors(state.tile).find(function(neighbor) {
+        game.blockList.neighbors(state.tile).find(neighbor => {
             // Here, we want to return on the first instance where we find a matching item
+            cyclecount++;
+            if (neighbor === undefined) {
+                console.log(
+                    "Error - neighbor not defined (working block " + state.name + ", neighbor pass=" + cyclecount + ")"
+                );
+            }
             let pickup = neighbor.getItem(needed);
             if (pickup === null) return false; // we found no items from this block
             // Since we don't have a standard input array here, we need to do a bit more work to determine where this item gets
             // stored.
-            let mybox = state.stockList.find(function(ele) {
-                return ele.name === pickup.name;
-            });
+            let mybox = state.stockList.find(ele => ele.name === pickup.name);
             //console.log(mybox);
             if (mybox === undefined) {
                 state.stockList.push({ name: pickup.name, hold: [pickup] }); // the picked up item will be the first item in the array
@@ -181,20 +215,16 @@ export const blockHasSelectableCrafting = state => ({
 
         // Start by checking if we have selected anything to craft
         if (state.targetCraft === "None") {
-            return "First, pick a tool to craft!";
+            return "First, pick something to craft!";
         }
         console.log(state.targetCraft);
+        // start by finding the matching output item we are trying to craft
         return state.outputItems
-            .find(function(ele) {
-                // start by finding the matching output item we are trying to craft
-                return ele.name === state.targetCraft;
-            })
-            .parts.map(function(ele) {
+            .find(ele => ele.name === state.targetCraft)
+            .parts.map(ele => {
                 // Unlike before, we need to check that our target item has a space in stockList. If not, simply give it zero
                 let onhand = 0;
-                const slot = state.stockList.find(function(get) {
-                    return get.name === ele.name;
-                });
+                const slot = state.stockList.find(get => get.name === ele.name);
                 if (slot !== undefined) onhand = slot.hold.length;
 
                 return ele.name + ": " + onhand + " of " + ele.qty + "<br />";
@@ -202,54 +232,106 @@ export const blockHasSelectableCrafting = state => ({
             .join("");
     },
 
+    drawProgressPercent() {
+        // Returns a value between 0 and 100, of the percentage of progress in completing the current crafting task.
+        // Note that it'll be up to the block to display the percentage after the value
+
+        if (state.targetCraft === "None") {
+            return "---";
+        }
+        return Math.floor(
+            (state.counter / state.outputItems.find(ele => ele.name === state.targetCraft).craftTime) * 100
+        );
+    },
+
     drawOutputChoices() {
-        // Appends content to the side panel. Use this in drawpanel(); assumes any other content has been generated
-        return (
-            "<b>Select an output:</b><br />" +
-            state.outputItems
-                .filter(function(ele) {
-                    // start by filtering out the blocks we cannot craft
-                    //console.log(ele);
-                    if (ele.name === "None") return true; // This one gets a free pass...
-                    if (ele.prereq.length === 0) return true; // This one has no prerequisites anyway
-                    return ele.prereq.every(function(needed) {
-                        // ensure that every item in this prereqs list has been unlocked
-                        return unlockeditems.includes(needed);
-                    });
-                })
-                .map(function(ele) {
-                    // For each one, generate a string to return, containing our target output, specific to this item
-                    let color = state.targetCraft === ele.name ? "green" : "grey";
-                    return (
-                        '<span class="sidepanelbutton" ' +
+        // Appends content to the side panel, showing all available output options this block has. Use this in drawpanel(); assumes any
+        // other content has been generated
+
+        // Before, we were returning a string that could be shown in drawPanel. However, since we must use addEventListener manually, we cannot
+        // do that here. jQuery will ensure that the DOM element is generated correctly before trying to use addEventListener.
+        $("#sidepanel").append("<b>Select an output:</b><br />");
+        state.outputItems
+            .filter(ele => {
+                // start by filtering out the blocks we cannot craft
+                //console.log(ele);
+                if (ele.name === "None") return true; // This one gets a free pass...
+                if (ele.prereq.length === 0) return true; // This one has no prerequisites anyway
+                // ensure that every item in this prereqs list has been unlocked
+                return ele.prereq.every(needed => game.unlockedItems.includes(needed));
+            })
+            .forEach(ele => {
+                // For each one, generate a string to return, containing our target output, specific to this item
+                //let color = state.targetCraft === ele.name ? "green" : "grey";
+                $("#sidepanel").append(
+                    '<span class="sidepanelbutton" ' +
                         'id="sidepanelchoice' +
-                        multireplace(ele.name, " ", "") +
+                        danCommon.multiReplace(ele.name, " ", "") +
                         '" ' +
                         'style="background-color:' +
-                        color +
-                        ';" ' +
-                        'onclick="blocklist.getById(' +
-                        state.id +
-                        ").pickcraft('" +
-                        ele.name +
-                        "')\">" +
+                        state.chooseCraftColor(ele.name) +
+                        ';" >' +
                         ele.name +
                         "</span>"
-                    );
-                })
-                .join("") // combine all the elements into a single string to pass to .append()
-            // array.join()'s default sparator is ',', so give it a null string for a separator here
-        );
+                );
+                document
+                    .getElementById("sidepanelchoice" + danCommon.multiReplace(ele.name, " ", ""))
+                    .addEventListener("click", () => game.blockList.getById(state.id).pickcraft(ele.name));
+            });
+    },
+
+    updateOutputChoices() {
+        // Handles updating the displayed output choices shown on the side panel
+        state.outputItems
+            .filter(ele => {
+                if (ele.name === "None") return true;
+                if (ele.prereq.length === 0) return true;
+                return ele.prereq.every(needed => {
+                    return game.unlockedItems.includes(needed);
+                });
+            })
+            .forEach(ele => {
+                $("#sidepanelchoice" + danCommon.multiReplace(ele.name, " ", "")).css({
+                    "background-color": state.chooseCraftColor(ele.name)
+                });
+            });
+    },
+
+    chooseCraftColor(craftname) {
+        // Determines what color to render the given tool under (as the background to the span block).
+
+        // The big deciding factor is whether or not the given tool can craft the selected item. However, not all blocks will list tools
+        // needed to craft a given item.  Check for that first.
+        const craftInfo = state.outputItems.find(ele => ele.name === craftname);
+        if (craftInfo === undefined)
+            console.log(
+                "Error in blockHasSelectableCrafting->chooseCraftColor: failed to find item in state.outputItems (target=" +
+                    craftname +
+                    ")"
+            );
+        if (!(craftInfo.toolsUsable === undefined)) {
+            // At this point, we can assume that targetTool exists
+            if (!craftInfo.toolsUsable.includes(state.targetTool)) return "white";
+        }
+        // With the case of tools out of the way, we can move onto standard procedures
+
+        if (state.targetCraft === craftname) return "green";
+        return "grey";
     },
 
     pickcraft(newcraft) {
         // Handles changing state.targetcraft, which decides what is crafted next
-        $("#sidepanelchoice" + multireplace(state.targetCraft, " ", "")).css({
-            "background-color": "grey"
-        });
+        const previousCraft = state.targetCraft;
         state.targetCraft = newcraft;
-        $("#sidepanelchoice" + multireplace(state.targetCraft, " ", "")).css({
-            "background-color": "green"
+        $("#sidepanelchoice" + danCommon.multiReplace(previousCraft, " ", "")).css({
+            "background-color": state.chooseCraftColor(previousCraft)
         });
+        $("#sidepanelchoice" + danCommon.multiReplace(state.targetCraft, " ", "")).css({
+            "background-color": state.chooseCraftColor(state.targetCraft)
+        });
+        // Now, determine if we can go ahead and change the current craft item to this.  This will only apply if the progress counter is zero
+        if (state.counter === 0) {
+            state.currentCraft = state.targetCraft;
+        }
     }
 });

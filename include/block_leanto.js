@@ -1,8 +1,12 @@
-let leanto = mapsquare => {
+import { blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { game } from "./game.js";
+import $ from "jquery";
+
+export const leanto = mapsquare => {
     let state = {
         name: "leanto",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         endurance: 0, // Rather than using the counter to count down, we will use a second variable to determine how much
         // total endurance we can generate within the 'construction' time (based on what tools are used)
@@ -18,20 +22,32 @@ let leanto = mapsquare => {
             return [];
         },
 
-        willOutput(itemname) {
+        willOutput() {
             // This block doesn't output any items
+            return false;
+        },
+
+        willAccept() {
+            // Returns true if this block will accept the given item right now.
+            // However, this block does not accept any items
+            return false;
+        },
+
+        receiveItem() {
+            // Accepts an item as input. Returns true if successful, or false if not.
+            // This block does not accept any items.
             return false;
         },
 
         update() {
             // Handles updating this block every tick
-
+            //console.log("workpoints=" + game.workPoints + ", pop=" + game.population);
             if (state.status == 0) {
                 // This device is currently under construction
                 // We may add a check for the availability of tools later, but for now we will simply assume none are available
 
-                if (workpoints <= 0) return; // Unable to build this without a worker
-                workpoints--;
+                if (game.workPoints <= 0) return; // Unable to build this without a worker
+                game.workPoints--;
 
                 state.counter++;
                 state.endurance += 5;
@@ -65,24 +81,26 @@ let leanto = mapsquare => {
                     "the elements itself. With luck, youll be able to upgrade this soon enough<br />" +
                     "<br />" +
                     "Once set up, will require regular maintenance to remain functional.<br />" +
-                    "<br />" +
-                    state.showPriority() +
                     "<br />"
             );
+            state.showPriority();
             if (state.status == 0) {
                 $("#sidepanel").append(
-                    'Status: <span id="sidepanelstatus">Building: ' +
+                    "<br />" +
+                        'Status: <span id="sidepanelstatus">Building: ' +
                         Math.floor(state.counter / 1.2) +
                         "% complete</span>"
                 );
             } else {
                 $("#sidepanel").append(
-                    'Status: <span id="sidepanelstatus">In use. ' +
+                    "<br />" +
+                        'Status: <span id="sidepanelstatus">In use. ' +
                         Math.floor(state.endurance / 6) +
                         "% lifespan remaining</span>"
                 );
             }
-            $("#sidepanel").append("<br />" + state.showDeleteLink());
+            $("#sidepanel").append("<br />");
+            state.showDeleteLink();
         },
 
         updatepanel() {
@@ -95,7 +113,7 @@ let leanto = mapsquare => {
             }
         },
 
-        getItem(itemlist) {
+        getItem() {
             return null; // This block has no items and outputs no items
         },
 
@@ -103,8 +121,8 @@ let leanto = mapsquare => {
             state.finishDelete();
         }
     };
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
     return Object.assign(state, blockHasWorkerPriority(state), blockDeletesClean(state));

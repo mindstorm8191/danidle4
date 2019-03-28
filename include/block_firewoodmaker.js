@@ -4,12 +4,14 @@
 
 import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
 import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput.js";
+import { game } from "./game.js";
+import $ from "jquery";
 
 export const firewoodmaker = mapsquare => {
     let state = {
         name: "firewoodmaker",
         tile: mapsquare,
-        id: lastblockid,
+        id: game.lastBlockId,
         counter: 0,
         allowOutput: true,
         craftTime: 6,
@@ -21,10 +23,23 @@ export const firewoodmaker = mapsquare => {
         ],
 
         //possibleoutputs is defined in HasRandomizedOutput
+        // willOutput() is already defined in blockOutputsItems
 
         inputsAccepted() {
             // This block does not have any inputs
             return [];
+        },
+
+        willAccept() {
+            // Returns true if this block will accept the specified item right now.
+            // This block has no (item) input
+            return false;
+        },
+
+        receiveItem() {
+            // Accepts an item as input. Returns true if successful, or false if not.
+            // This block does not have any items for input.
+            return false;
         },
 
         update() {
@@ -40,16 +55,19 @@ export const firewoodmaker = mapsquare => {
                     "and burns much better than freshly cut wood.<br />" +
                     "<br />" +
                     "Collects firewood from the surrounding lands. Place next to a campfire to provide the fire with fuel.<br />" +
-                    "<br />" +
-                    state.showPriority() +
+                    "<br />"
+            );
+            state.showPriority();
+            $("#sidepanel").append(
+                "<br />" +
                     'Current progress: <span id="sidepanelprogress">' +
                     Math.floor((state.counter / state.craftTime) * 100) +
                     "</span>%<br />" +
                     'Wood on hand: <span id="sidepanelonhand">' +
                     state.onhand.length +
-                    "</span><br />" +
-                    state.showDeleteLink()
+                    "</span><br />"
             );
+            state.showDeleteLink();
         },
 
         updatepanel() {
@@ -61,8 +79,8 @@ export const firewoodmaker = mapsquare => {
             state.finishDelete();
         }
     };
-    lastblockid++;
-    blocklist.push(state);
+    game.lastBlockId++;
+    game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/firewoodmaker.png" />');
     return Object.assign(

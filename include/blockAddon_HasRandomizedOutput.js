@@ -2,6 +2,11 @@
 // for DanIdle version 4
 // Provides extra functionality for any blocks where their output is picked at random from a fixed list
 
+import { game } from "./game.js";
+import { danCommon } from "./dancommon.js";
+import { food, item } from "../index.js";
+import $ from "jquery";
+
 export const blockHasRandomizedOutput = state => ({
     // Add-on unit to handle blocks that produce randomized output. This will assume each output has random chance of success
     // state - state object of the block we are using
@@ -16,9 +21,7 @@ export const blockHasRandomizedOutput = state => ({
         // Returns any potential items that this block can output.
         if (state.allowOutput === false) return []; // Output items aren't allowed here anyway
 
-        return state.outputItems.map(ele => {
-            return ele.name;
-        });
+        return state.outputItems.map(ele => ele.name);
     },
 
     // We cannot place an acceptsinput function here, as other block types may choose to accept items yet still have randomized output.
@@ -35,13 +38,13 @@ export const blockHasRandomizedOutput = state => ({
             );
         }
         // Start by making sure we have a free worker
-        if (workpoints <= 0) return;
-        workpoints--;
+        if (game.workPoints <= 0) return;
+        game.workPoints--;
 
         state.counter += efficiency;
         if (state.counter >= state.craftTime) {
             state.counter -= state.craftTime;
-            const selected = getRandomFrom(state.outputItems);
+            const selected = danCommon.getRandomFrom(state.outputItems);
             if (selected.isFood === true) {
                 state.onhand.push(food(selected.name, selected.shelfLife, state));
             } else {
