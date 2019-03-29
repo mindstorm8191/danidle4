@@ -83,6 +83,10 @@ export const blockRequiresTool = state => ({
 
         // Start by showing the user a header section for this tool type
         state.toolChoices.forEach(group => {
+            if (group.targetTool === undefined) {
+                group.targetTool = "None";
+                group.currentTool = null;
+            }
             $("#sidepanel").append(
                 "<br />" +
                     "<b>" +
@@ -93,8 +97,29 @@ export const blockRequiresTool = state => ({
                     (group.currentTool === null ? "None" : group.currentTool.name) +
                     ")<br />"
             );
+            // Next, run through all choosable tools and display them, including a way to select them
+            group.choices
+                .filter(tool => {
+                    if (tool === "None") return true; // This gets a free pass
+                    return game.unlockedItems.includes(tool);
+                })
+                .forEach(choice => {
+                    $("#sidepanel").append(
+                        '<span class="sidepanelbutton" id="sidepaneltool' +
+                            danCommon.multiReplace(choice, " ", "") +
+                            '" ' +
+                            'style="background-color:' +
+                            state.chooseToolColor(choice) +
+                            ';">' +
+                            choice +
+                            "</span>"
+                    );
+                    document
+                        .getElementById("sidepaneltool" + danCommon.multiReplace(choice, " ", ""))
+                        .addEventListener("click", () => game.blockSelect.picktool(group.groupName, choice));
+                });
         });
-
+        /*
         state.toolChoices
             .filter(function(tool) {
                 if (tool === "None") return true; // This one gets a free pass
@@ -122,11 +147,24 @@ export const blockRequiresTool = state => ({
                     .getElementById("sidepaneltool" + danCommon.multiReplace(ele, " ", ""))
                     .addEventListener("click", () => game.blockSelect.picktool(ele));
             });
+*/
     },
 
     updateToolPanel() {
         // Handles updating the color of the tools that are shown on the side panel.  Call this during updatepanel().
-        state.toolChoices
+        state.toolChoices.forEach(group => {
+            group.choices
+                .filter(tool => {
+                    if (tool === "None") return true;
+                    return game.unlockItems.includes(tool);
+                })
+                .forEach(tool => {
+                    $("#sidepaneltool" + danCommon.multiReplace(tool, " ", "")).css({
+                        "background-color": state.chooseToolColor(tool)
+                    });
+                });
+        });
+        /*        state.toolChoices
             .filter(tool => {
                 if (tool === "None") return true;
                 if (game.unlockedItems.includes(tool)) return true;
@@ -136,7 +174,7 @@ export const blockRequiresTool = state => ({
                 $("#sidepaneltool" + danCommon.multiReplace(ele, " ", "")).css({
                     "background-color": state.chooseToolColor(ele)
                 });
-            });
+            });*/
     },
 
     chooseToolColor(toolname) {

@@ -17,7 +17,7 @@ export const twinemaker = mapsquare => {
         counter: 0,
         craftTime: 20,
         allowOutput: true,
-        toolChoices: [{ groupName: "Cutter", required: true, choices: ["None", "Flint Knife"] }],
+        toolChoices: [{ groupName: "Cutter", isRequired: true, choices: ["None", "Flint Knife"] }],
         // List of tools this block can use. There's only one possible tool at this time, though
         // Later on we will move this list to an external source, and utilize all knives possible
 

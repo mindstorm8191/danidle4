@@ -14,7 +14,7 @@
     },
     "scripts": {
         "test": "whatever",
-        "build": "parcel build index.html"
+        "build": "cp img dist/img && npm run build"
     },
     "repository": {
         "type": "git",

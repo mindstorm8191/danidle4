@@ -5,6 +5,7 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
+// 1) Modify the blockRequiresTool add-on to allow multiple tools to be included. Adding multiple should be easier than generating a new add-on
 // 1) Search for places where array.some() would work better than array.find()
 // 1) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
 // 2) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
@@ -23,9 +24,8 @@
 //    Change its tooltip text at the same time.
 
 // Things to look up:
-// ESLint
-// ES6 Modules - https://medium.freecodecamp.org/how-to-use-es6-modules-and-why-theyre-important-a9b20b480773
 // JSDocs
+// Start using Template Literals (backticks to define content, then ${varname} to fill with data)
 
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
@@ -59,6 +59,7 @@ import $ from "jquery";
 import { game } from "./include/game.js";
 import { mapchunk } from "./include/mapmanager.js";
 import { autoprovider } from "./include/block_autoprovider.js";
+//import {} from "./img/*";
 
 const cheatenabled = true; // Set this to true to allow the AutoProvider to be displayed.
 const TILE_GRASS = 1; // land type of grass
