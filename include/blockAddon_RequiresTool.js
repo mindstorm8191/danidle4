@@ -156,7 +156,7 @@ export const blockRequiresTool = state => ({
             group.choices
                 .filter(tool => {
                     if (tool === "None") return true;
-                    return game.unlockItems.includes(tool);
+                    return game.unlockedItems.includes(tool);
                 })
                 .forEach(tool => {
                     $("#sidepaneltool" + danCommon.multiReplace(tool, " ", "")).css({
@@ -164,17 +164,6 @@ export const blockRequiresTool = state => ({
                     });
                 });
         });
-        /*        state.toolChoices
-            .filter(tool => {
-                if (tool === "None") return true;
-                if (game.unlockedItems.includes(tool)) return true;
-                return false;
-            })
-            .forEach(ele => {
-                $("#sidepaneltool" + danCommon.multiReplace(ele, " ", "")).css({
-                    "background-color": state.chooseToolColor(ele)
-                });
-            });*/
     },
 
     chooseToolColor(toolname) {
@@ -220,17 +209,18 @@ export const blockRequiresTool = state => ({
 
     // Note, we don't have a function to be used in updatepanel(); we have nothing to update in there that is specific to tools
 
-    picktool(newtool) {
+    picktool(toolgroup, newtool) {
         // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
         // need to access it directly
 
-        const lasttool = state.targetTool;
-        state.targetTool = newtool;
+        const group = state.toolChoices.find(group => group.groupName === toolgroup);
+        const lasttool = group.targetTool;
+        group.targetTool = newtool;
         $("#sidepaneltool" + danCommon.multiReplace(lasttool, " ", "")).css({
             "background-color": state.chooseToolColor(lasttool)
         });
-        $("#sidepaneltool" + danCommon.multiReplace(state.targetTool, " ", "")).css({
-            "background-color": state.chooseToolColor(state.targetTool)
+        $("#sidepaneltool" + danCommon.multiReplace(group.targetTool, " ", "")).css({
+            "background-color": state.chooseToolColor(group.targetTool)
         });
     },
 
