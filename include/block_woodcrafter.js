@@ -15,7 +15,7 @@ export const woodcrafter = mapsquare => {
         id: game.lastBlockId,
         counter: 0,
         allowOutput: true,
-        toolChoices: ["None", "Flint Hatchet"],
+        toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Hatchet"] }],
         outputItems: [
             { name: "None", prereq: [], parts: [], isTool: false },
             {

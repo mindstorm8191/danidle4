@@ -61,7 +61,7 @@ export const twinemaker = mapsquare => {
                 state.onhand.push(item("Twine"));
                 state.counter -= state.craftTime;
             }
-            $("#" + state.tile.id + "progress").css({ width: (state.counter * state.craftTime) / 60 });
+            $("#" + state.tile.id + "progress").css({ width: (state.counter / state.craftTime) * 60 });
         },
 
         drawpanel() {

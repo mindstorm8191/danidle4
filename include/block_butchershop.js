@@ -32,7 +32,7 @@ export const butchershop = mapsquare => {
                 output: [{ name: "Raw Chicken Meat", qty: 2 }, { name: "Bone", qty: 1 }, { name: "Feather", qty: 5 }]
             }
         ],
-        toolChoices: ["None", "Flint Knife"],
+        toolChoices: [{ groupName: "Cutter", isRequired: true, choices: ["None", "Flint Knife"] }],
 
         // getItem() is already defined in blockOutputsItems
         // possibleoutputs() is already defined in blockHasOutputsPerInput

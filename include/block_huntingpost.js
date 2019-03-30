@@ -21,7 +21,7 @@ export const huntingpost = mapsquare => {
             { name: "Dead Wolf", isFood: false },
             { name: "Dead Chicken", isFood: false }
         ],
-        toolChoices: ["None", "Flint Spear"],
+        toolChoices: [{ groupName: "Spear", isRequired: true, choices: ["None", "Flint Spear"] }],
         craftTime: 30,
 
         // possibleoutputs is defined in HasRandomizedOutput

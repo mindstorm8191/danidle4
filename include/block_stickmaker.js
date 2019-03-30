@@ -15,7 +15,7 @@ export const stickmaker = mapsquare => {
         id: game.lastBlockId,
         counter: 0,
         allowOutput: true,
-        toolChoices: ["None", "Flint Stabber", "Flint Hatchet"],
+        toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
         currenttool: null,
         targettool: "None",
         outputItems: [

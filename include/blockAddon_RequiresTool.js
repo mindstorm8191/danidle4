@@ -47,17 +47,28 @@ export const blockRequiresTool = state => ({
                 if (ele.currentTool === null) {
                     if (ele.targetTool === "None") return !ele.isRequired;
                     ele.currentTool = game.blockList.getInStorage(ele.targetTool);
-                    if (ele.currentTool === null) return !ele.isRequired;
+                    if (ele.currentTool === null) {
+                        console.log("Could not find tool " + ele.targetTool);
+                        return !ele.isRequired;
+                    } else {
+                        console.log("Tool (target " + ele.targetTool + ") loaded (got " + ele.currentTool.name + ")");
+                    }
                 }
+                return true;
             })
         )
             return null;
 
-        return state.toolChoices.reduce((sum, ele) => {
-            if (ele.currentTool === null) return sum;
-            ele.currentTool.endurance--;
-            return sum + ele.currenTool.efficiency;
-        });
+        // Now, reduce the total endurance of each tool we're using here
+        state.toolChoices
+            .filter(group => !(group.currentTool === null))
+            .forEach(group => group.currentTool.endurance--);
+
+        // Now return the sum of efficiency that all the tools provide
+        return state.toolChoices
+            .filter(group => !(group.currentTool === null))
+            .map(group => group.currentTool.efficiency)
+            .reduce((sum, value) => sum + value);
         /*
         if (state.currentTool === null) {
             if (state.targetTool === "None") return null; // We are currently not after any tools
@@ -109,7 +120,7 @@ export const blockRequiresTool = state => ({
                             danCommon.multiReplace(choice, " ", "") +
                             '" ' +
                             'style="background-color:' +
-                            state.chooseToolColor(choice) +
+                            state.chooseToolColor(group.groupName, choice) +
                             ';">' +
                             choice +
                             "</span>"
@@ -160,18 +171,21 @@ export const blockRequiresTool = state => ({
                 })
                 .forEach(tool => {
                     $("#sidepaneltool" + danCommon.multiReplace(tool, " ", "")).css({
-                        "background-color": state.chooseToolColor(tool)
+                        "background-color": state.chooseToolColor(group.groupName, tool)
                     });
                 });
         });
     },
 
-    chooseToolColor(toolname) {
+    chooseToolColor(groupName, toolname) {
         // Returns a color name that should be used to show this tool. Color is decided on whether it is selected and if any are available
+
+        // We should start by 'resolving' the toolname to a tool group (we use that a lot here, to determine if it's the current one in use)
+        const group = state.toolChoices.find(g => (g.groupName = groupName));
 
         if (toolname === "None") {
             // 'none' fits a different category than other tools. It is always available
-            if (state.targetTool === "None") {
+            if (group.targetTool === "None") {
                 return "green"; // active & in use, available
             }
             return "grey"; // not active, but available
@@ -196,12 +210,14 @@ export const blockRequiresTool = state => ({
         }
 
         if (game.blockList.isInStorage(toolname)) {
-            if (state.targetTool === toolname) {
+            //console.log("Tool found in storage");
+            if (group.targetTool === toolname) {
                 return "green"; // active & in use, with more available
             }
             return "grey"; // not active, but available
         }
-        if (state.targetTool === toolname) {
+        //console.log("Tool " + toolname + " not found in storage");
+        if (group.targetTool === toolname) {
             return "orange"; // active in use, but no more are available
         }
         return "red"; // not in use, none are available
@@ -212,7 +228,6 @@ export const blockRequiresTool = state => ({
     picktool(toolgroup, newtool) {
         // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
         // need to access it directly
-
         const group = state.toolChoices.find(group => group.groupName === toolgroup);
         const lasttool = group.targetTool;
         group.targetTool = newtool;
@@ -222,16 +237,19 @@ export const blockRequiresTool = state => ({
         $("#sidepaneltool" + danCommon.multiReplace(group.targetTool, " ", "")).css({
             "background-color": state.chooseToolColor(group.targetTool)
         });
+        console.log("Group " + toolgroup + ", tool " + group.targetTool);
     },
 
     returnTool() {
         // Manages returning a used tool when this block is being deleted
-        if (state.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
+        state.toolChoices.forEach(group => {
+            if (group.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
 
-        var storageSource = game.blockList.getById(state.currentTool.storageSource);
-        if (storageSource === undefined) return; // failed to find the source block to store this in. We'll just have to drop the tool.
-        if (storageSource.onhand.length > 10) return; // We have the block, but we have no space left in it. Loosing a used
-        // We could correct the storage source (or blank it out), but if the tool is selected again, it will be set anyway
-        storageSource.onhand.push(state.currentTool);
+            var storageSource = game.blockList.getById(group.currentTool.storageSource);
+            if (storageSource === undefined) return; // failed to find the source block to store this in. We'll just have to drop the tool.
+            if (storageSource.onhand.length > 10) return; // We have the block, but we have no space left in it. Loosing a used
+            // We could correct the storage source (or blank it out), but if the tool is selected again, it will be set anyway
+            storageSource.onhand.push(group.currentTool);
+        });
     }
 });
