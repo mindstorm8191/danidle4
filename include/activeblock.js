@@ -143,6 +143,7 @@ export const blockHasWorkerPriority = state => ({
                 .getElementById("sidepanelpriorityup3")
                 .addEventListener("click", () => game.blockSelect.setPriority(100));
         }
+        $("#sidepanel").append("<br />");
     }
 });
 

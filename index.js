@@ -5,7 +5,7 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Modify the blockRequiresTool add-on to allow multiple tools to be included. Adding multiple should be easier than generating a new add-on
+// 1) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
 // 1) Search for places where array.some() would work better than array.find()
 // 1) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
 // 2) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
@@ -37,11 +37,12 @@
 //               mapmanager.js               block_stickmaker.js        block_waterfiller.js     blockAddon_HasSelectableCrafting.js
 //                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js        blockAddon_RequiresTool.js
 //                       block_storage.js            block_huntingpost.js     block_autoprovider.js
-// 41+271+38+338+321+395+177+129+111+133+113+106+175+105+201+94+137+125+87+48+106+202+212+117+70+320+156
+// 41+272+38+358+321+402+177+129+111+133+114+106+175+105+203+94+138+135+89+96+115+201+212+117+70+337+255
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
 // 3/24/19 - 4050 lines
+// 3/29/19 - 4544 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
@@ -224,10 +225,10 @@ export const item = itemname => {
         kind: "item" // this is a classification (but 'class' is a keyword)
     };
     // Now, add this to the list of unlocked items, if not already in it
-    if (!game.unlockedItems.some(ele => ele === itemname)) {
+    if (!game.unlockedItems.includes(itemname)) {
         game.unlockedItems.push(itemname);
         // Now, run the unlock function of the blockdemands structure. This will enable new blocks whenever available
-        game.blockDemands.unlock();
+        game.blockDemands.unlock(itemname);
     }
     return Object.assign(state);
 };
@@ -240,10 +241,10 @@ export const tool = (toolname, efficiency, endurance) => {
         endurance,
         kind: "tool" // item classification
     };
-    if (!game.unlockedItems.some(ele => ele === toolname)) {
+    if (!game.unlockedItems.includes(toolname)) {
         game.unlockedItems.push(toolname);
         // Also, run the unlock function of the blockdemands structure. This will enable new blocks whenever available
-        game.blockDemands.unlock();
+        game.blockDemands.unlock(toolname);
     }
     return Object.assign(state);
 };
@@ -261,9 +262,9 @@ export const food = (foodname, lifespan, inBlock) => {
     game.foodList.push(state);
     // This is a global list, holding all the food items we have. Foods are selected at random for consumption. This list
     // allows us to select any of the food items to eat.
-    if (!game.unlockedItems.some(ele => ele === foodname)) {
+    if (!game.unlockedItems.includes(foodname)) {
         game.unlockedItems.push(foodname);
-        game.blockDemands.unlock();
+        game.blockDemands.unlock(foodname);
     }
     return Object.assign(state);
 };

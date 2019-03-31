@@ -20,31 +20,60 @@ export const woodcrafter = mapsquare => {
             { name: "None", prereq: [], parts: [], isTool: false },
             {
                 name: "Log Chunk",
+                info: "Cut a log down to size",
                 prereq: [],
                 parts: [{ name: "Log", qty: 1 }],
                 isTool: false,
                 craftTime: 200,
                 craftQty: 8
             },
-            { name: "Wooden Bowl", prereq: [], parts: [{ name: "Log Chunk", qty: 1 }], isTool: false, craftTime: 40 },
+            {
+                name: "Wooden Bowl",
+                info: "Carries liquids, like water",
+                prereq: [],
+                parts: [{ name: "Log Chunk", qty: 1 }],
+                isTool: false,
+                craftTime: 40
+            },
             // a craftTime of 40 might seem like a lot, but the Flint Hatchet has double production speed
             {
                 name: "Firewood Log Chunk Wet",
+                info: "Chop wood for fire. Requires drying",
                 prereq: [],
                 parts: [{ name: "Log Chunk", qty: 1 }],
                 isTool: false,
                 craftTime: 40,
                 craftQty: 7
-            },
+            }, // Wet firewood will need time to dry. We will need another block to put this in for it to dry out (that block will need a roof!)
             {
                 name: "Pole",
+                info: "Cut logs into long poles for more construction options",
                 prereq: [],
                 parts: [{ name: "Log", qty: 1 }],
                 isTool: false,
                 craftTime: 250,
                 craftQty: 4
+            },
+            {
+                name: "Basic Crane",
+                info: "Pick up heavy objects (like rocks)",
+                prereq: [],
+                parts: [
+                    { name: "Pole", qty: 1 },
+                    { name: "Long Stick", qty: 9 },
+                    { name: "Short Stick", qty: 8 },
+                    { name: "Twine", qty: 8 }
+                ],
+                isTool: true,
+                endurance: 20,
+                enduranceGain: 1,
+                enduranceTaper: 0.01,
+                efficiency: 1,
+                efficiencyGain: 0,
+                efficiencyTaper: 0,
+                craftTime: 400,
+                craftQty: 1
             }
-            // Wet firewood will need time to dry. We will need another block to put this in for it to dry out (that block will need a roof!)
             // And... I'm not sure what else we should craft with this block - yet - I'm sure we'll think of something
         ],
 

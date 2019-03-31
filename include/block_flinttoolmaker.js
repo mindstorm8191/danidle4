@@ -19,6 +19,7 @@ export const flinttoolmaker = mapsquare => {
             { name: "None", needs: [] }, // 'none' is included so we can simply list all the items later
             {
                 name: "Flint Hatchet",
+                info: "Better at cutting than Stabbers",
                 prereq: [],
                 parts: [
                     { name: "Short Stick", qty: 1 },
@@ -36,6 +37,7 @@ export const flinttoolmaker = mapsquare => {
             },
             {
                 name: "Flint Hoe",
+                info: "Opens up farming",
                 prereq: [],
                 parts: [{ name: "Long Stick", qty: 1 }, { name: "Twine", qty: 1 }, { name: "Flint Hoe Head", qty: 1 }],
                 craftTime: 20,
@@ -49,6 +51,7 @@ export const flinttoolmaker = mapsquare => {
             },
             {
                 name: "Flint Spear",
+                info: "Opens up hunting",
                 prereq: [],
                 parts: [
                     { name: "Long Stick", qty: 1 },
@@ -66,6 +69,7 @@ export const flinttoolmaker = mapsquare => {
             },
             {
                 name: "Twine Table",
+                info: "Elevate your working tasks",
                 prereq: [],
                 parts: [{ name: "Long Stick", qty: 5 }, { name: "Short Stick", qty: 16 }, { name: "Twine", qty: 5 }],
                 craftTime: 20,
@@ -79,6 +83,7 @@ export const flinttoolmaker = mapsquare => {
             },
             {
                 name: "Twine Sled",
+                info: "Move things more easily",
                 prereq: [],
                 parts: [{ name: "Long Stick", qty: 8 }, { name: "Short Stick", qty: 8 }, { name: "Twine", qty: 5 }],
                 craftTime: 20,
@@ -92,6 +97,7 @@ export const flinttoolmaker = mapsquare => {
             },
             {
                 name: "Twine Raft",
+                info: "Move things over water",
                 prereq: [],
                 parts: [{ name: "Long Stick", qty: 6 }, { name: "Short Stick", qty: 3 }, { name: "Twine", qty: 3 }],
                 craftTime: 20,

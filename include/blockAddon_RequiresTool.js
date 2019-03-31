@@ -21,8 +21,9 @@ export const blockRequiresTool = state => ({
     //          currentTool: which tool is currently being used by this block
     //          targetTool: which tool to fill this slot with next, once the current tool breaks
 
-    currentTool: null, // Loaded tool that is being used
-    targetTool: "None", // Which tool the user wants to use when the current tool breaks
+    // These are no longer in use, since these variables are kept within each of the slots now.
+    //currentTool: null, // Loaded tool that is being used
+    //targetTool: "None", // Which tool the user wants to use when the current tool breaks
 
     checkTool() {
         // Used in the block's update() function. Returns the efficiency value for this tool, or null if no tool is available.
@@ -68,7 +69,9 @@ export const blockRequiresTool = state => ({
         return state.toolChoices
             .filter(group => !(group.currentTool === null))
             .map(group => group.currentTool.efficiency)
-            .reduce((sum, value) => sum + value);
+            .reduce((sum, value) => {
+                return sum + value;
+            }, 0);
         /*
         if (state.currentTool === null) {
             if (state.targetTool === "None") return null; // We are currently not after any tools

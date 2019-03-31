@@ -20,6 +20,7 @@ export const rockknapper = mapsquare => {
             { name: "None", prereq: [], parts: [], isTool: false },
             {
                 name: "Flint Knife",
+                info: "Good for light cuts",
                 prereq: [],
                 parts: [],
                 craftTime: 20,
@@ -33,6 +34,7 @@ export const rockknapper = mapsquare => {
             },
             {
                 name: "Flint Stabber",
+                info: "Good for chopping small wood",
                 prereq: [],
                 parts: [],
                 craftTime: 20,
@@ -46,6 +48,7 @@ export const rockknapper = mapsquare => {
             },
             {
                 name: "Flint Hatchet Head",
+                info: "Combine with short stick & twine at the Flint Toolmaker.",
                 prereq: ["Twine"],
                 parts: [],
                 craftTime: 40,
@@ -53,6 +56,7 @@ export const rockknapper = mapsquare => {
             },
             {
                 name: "Flint Spear Head",
+                info: "Combine with long stick & twine at the Flint Toolmaker",
                 prereq: ["Twine"],
                 parts: [],
                 craftTime: 30,
@@ -60,6 +64,7 @@ export const rockknapper = mapsquare => {
             },
             {
                 name: "Flint Hoe Head",
+                info: "Combine with long stick & twine at the Flint Toolmaker",
                 prereq: ["Twine"],
                 parts: [],
                 craftTime: 40,
@@ -119,6 +124,15 @@ export const rockknapper = mapsquare => {
             state.finishDelete();
         }
     };
+
+    // Provide a way to show when new options become available for this block
+    const genHandle = game.blockDemands.find(ele => ele.name === state.name);
+    if (genHandle.hasNewOptions === undefined) {
+        genHandle.hasNewOptions = itemname => {
+            return itemname === "Twine";
+        };
+    }
+
     game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;

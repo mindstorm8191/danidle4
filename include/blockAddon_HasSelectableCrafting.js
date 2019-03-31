@@ -12,6 +12,7 @@ export const blockHasSelectableCrafting = state => ({
     // state - state object of the block we are using.
     //         Must contain an outputItems array. This should be in the following structure:
     //            name - exact name of the item to output. Case-sensitive
+    //            info - short text to show in the tooltip. When shown, this
     //            prereq - Array containing names of any item that must have been reached by the player before this item can be crafted.
     //                  If none, provide an empty array (aka []). Items which have not met their prerequisites will not be visible
     //                  to the user until such as been met
@@ -263,10 +264,20 @@ export const blockHasSelectableCrafting = state => ({
             .forEach(ele => {
                 // For each one, generate a string to return, containing our target output, specific to this item
                 //let color = state.targetCraft === ele.name ? "green" : "grey";
+                let tooltip = "";
+                if (ele.info != undefined) {
+                    tooltip = ele.info;
+                    if (ele.parts.length > 0) {
+                        tooltip += " Needs " + ele.parts.map(ele => ele.qty + " " + ele.name).join(", ");
+                    }
+                }
                 $("#sidepanel").append(
                     '<span class="sidepanelbutton" ' +
                         'id="sidepanelchoice' +
                         danCommon.multiReplace(ele.name, " ", "") +
+                        '" ' +
+                        'title="' +
+                        tooltip +
                         '" ' +
                         'style="background-color:' +
                         state.chooseCraftColor(ele.name) +

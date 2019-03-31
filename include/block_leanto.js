@@ -1,4 +1,9 @@
+// Lean-To
+// for DanIdle version 4
+// Provides an early shelter for colonists
+
 import { blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
@@ -11,6 +16,7 @@ export const leanto = mapsquare => {
         endurance: 0, // Rather than using the counter to count down, we will use a second variable to determine how much
         // total endurance we can generate within the 'construction' time (based on what tools are used)
         status: 0,
+        toolChoices: [{ groupName: "Chopper", isRequired: false, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
 
         possibleoutputs() {
             // This block does not output any items
@@ -50,7 +56,13 @@ export const leanto = mapsquare => {
                 game.workPoints--;
 
                 state.counter++;
-                state.endurance += 5;
+                const efficiency = state.checkTool();
+                if (efficiency === null) {
+                    state.endurance += 5;
+                } else {
+                    state.endurance += 5 + 5 * efficiency;
+                    console.log("Endurance increased by " + (5 + 5 * efficiency));
+                }
                 $("#" + state.tile.id + "progress").css({ width: state.counter * 0.5 });
                 if (state.counter >= 120) {
                     // aka 2 minutes
@@ -84,6 +96,7 @@ export const leanto = mapsquare => {
                     "<br />"
             );
             state.showPriority();
+            state.showDeleteLink();
             if (state.status == 0) {
                 $("#sidepanel").append(
                     "<br />" +
@@ -100,7 +113,9 @@ export const leanto = mapsquare => {
                 );
             }
             $("#sidepanel").append("<br />");
-            state.showDeleteLink();
+            if (game.unlockedItems.includes("Flint Stabber")) {
+                state.showTools();
+            }
         },
 
         updatepanel() {
@@ -121,9 +136,19 @@ export const leanto = mapsquare => {
             state.finishDelete();
         }
     };
+
+    // Provide a way to show when new options become available for a specific block type
+    const genHandle = game.blockDemands.find(ele => ele.name === state.name);
+    if (genHandle.hasNewOptions === undefined) {
+        genHandle.hasNewOptions = itemname => {
+            const helpertools = ["Flint Stabber", "Flint Hatchet"];
+            return helpertools.includes(itemname);
+        };
+    }
+
     game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
-    return Object.assign(state, blockHasWorkerPriority(state), blockDeletesClean(state));
+    return Object.assign(state, blockHasWorkerPriority(state), blockDeletesClean(state), blockRequiresTool(state));
 };

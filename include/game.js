@@ -46,7 +46,11 @@ export const game = {
     lastFoodID: 0, // Allows individual IDs to be given to edible items
     population: 4, // How many workers we have (aka how many mouths we have to feed)
 
-    // location on the map. Used for when a user is setting up a new route.
+    // blockDemands provides us with an easy way to determine when new blocks are displayed on the left side.  We can also create the
+    // respective block type by the generate field.
+    // Note that this structure is modified by some block types, which adds a hasNewOptions function. This function will return true
+    // whenever that block type has newly available functionality (whenever new item types become available). This is called within
+    // blockDemands.unlock(), and will then set that block's border green (on the left side panel)
     blockDemands: [
         {
             name: "selector",
@@ -69,7 +73,7 @@ export const game = {
             highlight: "Item hauler: Move items between blocks",
             prereq: [],
             generate: hauler
-        },
+        }, // uses blockDeletes clean, and... that's about it
         {
             name: "storage",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
@@ -225,7 +229,7 @@ export const game = {
                 level: 3,
                 unlock: "build=rockknapper",
                 show:
-                    "Step 4: Tools. Find a rock area and place a Rock Knapper. Start building Flint Knives and Stabbers (you may want 2 Rock " +
+                    "Step 4: Tools. Find a rock area and place a Rock Knapper. Set them to build Flint Knives and Stabbers (you may want 2 Rock " +
                     "Knappers with different outputs)"
             },
             {
@@ -311,9 +315,20 @@ game.blockList.isInStorage = function(targetitem) {
     });
 };
 
-game.blockDemands.unlock = function() {
+game.blockDemands.unlock = function(itemname) {
     // Determines when a new block can be displayed on the left side of the screen.  This depends heavily on the contents of the
     // unlockeditems array
+
+    // Some existing blocks may allow new crafting options when new items become available. We want to highlight the block choices
+    // with green whenever this happens. Run through all (enabled) blocks and see if there are any new crafting options
+    game.blockDemands
+        .filter(slot => slot.state === 1)
+        .filter(slot => !(slot.hasNewOptions === undefined))
+        .filter(slot => slot.hasNewOptions(itemname))
+        .map(slot => {
+            $("#cursor" + slot.name).css("background-color", "green");
+        });
+
     game.blockDemands
         .filter(slot => {
             if (slot.state == 1) return false; // This has already been listed

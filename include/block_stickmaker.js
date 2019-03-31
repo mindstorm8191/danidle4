@@ -10,7 +10,7 @@ import $ from "jquery";
 
 export const stickmaker = mapsquare => {
     let state = {
-        name: "Stick Maker",
+        name: "stickmaker",
         tile: mapsquare,
         id: game.lastBlockId,
         counter: 0,
@@ -20,8 +20,8 @@ export const stickmaker = mapsquare => {
         targettool: "None",
         outputItems: [
             { name: "None", prereq: [], parts: [], isTool: false },
-            { name: "Short Stick", prereq: [], parts: [], isTool: false, craftTime: 30 },
-            { name: "Long Stick", prereq: [], parts: [], isTool: false, craftTime: 30 },
+            { name: "Short Stick", info: "Used for flint tools", prereq: [], parts: [], isTool: false, craftTime: 30 },
+            { name: "Long Stick", info: "Used for flint tools", prereq: [], parts: [], isTool: false, craftTime: 30 },
             {
                 name: "Log",
                 prereq: ["Flint Hatchet"],
@@ -90,6 +90,14 @@ export const stickmaker = mapsquare => {
             state.finishDelete();
         }
     };
+
+    // Provide a way to show the user when new options become available for this block type
+    const genHandle = game.blockDemands.find(ele => ele.name === state.name);
+    if (genHandle.hasNewOptions === undefined) {
+        genHandle.hasNewOptions = itemname => {
+            return itemname === "Flint Hatchet";
+        };
+    }
 
     game.lastBlockId++;
     game.blockList.push(state);
