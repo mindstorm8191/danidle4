@@ -5,44 +5,45 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
-// 1) Search for places where array.some() would work better than array.find()
-// 1) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
-// 2) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
-// 2) Build some kind of test to determine when a new block output becomes available from an existing block. Use that to show when logs are
-//    craftable in the stickmaker.
-// 3) Have the HasSelectableCrafting module account for tools required for a job. Make this optional
-// 1) Push forward in building new blocks, so we can start processing metals. Next step is to build the fire mining post
-// 2) Update the hauler block to accept input items for specific things they are searching for
-// 2) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
-// 6) Modify the block constructors to pass in a pre-set ID value. This will free some amount of dependencies on requiring 'game' for all blocks
-// 2) Start setting up farming (this will be a major opportunity towards automation in late-game)
-// 3) Start working on building the item hauler block. This will be critical for early work, especially with the butcher shop
-// 5) Update the campfire block to use HasOutputsPerInput. That add-on was built based on the campfire block anyway
-// 5) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
-// 6) Add an update function to the RequiresTool add-on, to change the displayed color based on whether tools are available or not.
-//    Change its tooltip text at the same time.
+// 1) For tools, have a variable to determine if a tool is in use or not. Assume this variable doesn't exist. We can also offer a function
+//    to return tools not in use
+// 1) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints
+//    if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
+// 2) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
+// 3) Find uses for the gravel and boulders that the mining post will generate. We could be able to construct gravel walkways and stone walls,
+//    yet I'm not sure what to use them for.
+// 4) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
+// 5) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
+// 6) Search for places where array.some() would work better than array.find()
+// 7) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
+// 8) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
+// 9) Push forward in building new blocks, so we can start processing metals. Next step is to build the fire mining post
+// 10) Update the hauler block to accept input items for specific things they are searching for
+// 11) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
+// 12) Modify the block constructors to pass in a pre-set ID value. This will free some amount of dependencies on requiring 'game' for all blocks
+// 13) Start setting up farming (this will be a major opportunity towards automation in late-game)
+// 14) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
 
 // Things to look up:
 // JSDocs
-// Start using Template Literals (backticks to define content, then ${varname} to fill with data)
 
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js             block_campfire.js        activeblock.js
-//    index.js                   block_foragepost.js         block_firewoodmaker.js   blockAddon_CooksItems.js
-//        dancommon.js               block_rockknapper.js       block_butchershop.js      blockAddon_HasOutputsPerInput.js
-//           game.js                     block_twinemaker.js        block_woodcrafter.js      blockAddon_HasRandomizedOutput.js
-//               mapmanager.js               block_stickmaker.js        block_waterfiller.js     blockAddon_HasSelectableCrafting.js
-//                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js        blockAddon_RequiresTool.js
-//                       block_storage.js            block_huntingpost.js     block_autoprovider.js
-// 41+272+38+358+321+402+177+129+111+133+114+106+175+105+203+94+138+135+89+96+115+201+212+117+70+337+255
+// index.html                block_leanto.js             block_campfire.js         activeblock.js
+//    index.js                   block_foragepost.js         block_firewoodmaker.js    blockAddon_CooksItems.js
+//        dancommon.js               block_rockknapper.js       block_butchershop.js       blockAddon_HasOutputsPerInput.js
+//           game.js                     block_twinemaker.js        block_woodcrafter.js       blockAddon_HasRandomizedOutput.js
+//               mapmanager.js               block_stickmaker.js        block_waterfiller.js      blockAddon_HasSelectableCrafting.js
+//                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js         blockAddon_RequiresTool.js
+//                       block_storage.js            block_huntingpost.js      block_autoprovider.js
+// 41+271+38+373+321+397+173+153+108+141+112+107+175+105+191+92+130+159+85+144+115+200+212+117+68+336+252
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
 // 3/24/19 - 4050 lines
 // 3/29/19 - 4544 lines
+// 4/01/19 - 4616 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------

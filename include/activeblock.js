@@ -79,7 +79,7 @@ export const blockShowsOutputItems = state => ({
 
         // With our list generated, run through it and output the content we're after
         return itemslist
-            .map(ele => '<span style="margin-left:30px">' + ele.name + ": <b>" + ele.count + "</b></span><br />")
+            .map(ele => `<span style="margin-left:30px">${ele.name}: <b>${ele.count}</b></span><br />`)
             .join("");
     }
 });
@@ -118,13 +118,11 @@ export const blockHasWorkerPriority = state => ({
                 .getElementById("sidepanelprioritydown2")
                 .addEventListener("click", () => game.blockSelect.setPriority(-10));
         }
-        $("#sidepanel").append(
-            '<img src="img/arrowleft.png" id="sidepanelprioritydown1" /> ' +
-                '<span id="sidepanelpriority">' +
-                state.priority +
-                "</span>" +
-                '<img src="img/arrowright.png" id="sidepanelpriorityup1" />'
-        );
+        $("#sidepanel").append(`
+            <img src="img/arrowleft.png" id="sidepanelprioritydown1" />
+            <span id="sidepanelpriority">${state.priority}</span>
+            <img src="img/arrowright.png" id="sidepanelpriorityup1" />
+        `);
         document
             .getElementById("sidepanelprioritydown1")
             .addEventListener("click", () => game.blockSelect.setPriority(-1));
@@ -165,7 +163,7 @@ export const blockHandlesFood = state => ({
         for (let i = 0; i < state.onhand.length; i++) {
             let pos = game.foodList.findIndex(ele => state.onhand[i].id === ele.id);
             if (pos === -1) {
-                console.log("Failed to find " + state.onhand[i].name + " (id=" + state.onhand[i].id + ") in foodList");
+                console.log(`Failed to find ${state.onhand[i].name} (id=${state.onhand[i].id}) in foodList`);
                 continue;
             }
             game.foodList.splice(pos, 1);

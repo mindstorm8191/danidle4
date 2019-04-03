@@ -187,7 +187,7 @@ export const game = {
             canBuildOn: [TILE_WATER],
             image: "img/watercup.png",
             state: 0,
-            highlight: "Water Filler: fills liquid-holding items (like wooden bowls) with water",
+            highlight: "Water Filler: fills liquid-holding items with water. Place in water",
             prereq: [["Wooden Bowl"]],
             generate: waterfiller
         }, // users blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasOutputsPerInput

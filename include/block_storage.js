@@ -19,7 +19,7 @@ export const storage = mapsquare => {
         id: game.lastBlockId,
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Note that this setting can be adjusted within this block
-        targetitems: [], // list of items we want to store here
+        targetitems: [], // list of items we want to store here. Contains only the name of the items we want
 
         consumeFood() {
             // We don't have a means to transfer foods yet, but we will need this eventually anyway.
@@ -29,7 +29,7 @@ export const storage = mapsquare => {
 
         possibleoutputs() {
             // This only outputs the names of the items
-            if (state.outputtoggle === 0) return [];
+            if (!state.allowOutput) return [];
             // I couldn't come up with a reasonable way to do this with functional programming (besides using Set(), which just feels
             // like a hack), so I decided to do it my own way.  .map() might be useful in other cases here, but we're already running
             // through all the data anyway
@@ -86,20 +86,22 @@ export const storage = mapsquare => {
             });
         },
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Storage Unit</b><br />" +
-                    "<br />" +
-                    "So many items, where to put them?  This is your place to put things. The fact that its nothing " +
-                    "but a spot on the ground isnt a problem - yet.<br />" +
-                    "<br />" +
-                    "Use this to hold items (especially tools). This can be upgraded with shelves and other things to " +
-                    "hold more items<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Storage Unit</b><br />
+                <br />
+                So many items, where to put them?  This is your place to put things. The fact that its nothing but a spot on the ground
+                isnt a problem - yet.<br />
+                <br />
+                Use this to hold items (especially tools). This can be upgraded with shelves and other things to hold more items<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                '<br />Items on hand: <div id="sidepanelonhand">' + state.displayItemsOnHand() + "</div><br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Items on hand:
+                <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
+                <br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br /><b>Items to store</b><br />");
             // Now for the real work of this block. Run through the neighbors of this block to list all available items (once).
@@ -115,30 +117,37 @@ export const storage = mapsquare => {
                     })
                 )
             );
-            // This flattens our 2D array, converts it to a Set (dropping duplicates), then converts back to an array (since a
-            // set isn't an array)
+            // This also flattens the array while removing duplicates
             if (built.length === 0) {
-                $("#sidepanel").append("None available");
-                return;
+                $("#sidepanel").append("No neighbor blocks to pull from");
+            } else {
+                // Now, display the actual options
+                built.forEach(ele => {
+                    $("#sidepanel").append(`
+                        <span id="sidepanelpick${danCommon.multiReplace(ele, " ", "")}"
+                            class="sidepanelbutton" ' +
+                            style="background-color: ${
+                                state.targetitems.includes(ele) ? "green" : "red"
+                            };" >${ele}</span>
+                    `);
+                    document
+                        .getElementById("sidepanelpick" + danCommon.multiReplace(ele, " ", ""))
+                        .addEventListener("click", () => game.blockList.getById(state.id).toggleinput(ele));
+                });
+                // Note that this list can be changed when a new block gets placed nearby and this is loaded again.
             }
-            // Now, display the actual options
-            built.forEach(ele => {
-                $("#sidepanel").append(
-                    '<span id="sidepanelpick' +
-                        danCommon.multiReplace(ele, " ", "") +
-                        '" ' +
-                        'class="sidepanelbutton" ' +
-                        'style="background-color:' +
-                        (state.targetitems.includes(ele) ? "green" : "red") +
-                        ';" >' +
-                        ele +
-                        "</span>"
-                );
-                document
-                    .getElementById("sidepanelpick" + danCommon.multiReplace(ele, " ", ""))
-                    .addEventListener("click", () => game.blockList.getById(state.id).toggleinput(ele));
-            });
-            // Note that this list can be changed when a new block gets placed nearby and this is loaded again.
+
+            // Next, show a button to allow users to enable or disable item output
+            $("#sidepanel").append(`
+                <br />
+                <br />
+                <span id="sidepaneloutputmode"
+                      class="sidepanelbutton"
+                      style="background-color: ${state.allowOutput ? "green" : "red"};">Output Items</span>
+            `);
+            document
+                .getElementById("sidepaneloutputmode")
+                .addEventListener("click", () => game.blockList.getById(state.id).toggleOutput());
         },
 
         updatepanel() {
@@ -155,6 +164,12 @@ export const storage = mapsquare => {
                 state.targetitems.push(itemname);
                 $("#sidepanelpick" + danCommon.multiReplace(itemname, " ", "")).css({ "background-color": "green" });
             }
+        },
+
+        toggleOutput() {
+            // Allows the user to enable or disable the output of items
+            state.allowOutput = !state.allowOutput;
+            $("#sidepaneloutputmode").css({ "background-color": state.allowOutput ? "green" : "red" });
         },
 
         deleteblock() {

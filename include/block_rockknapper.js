@@ -85,28 +85,23 @@ export const rockknapper = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Rock Knapper</b><br />" +
-                    "<br />" +
-                    "Tools are critical to survival, and rocks are your first tool. Knapping is the art of smashing " +
-                    "rocks into the shapes you need.<br />" +
-                    "<br />" +
-                    "Knapp rocks to craft either knives or stabbers - you must select one before crafting can begin. " +
-                    "Once crafted, place into a storage unit to use where-ever needed.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Rock Knapper</b><br />
+                <br />
+                Tools are critical to survival, and rocks are your first tool. Knapping is the art of smashing rocks into the shapes
+                you need.<br />
+                <br />
+                Knapp rocks to craft either knives or stabbers - you must select one before crafting can begin. Once crafted, place
+                into a storage unit to use where-ever needed.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                '<br />Items on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />" +
-                    'Currently building: <span id="sidepaneltarget">' +
-                    state.currentcraft +
-                    "</span><br />" +
-                    'Current progress: <span id="sidepanelprogress">' +
-                    state.drawProgressPercent() +
-                    "</span>%<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Currently building: <span id="sidepaneltarget">${state.currentcraft}</span><br />
+                Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
             state.drawOutputChoices();

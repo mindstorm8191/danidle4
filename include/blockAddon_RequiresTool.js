@@ -44,6 +44,9 @@ export const blockRequiresTool = state => ({
                     ele.targetTool = "None";
                     ele.currentTool = null;
                 }
+                if (ele.inUse === undefined) {
+                    ele.inUse = true;
+                }
 
                 if (ele.currentTool === null) {
                     if (ele.targetTool === "None") return !ele.isRequired;
@@ -63,11 +66,13 @@ export const blockRequiresTool = state => ({
         // Now, reduce the total endurance of each tool we're using here
         state.toolChoices
             .filter(group => !(group.currentTool === null))
+            .filter(group => group.inUse === true)
             .forEach(group => group.currentTool.endurance--);
 
         // Now return the sum of efficiency that all the tools provide
         return state.toolChoices
             .filter(group => !(group.currentTool === null))
+            .filter(group => group.inUse === true)
             .map(group => group.currentTool.efficiency)
             .reduce((sum, value) => {
                 return sum + value;
@@ -101,16 +106,11 @@ export const blockRequiresTool = state => ({
                 group.targetTool = "None";
                 group.currentTool = null;
             }
-            $("#sidepanel").append(
-                "<br />" +
-                    "<b>" +
-                    group.groupName +
-                    ":</b> " +
-                    (group.isRequired ? "Required" : "Not Required") +
-                    " (selected: " +
-                    (group.currentTool === null ? "None" : group.currentTool.name) +
-                    ")<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                <b>${group.groupName}:</b> ${group.isRequired ? "Required" : "Not Required"}
+                    (selected: ${group.currentTool === null ? "None" : group.currentTool.name})<br />
+            `);
             // Next, run through all choosable tools and display them, including a way to select them
             group.choices
                 .filter(tool => {
@@ -118,16 +118,15 @@ export const blockRequiresTool = state => ({
                     return game.unlockedItems.includes(tool);
                 })
                 .forEach(choice => {
-                    $("#sidepanel").append(
-                        '<span class="sidepanelbutton" id="sidepaneltool' +
-                            danCommon.multiReplace(choice, " ", "") +
-                            '" ' +
-                            'style="background-color:' +
-                            state.chooseToolColor(group.groupName, choice) +
-                            ';">' +
-                            choice +
-                            "</span>"
-                    );
+                    $("#sidepanel").append(`
+                        <span class="sidepanelbutton"
+                              id="sidepaneltool${danCommon.multiReplace(choice, " ", "")}"
+                              style="background-color: ${state.chooseToolColor(
+                                  group.groupName,
+                                  choice
+                              )};">${choice}</span>
+                    `);
+                    console.log(group.groupName);
                     document
                         .getElementById("sidepaneltool" + danCommon.multiReplace(choice, " ", ""))
                         .addEventListener("click", () => game.blockSelect.picktool(group.groupName, choice));
@@ -180,11 +179,21 @@ export const blockRequiresTool = state => ({
         });
     },
 
-    chooseToolColor(groupName, toolname) {
+    chooseToolColor(gName, toolname) {
         // Returns a color name that should be used to show this tool. Color is decided on whether it is selected and if any are available
 
         // We should start by 'resolving' the toolname to a tool group (we use that a lot here, to determine if it's the current one in use)
-        const group = state.toolChoices.find(g => (g.groupName = groupName));
+        const group = state.toolChoices.find(g => g.groupName === gName);
+        if (group === undefined) {
+            console.log("Failed to find tool group (name given = " + gName);
+            console.log(state.toolChoices);
+            return;
+        }
+        if (group.targetTool === undefined) {
+            console.log("Setting up targetTool in chooseToolColor (why?)");
+            group.targetTool = "None";
+            group.currentTool = null;
+        }
 
         if (toolname === "None") {
             // 'none' fits a different category than other tools. It is always available

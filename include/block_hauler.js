@@ -71,10 +71,12 @@ export const hauler = mapsquare => {
                         state.jobList.find(itemgroup => {
                             // Hmm. We could put the blockID in with this item, but that would force us to use a certain source, when there
                             // could be multiple.  Therefore, search the local blocks for one that will output the item we need.
+                            //console.log("Check route for " + itemgroup.name);
                             const source = game.blockList.neighbors(state.tile).find(neighbor => {
                                 return neighbor.willOutput(itemgroup.name);
                             });
                             if (source === undefined) return false;
+                            console.log("Ready to share " + itemgroup.name);
                             let cutslot = -1;
                             // This block has an item which we can send to another block. Now, search the targets for some place to send it to
                             const dest = itemgroup.targets.find((target, index) => {
@@ -93,6 +95,7 @@ export const hauler = mapsquare => {
                                     cutslot = index;
                                     return false;
                                 }
+                                console.log("Check if block accepts " + itemgroup.name);
                                 return block.willAccept(itemgroup.name);
                             });
                             if (cutslot != -1) itemgroup.targets.splice(cutslot, 1);
@@ -223,28 +226,28 @@ export const hauler = mapsquare => {
 
         drawpanel() {
             // draws the content on the right side of the screen, when this block is selected
-            $("#sidepanel").html(
-                "<center><b>Item Hauler</b></center>" +
-                    "<br />" +
-                    "No matter how well you organize your factory, you' still need to transport items around. This uses man-power to move any " +
-                    "item from one block to another.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <center><b>Item Hauler</b></center>
+                <br />
+                No matter how well you organize your factory, you' still need to transport items around. This uses man-power to move any
+                item from one block to another.<br />
+                <br />
+                Place Item Haulers near blocks providing the item. Select an output, then click the block to send items to. Haulers can
+                haul items any distance, but time needed depends on distance.
+            `);
             state.showDeleteLink();
-            $("#sidepanel").append("<br /><b>Items Available:</b><br />");
+            $("#sidepanel").append(`
+                <br />
+                <b>Items Available:</b><br />
+            `);
             // Now, generate a list of potential blocks this block can carry to the other blocks
             const sharelist = state.getReachableItems();
             sharelist.forEach(item => {
                 // Now, search for existing routes for each of the items, as they are shown
-                $("#sidepanel").append(
-                    item +
-                        ': <a href="#" id="sidepanelnewtarget' +
-                        danCommon.multiReplace(item, " ", "") +
-                        '">Add Target</a>' +
-                        '<div id="sidepaneltargetlist' +
-                        danCommon.multiReplace(item, " ", "") +
-                        '"></div>'
-                );
+                $("#sidepanel").append(`
+                    ${item}: <a href="#" id="sidepanelnewtarget${danCommon.multiReplace(item, " ", "")}">Add Target</a>
+                    <div id="sidepaneltargetlist${danCommon.multiReplace(item, " ", "")}"></div>
+                `);
                 document
                     .getElementById("sidepanelnewtarget" + danCommon.multiReplace(item, " ", ""))
                     .addEventListener("click", () => game.blockSelect.startadd(item));
@@ -286,17 +289,12 @@ export const hauler = mapsquare => {
                 // Before we can start filling this out, we need to blank out the existing data - then append new content to it
                 $("#sidepaneltargetlist" + danCommon.multiReplace(item, " ", "")).html(" ");
                 itemgroup.targets.forEach(target => {
-                    $("#sidepaneltargetlist" + danCommon.multiReplace(item, " ", "")).append(
-                        '<span style="margin-left:20px;">' +
-                            target.blockname +
-                            " (d=" +
-                            danCommon.manhattanDist(state.tile.xpos, state.tile.ypos, target.xpos, target.ypos) +
-                            ") " +
-                            '<a href="#" id="sidepaneldelete' +
-                            danCommon.multiReplace(itemgroup.name, " ", "") +
-                            target.blockid +
-                            '">X</a><br />'
-                    );
+                    $("#sidepaneltargetlist" + danCommon.multiReplace(item, " ", "")).append(`
+                        <span style="margin-left:20px;">${target.blockname}
+                            (d=${danCommon.manhattanDist(state.tile.xpos, state.tile.ypos, target.xpos, target.ypos)})
+                            <a href="#" id="sidepaneldelete${danCommon.multiReplace(itemgroup.name, " ", "") +
+                                target.blockid}">X</a><br />
+                    `);
                     document
                         .getElementById(
                             "sidepaneldelete" + danCommon.multiReplace(itemgroup.name, " ", "") + target.blockid
@@ -328,9 +326,11 @@ export const hauler = mapsquare => {
             }
             // Now, ensure that this item can be accepted by the target block
             const allowed = mappos.structure.inputsAccepted();
-            console.log(allowed);
             if (allowed != "any") {
                 if (!allowed.includes(state.targetitem)) {
+                    console.log(
+                        "Target " + mappos.structure.name + ", match " + state.targetitem + " against " + allowed.join()
+                    );
                     $("#sidepanel").append("<br />Fail - That item is not allowed");
                     return;
                 }

@@ -56,22 +56,22 @@ export const huntingpost = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Hunting Post</b><br />" +
-                    "<br />" +
-                    "Humans are not herbivores.  They require meats equally as much as plants. Without good sources of both, " +
-                    "the body will struggle to survive.<br />" +
-                    "<br />" +
-                    "Uses weapons to hunt game animals in the area. Once killed, brings the animals back here for further uses.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Hunting Post</b><br />
+                <br />
+                Humans are not herbivores.  They require meats equally as much as plants. Without good sources of both, the body will
+                struggle to survive.<br />
+                <br />
+                Uses weapons to hunt game animals in the area. Once killed, brings the animals back here for further uses.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Hunting progress: <span id="sidepanelprogress">' +
-                    Math.floor((this.counter * 100) / state.craftTime) +
-                    "</span>%<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Hunting progress: <span id="sidepanelprogress">${Math.floor(
+                    (this.counter * 100) / state.craftTime
+                )}</span>%<br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
             state.showOutput();

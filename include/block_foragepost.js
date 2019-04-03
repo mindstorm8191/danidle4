@@ -56,28 +56,25 @@ export const foragepost = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Foraging Post</b><br />" +
-                    "<br />" +
-                    "All around you is a world teeming with life - and food. It is there for the taking, you just " +
-                    "have to find it first.<br />" +
-                    "<br />" +
-                    "Collects edible foods from the surrounding environment.  Local supplies can only support up to " +
-                    "4 workers. Cannot place another one in this area<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Foraging Post</b><br />
+                <br />
+                All around you is a world teeming with life - and food. It is there for the taking, you just have to find it first.<br />
+                <br />
+                Collects edible foods from the surrounding environment.  Local supplies can only support up to 4 workers. Cannot place
+                another one in this area<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    "Food on-hand:<br />" +
-                    '<span id="sidepanelonhand">' +
-                    state.displayItemsOnHand() +
-                    "</span><br />" +
-                    'Progress to next: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter / state.craftTime) * 100) +
-                    "</span>%<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Food on-hand:
+                <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
+                Progress to next: <span id="sidepanelprogress">${Math.floor(
+                    (state.counter / state.craftTime) * 100
+                )}</span>%<br />
+                <br />
+            `);
             state.showDeleteLink();
         },
 

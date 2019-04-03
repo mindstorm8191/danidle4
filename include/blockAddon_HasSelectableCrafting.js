@@ -190,9 +190,7 @@ export const blockHasSelectableCrafting = state => ({
             // Here, we want to return on the first instance where we find a matching item
             cyclecount++;
             if (neighbor === undefined) {
-                console.log(
-                    "Error - neighbor not defined (working block " + state.name + ", neighbor pass=" + cyclecount + ")"
-                );
+                console.log(`Error - neighbor not defined (working block ${state.name}, neighbor pass=${cyclecount})`);
             }
             let pickup = neighbor.getItem(needed);
             if (pickup === null) return false; // we found no items from this block
@@ -271,20 +269,12 @@ export const blockHasSelectableCrafting = state => ({
                         tooltip += " Needs " + ele.parts.map(ele => ele.qty + " " + ele.name).join(", ");
                     }
                 }
-                $("#sidepanel").append(
-                    '<span class="sidepanelbutton" ' +
-                        'id="sidepanelchoice' +
-                        danCommon.multiReplace(ele.name, " ", "") +
-                        '" ' +
-                        'title="' +
-                        tooltip +
-                        '" ' +
-                        'style="background-color:' +
-                        state.chooseCraftColor(ele.name) +
-                        ';" >' +
-                        ele.name +
-                        "</span>"
-                );
+                $("#sidepanel").append(`
+                    <span class="sidepanelbutton"
+                          id="sidepanelchoice${danCommon.multiReplace(ele.name, " ", "")}"
+                          title="${tooltip}"
+                          style="background-color: ${state.chooseCraftColor(ele.name)};" >${ele.name}</span>
+                `);
                 document
                     .getElementById("sidepanelchoice" + danCommon.multiReplace(ele.name, " ", ""))
                     .addEventListener("click", () => game.blockList.getById(state.id).pickcraft(ele.name));
@@ -316,9 +306,7 @@ export const blockHasSelectableCrafting = state => ({
         const craftInfo = state.outputItems.find(ele => ele.name === craftname);
         if (craftInfo === undefined)
             console.log(
-                "Error in blockHasSelectableCrafting->chooseCraftColor: failed to find item in state.outputItems (target=" +
-                    craftname +
-                    ")"
+                `Error in blockHasSelectableCrafting->chooseCraftColor: failed to find item in state.outputItems (target=${craftname})`
             );
         if (!(craftInfo.toolsUsable === undefined)) {
             // At this point, we can assume that targetTool exists

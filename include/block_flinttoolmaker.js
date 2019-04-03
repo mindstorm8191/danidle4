@@ -126,29 +126,23 @@ export const flinttoolmaker = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Flint Tool Maker</b><br />" +
-                    "<br />" +
-                    "Flint tools might get you started, but before long you're going to need better tools. Crafting " +
-                    "wooden handles onto your flint blades gives you a few better tools.<br />" +
-                    "<br />" +
-                    "Provide with twine, sticks and flint tool heads to produce a new variety of tools<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Flint Tool Maker</b><br />
+                <br />
+                Flint tools might get you started, but before long you're going to need better tools. Crafting wooden handles onto
+                your flint blades gives you a few better tools.<br />
+                <br />
+                Provide with twine, sticks and flint tool heads to produce a new variety of tools<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    "<b>Items Needed</b><br />" +
-                    '<div id="sidepanelparts">' +
-                    state.drawStocks() +
-                    "</div>" +
-                    'Progress: <span id="sidepanelprogress">' +
-                    state.drawProgressPercent() +
-                    "</span></br>" +
-                    'Finished tools on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                <b>Items Needed</b><br />
+                <div id="sidepanelparts">${state.drawStocks()}</div>
+                Progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span></br>
+                Finished tools on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
             state.drawOutputChoices();

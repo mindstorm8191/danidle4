@@ -66,36 +66,28 @@ export const butchershop = mapsquare => {
                     (state.counter * 100) / state.outputItems.find(ele => ele.name === state.inItems[0].name).craftTime
                 );
             }
-            $("#sidepanel").html(
-                "<b><center>Butcher Shop</center></b><br />" +
-                    "<br />" +
-                    "While cooking meats whole gets the job done, it is a lengthy process. Cutting meats into smaller pieces allows for " +
-                    "faster cooking. Plus, other resources can be extracted from your catches.<br />" +
-                    "<br />" +
-                    "Chops dead animals into raw meats and other resources.  Requires a knife.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b><center>Butcher Shop</center></b><br />
+                <br />
+                While cooking meats whole gets the job done, it is a lengthy process. Cutting meats into smaller pieces allows for
+                faster cooking. Plus, other resources can be extracted from your catches.<br />
+                <br />
+                Chops dead animals into raw meats and other resources.  Requires a knife.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Items to butcher:<span id="sidepanelinput">' +
-                    state.inItems.length +
-                    "</span><br />" +
-                    'Current work:<span id="sidepanelworking">' +
-                    curjob +
-                    "</span><br />" +
-                    'Current progress: <span id="sidepanelprogress">' +
-                    craftPercent +
-                    "</span>%<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Items to butcher:<span id="sidepanelinput">${state.inItems.length}</span><br />
+                Current work:<span id="sidepanelworking">${curjob}</span><br />
+                Current progress: <span id="sidepanelprogress">${craftPercent}</span>%<br />
+            `);
             state.showDeleteLink();
-            $("#sidepanel").append(
-                "<br />" +
-                    "Output items on hand:" +
-                    '<div id="sidepanelonhand">' +
-                    state.displayItemsOnHand() +
-                    "</div>"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Output items on hand:
+                <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
+            `);
             state.showTools();
         },
 

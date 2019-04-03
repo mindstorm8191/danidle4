@@ -84,35 +84,34 @@ export const leanto = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Lean-To</b><br />" +
-                    "Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; " +
-                    "for the elements, at their worst, can defeat you faster than anything else.<br />" +
-                    "<br />" +
-                    "Consisting of a downed branch with leaves on top, this is easy to set up, needing no tools - but wont last long in " +
-                    "the elements itself. With luck, youll be able to upgrade this soon enough<br />" +
-                    "<br />" +
-                    "Once set up, will require regular maintenance to remain functional.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Lean-To</b><br />
+                Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; for the
+                elements, at their worst, can defeat you faster than anything else.<br />
+                <br />
+                Consisting of a downed branch with leaves on top, this is easy to set up, needing no tools - but wont last long in the
+                elements itself. With luck, youll be able to upgrade this soon enough<br />
+                <br />
+                Once set up, will require regular maintenance to remain functional.<br />
+                <br />
+            `);
             state.showPriority();
             state.showDeleteLink();
             if (state.status == 0) {
-                $("#sidepanel").append(
-                    "<br />" +
-                        'Status: <span id="sidepanelstatus">Building: ' +
-                        Math.floor(state.counter / 1.2) +
-                        "% complete</span>"
-                );
+                $("#sidepanel").append(`
+                    <br />
+                    Status: <span id="sidepanelstatus">Building: ${Math.floor(state.counter / 1.2)}% complete</span>
+                    <br />
+                `);
             } else {
-                $("#sidepanel").append(
-                    "<br />" +
-                        'Status: <span id="sidepanelstatus">In use. ' +
-                        Math.floor(state.endurance / 6) +
-                        "% lifespan remaining</span>"
-                );
+                $("#sidepanel").append(`
+                    <br />
+                    Status: <span id="sidepanelstatus">In use. ${Math.floor(
+                        state.endurance / 6
+                    )}% lifespan remaining</span>
+                    <br />
+                `);
             }
-            $("#sidepanel").append("<br />");
             if (game.unlockedItems.includes("Flint Stabber")) {
                 state.showTools();
             }
@@ -120,10 +119,10 @@ export const leanto = mapsquare => {
 
         updatepanel() {
             if (state.status == 0) {
-                $("#sidepanelstatus").html("Building: " + Math.floor(state.counter / 1.2) + "% complete");
+                $("#sidepanelstatus").html(`Building: ${Math.floor(state.counter / 1.2)}% complete`);
             } else {
                 $("#sidepanelstatus").html(
-                    "In use. " + Math.floor((state.counter * 100.0) / state.endurance) + "% lifespan remaining"
+                    `In use. ${Math.floor((state.counter * 100.0) / state.endurance)}% lifespan remaining`
                 );
             }
         },

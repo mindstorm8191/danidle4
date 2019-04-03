@@ -41,25 +41,21 @@ export const waterfiller = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b><center>Water Filler</center></b><br />" +
-                    "Water is easily available, but moving it is easier said than done. Fortunately, you have a tool for that.<br />" +
-                    "<br />" +
-                    "Fills wooden bowls (or any other container) with water. Takes only one tick to complete.<br />"
-            );
+            $("#sidepanel").html(`
+                <b><center>Water Filler</center></b><br />
+                Water is easily available, but moving it is easier said than done. Fortunately, you have a tool for that.<br />
+                <br />
+                Fills wooden bowls (or any other container) with water. Takes only one tick to complete.<br />
+            `);
             state.showPriority();
             $("#sidepanel").append("<br />");
             state.showDeleteLink();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Empty containers on hand: <span id="sidepanelinput">' +
-                    state.inItems.length +
-                    "</span><br />" +
-                    "Output items on hand:" +
-                    '<div id="sidepanelonhand">' +
-                    state.displayItemsOnHand() +
-                    "</div>"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Empty containers on hand: <span id="sidepanelinput">${state.inItems.length}</span><br />
+                Output items on hand:
+                <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
+            `);
         },
 
         updatepanel() {

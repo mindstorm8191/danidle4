@@ -110,38 +110,26 @@ export const campfire = mapsquare => {
 
         drawpanel() {
             // Before starting, determine how much progress to show in the item progress (even if we're working on nothing)
-            $("#sidepanel").html(
-                "<b>Fire Pit</b><br />" +
-                    "<br />" +
-                    "Fire is man's ultimate tool, even in primitive times. Not only does it provide warmth, it " +
-                    "cooks food, unlocking nutrients that would otherwise be inaccessible to the body. Easy access " +
-                    "to nutrients allows humans to do more.<br />" +
-                    "<br />" +
-                    "Provides a place to cook foods and other things. Requires constant supply of firewood (such as " +
-                    "sticks) to maintain heat. Provide raw foods (like meats) to be cooked; butchering is optional " +
-                    "but recommended.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Fire Pit</b><br />
+                <br />
+                Fire is man's ultimate tool, even in primitive times. Not only does it provide warmth, it cooks food, unlocking
+                nutrients that would otherwise be inaccessible to the body. Easy access to nutrients allows humans to do more.<br />
+                <br />
+                Provides a place to cook foods and other things. Requires constant supply of firewood (such as sticks) to maintain
+                heat. Provide raw foods (like meats) to be cooked; butchering is optional but recommended.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Fire temperature: <span id="sidepaneltemp">' +
-                    state.temp +
-                    "</span><br />" +
-                    'Current item progress: <span id="sidepanelprogress">' +
-                    state.getCookProgress() +
-                    "</span>%<br />" +
-                    'Firewood on hand: <span id="sidepanelfuel">' +
-                    state.toBurn.length +
-                    "</span><br />" +
-                    'Cookable items on hand: <span id="sidepanelcook">' +
-                    state.toCook.length +
-                    "</span><br />" +
-                    '<a href="#" id="sidepaneldelete">Delete Block</a><br />' +
-                    'Completed items on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Fire temperature: <span id="sidepaneltemp">${state.temp}</span><br />
+                Current item progress: <span id="sidepanelprogress">${state.getCookProgress()}</span>%<br />
+                Firewood on hand: <span id="sidepanelfuel">${state.toBurn.length}</span><br />
+                Cookable items on hand: <span id="sidepanelcook">${state.toCook.length}</span><br />
+                <a href="#" id="sidepaneldelete">Delete Block</a><br />
+                Completed items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+            `);
             document.getElementById("sidepaneldelete").addEventListener("click", () => game.blockSelect.deleteblock());
         },
 

@@ -48,25 +48,23 @@ export const firewoodmaker = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b><center>Firewood Collector</center></b><br />" +
-                    "<br />" +
-                    "Fires don't burn on their own. You need to collect firewood from the surrounding lands. Dead wood is dry " +
-                    "and burns much better than freshly cut wood.<br />" +
-                    "<br />" +
-                    "Collects firewood from the surrounding lands. Place next to a campfire to provide the fire with fuel.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b><center>Firewood Collector</center></b><br />
+                <br />
+                Fires don't burn on their own. You need to collect firewood from the surrounding lands. Dead wood is dry and burns much
+                better than freshly cut wood.<br />
+                <br />
+                Collects firewood from the surrounding lands. Place next to a campfire to provide the fire with fuel.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Current progress: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter / state.craftTime) * 100) +
-                    "</span>%<br />" +
-                    'Wood on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Current progress: <span id="sidepanelprogress">${Math.floor(
+                    (state.counter / state.craftTime) * 100
+                )}</span>%<br />
+                Wood on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+            `);
             state.showDeleteLink();
         },
 

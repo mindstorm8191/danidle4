@@ -65,25 +65,23 @@ export const twinemaker = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Twine Maker</b><br />" +
-                    "<br />" +
-                    "Rope is an essential tool for survival, providing hundreds of potential uses to get things done. " +
-                    "Twine isn't a very effective rope, but it is available, and will do for now.<br />" +
-                    "<br />" +
-                    "Produces twine from vines of the forest and tree bark.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Twine Maker</b><br />
+                <br />
+                Rope is an essential tool for survival, providing hundreds of potential uses to get things done. Twine isn't a very effective
+                rope, but it is available, and will do for now.<br />
+                <br />
+                Produces twine from vines of the forest and tree bark.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Twine on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />" +
-                    'Progress: <span id="sidepanelprogress">' +
-                    Math.floor((state.counter * 100) / state.craftTime) +
-                    "</span>%<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Twine on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Progress: <span id="sidepanelprogress">${Math.floor(
+                    (state.counter * 100) / state.craftTime
+                )}</span>%<br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
             state.showTools();

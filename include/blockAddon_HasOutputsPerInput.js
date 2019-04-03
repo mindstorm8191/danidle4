@@ -77,9 +77,9 @@ export const blockHasOutputsPerInput = state => ({
 
         if (efficiency === undefined) {
             console.log(
-                "Error in HasOuputsPerInput->processCraft: no efficiency value provided - this is mandatory (block name=" +
-                    state.name +
-                    ")"
+                `Error in HasOuputsPerInput->processCraft: no efficiency value provided - this is mandatory (block name=${
+                    state.name
+                })`
             );
             return;
         }

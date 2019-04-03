@@ -47,11 +47,17 @@ export const blockCooksItems = state => ({
 
     inputsAccepted() {
         // Outputs an array of all items that this block will accept as input
+        if (state.or_inputsAccepted != undefined) {
+            console.log("Using blocks own function here");
+            return state.or_inputsAccepted();
+        }
         return [...state.itemsConversion.map(ele => ele.name), state.fuelTypes.map(ele => ele.name)];
     },
 
     willAccept(itemname) {
         // Returns true if this block will accept the specified item as input, right now.
+        console.log("Check item " + itemname);
+        if (state.or_willAccept != undefined) return state.or_willAccept(itemname);
 
         if (state.itemsConversion.some(ele => ele.name === itemname)) {
             if (state.toCook.length > 15) return false; // ensure we have space for the selected item
@@ -67,6 +73,8 @@ export const blockCooksItems = state => ({
     receiveItem(item) {
         // Accepts an item as input. Returns true if successful, or false if not
         // Unlike other blocks, we will need to determine if this is a food item or fuel item.
+        if (state.or_receiveItem != undefined) return state.or_receiveItem(item);
+
         if (state.fuelTypes.some(ele => ele.name === item.name)) {
             state.toBurn.push(item);
             return true;
@@ -86,7 +94,7 @@ export const blockCooksItems = state => ({
 
     targetTemp() {
         // Helper function. Returns the target temperature that this block is trying to reach, for the current cook item
-        if (state.toCook.length === 0) return state.defaultTemp;
+        if (state.itemsConversion.length === 0) return state.defaultTemp;
         return state.itemsConversion.find(ele => ele.name === state.toCook[0].name).targetTemp;
     },
 
@@ -156,7 +164,7 @@ export const blockCooksItems = state => ({
         // Returns true if work was done here, or false if not
 
         if (state.burnTime > 0) return false; // No need - we still have burn time going
-        if (state.toCook.length === 0) return false; // No need - there's nothing to cook anyway
+        if (state.toCook.length === 0 && state.itemsConversion.length != 0) return false; // No need - there's nothing to cook anyway
         if (state.temp > state.targetTemp()) return false; // No need - the fire's temperature is at/above target
         if (state.toBurn.length === 0) return false; // Unable - no fuel left in this block
 

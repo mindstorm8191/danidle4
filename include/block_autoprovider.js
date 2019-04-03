@@ -17,8 +17,9 @@ export const autoprovider = mapsquare => {
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // We don't need to have a function to decide what gets generated - we can simply edit a fixed data structure here
         generate: [
-            { name: "Flint Spear", class: "tool", efficiency: 1, endurance: 10000 },
-            { name: "Flint Hatchet", class: "tool", efficiency: 5, endurance: 10000 },
+            { name: "Wooden Water Cup", class: "item", efficiency: 1, endurance: 20 },
+            { name: "Flint Hoe", class: "tool", efficiency: 1, endurance: 10000 },
+            { name: "Pole Crane", class: "tool", efficiency: 1, endurance: 10000 },
             { name: "Apple", class: "food", lifetime: 10000 }
         ],
         fixedPopulation: 10,
@@ -70,6 +71,7 @@ export const autoprovider = mapsquare => {
                 state.generate.forEach(ele => {
                     let mappos = game.chunkList[0][0].map[state.tile.ypos][state.tile.xpos + position];
                     ele.hand = storage(mappos);
+                    ele.hand.allowOutput = true;
                     position++;
                 });
                 // While we're here, unlock the additional items
@@ -78,6 +80,9 @@ export const autoprovider = mapsquare => {
                 });
                 game.blockDemands.unlock();
                 state.isActivated = true;
+                //const one = [{ name: "Red", holding: 17 }, { name: "Blue", holding: 8 }];
+                //const two = [{ name: "Red", holding: 4 }, { name: "green", holding: 10 }];
+                //console.log(one.concat(two));
             }
             state.generate.forEach(ele => {
                 if (ele.hand.onhand.length < 10) {
@@ -97,11 +102,11 @@ export const autoprovider = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>AutoProvider</b><br />" +
-                    "<br />" +
-                    "Use of this block indicates you are cheating. The code will determine how it affects the game"
-            );
+            $("#sidepanel").html(`
+                <b>AutoProvider</b><br />
+                <br />
+                Use of this block indicates you are cheating. The code will determine how it affects the game
+            `);
         },
 
         updatepanel() {} // We probably won't need this for anything here

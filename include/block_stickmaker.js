@@ -49,29 +49,22 @@ export const stickmaker = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<b>Stick Maker</b><br />" +
-                    "<br />" +
-                    "The effective use of wood is crucial for continued expansion of your colony. Durable yet " +
-                    "easily workable, and there's plenty to be made use of.<br />" +
-                    "<br />" +
-                    "Cuts down small trees and branches of larger ones to produce sticks of various sizes, including " +
-                    "firewood.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <b>Stick Maker</b><br />
+                <br />
+                The effective use of wood is crucial for continued expansion of your colony. Durable yet easily workable, and there's
+                plenty to be made use of.<br />
+                <br />
+                Cuts down small trees and branches of larger ones to produce sticks of various sizes, including firewood.<br />
+                <br />
+            `);
             state.showPriority();
-            $("#sidepanel").append(
-                "<br />" +
-                    'Items on hand: <span id="sidepanelonhand">' +
-                    state.onhand.length +
-                    "</span><br />" +
-                    'Currently building: <span id="sidepanelcurrent">' +
-                    state.currentcraft +
-                    "</span><br />" +
-                    'Current progress: <span id="sidepanelprogress">' +
-                    state.drawProgressPercent() +
-                    "</span>%<br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                Items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Currently building: <span id="sidepanelcurrent">${state.currentcraft}</span><br />
+                Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
+            `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
             state.drawOutputChoices();

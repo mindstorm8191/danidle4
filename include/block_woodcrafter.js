@@ -98,33 +98,28 @@ export const woodcrafter = mapsquare => {
         },
 
         drawpanel() {
-            $("#sidepanel").html(
-                "<center><b>Woodcrafter</b></center>" +
-                    "<br />" +
-                    "Crafting things out of sticks can only get you so far. Eventually you will need to craft wood from larger wood portions, " +
-                    "such as whole logs.<br />" +
-                    "<br />" +
-                    "Uses a hatchet to cut logs into other things, such as bowls.<br />" +
-                    "<br />"
-            );
+            $("#sidepanel").html(`
+                <center><b>Woodcrafter</b></center>
+                <br />
+                Crafting things out of sticks can only get you so far. Eventually you will need to craft wood from larger wood portions,
+                such as whole logs.<br />
+                <br />
+                Uses a hatchet to cut logs into other things, such as bowls.<br />
+                <br />
+            `);
             state.showPriority();
             $("#sidepanel").append("<br />");
             state.showDeleteLink();
-            $("#sidepanel").append(
-                "<br />" +
-                    "<b>Items Needed</b>:" +
-                    '<div id="sidepanelparts">' +
-                    state.drawStocks() +
-                    "</div><br />" +
-                    //-----
-                    'Current progress: <span id="sidepanelprogress">' +
-                    state.drawProgressPercent() +
-                    "</span>%<br />" +
-                    //-----
-                    '<b>Output Items on hand:</b><div id="sidepanelonhand">' +
-                    state.displayItemsOnHand() +
-                    "</div><br />"
-            );
+            $("#sidepanel").append(`
+                <br />
+                <b>Items Needed</b>:
+                <div id="sidepanelparts">${state.drawStocks()}</div>
+                <br />
+                Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()} </span>%<br />
+                <b>Output Items on hand:</b>
+                <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
+                <br />
+            `);
             state.drawOutputChoices();
             state.showTools();
         },
