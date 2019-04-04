@@ -49,7 +49,7 @@ export const fireminer = mapsquare => {
             // inputsAccepted() is already defined in blockCooksItems. This allows us to 'overwrite' that function to get this one to work
             // Returns an array list of all items that this block accepts as input
             //console.log(state.waterContainers);
-            console.log([...state.waterContainers, ...state.fuelTypes.map(ele => ele.name)]);
+            //console.log([...state.waterContainers, ...state.fuelTypes.map(ele => ele.name)]);
             return [...state.waterContainers, ...state.fuelTypes.map(ele => ele.name)];
         },
 
@@ -60,7 +60,7 @@ export const fireminer = mapsquare => {
 
         or_willAccept(itemname) {
             // Returns true if this block will accept the given item
-            console.log("Check for acceptable items");
+            //console.log("Check for acceptable items");
             if (state.waterContainers.includes(itemname)) return state.water.length < 10;
             if (state.fuelTypes.some(ele => ele.name === itemname)) return state.toBurn.length < 10;
             return false;
@@ -104,14 +104,9 @@ export const fireminer = mapsquare => {
 
                 // These return true when work was completed
                 //if (state.toCook.length === 0) state.toCook.push(1); This won't work; targetTemp then assumes we have something we want to cook, with a defined temperature
-                if (state.manageFuel()) {
-                    console.log("Exit at fuel management");
-                    return;
-                }
-                if (state.findFuel()) {
-                    console.log("Exit at fuel searching");
-                    return;
-                }
+                if (state.manageFuel()) return;
+                if (state.findFuel()) return;
+
                 // While we're here, we should also work on collecting water cups
                 if (game.workPoints < 1 || state.water.length > 10) return;
                 game.blockList.neighbors(state.tile).find(neighbor => {
@@ -127,22 +122,18 @@ export const fireminer = mapsquare => {
             //This should only be the clear mode
             // Start by selecting something we are currently clearing
             if (state.clearTarget === "") {
-                console.log(state.toolChoices);
+                //console.log(state.toolChoices);
                 if (Math.random() > 0.75) {
                     state.clearTarget = "Boulder";
                     // Also, set the usage modes of both tools
-                    state.toolChoices.find(ele => {
-                        console.log(ele.groupName);
-                        if (ele.groupName === "Shovel") return true;
-                        return false;
-                    }).inUse = false;
+                    state.toolChoices.find(ele => ele.groupName === "Shovel").inUse = false;
                     state.toolChoices.find(ele => ele.groupName === "Crane").inUse = true;
                 } else {
                     state.clearTarget = "Gravel";
                     state.toolChoices.find(ele => ele.groupName === "Shovel").inUse = true;
                     state.toolChoices.find(ele => ele.groupName === "Crane").inUse = false;
                 }
-                console.log("Now clearing " + state.clearTarget);
+                //console.log("Now clearing " + state.clearTarget);
             }
 
             if (game.workPoints < 1) return; // cannot make progress unless there's a worker available
@@ -151,13 +142,14 @@ export const fireminer = mapsquare => {
             // At this point, we are clear to make progress on clearing this
             game.workPoints--;
             state.counter += eff;
-            console.log("Using efficiency " + eff + ", now at progress " + state.counter);
+            //console.log("Using efficiency " + eff + ", now at progress " + state.counter);
             if (state.counter < 30) return;
 
             // We have enough progress to generate something
             state.counter -= 30;
             state.onhand.push(item(state.clearTarget));
             state.clearProgress++;
+            state.clearTarget = ""; // Don't forget to blank this out so we can possibly pick something new to extract
             if (state.clearProgress < 20) return;
 
             // We have cleared enough room to 'start the fire' again. Most of our mode variables have already been set
@@ -187,6 +179,8 @@ export const fireminer = mapsquare => {
                 Fire temperature: <span id="sidepaneltemp">${state.temp}</span><br />
                 Rock temperature: <span id="sidepanelrocktemp">${state.rockTemp}</span> (target 300)<br />
                 Fuel on hand: <span id="sidepanelfuel">${state.toBurn.length}</span><br />
+                Water on hand: <span id="sidepanelwater">${state.water.length}</span><br />
+                Clearing progress: <span id="sidepanelprogress">${Math.floor((state.counter / 30) * 100)}</span><br />
                 Output items:
                 <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
                 <br />

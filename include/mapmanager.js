@@ -116,12 +116,12 @@ class mapchunk {
     // Class to manage map chunks. Chunks (at this time) are 50 squares tall by 50 squares wide. Whenever a new chunk is generated that is a neighbor of another existing chunk,
     // it will generate boimepoints for all shared edges, so the map is more seamless
     constructor(chunkxpos, chunkypos) {
-        if (typeof game.chunkList[chunkypos] === "undefined") {
+        if (game.chunkList[chunkypos] === undefined) {
             console.log("Generating 1d array...");
             //chunkList = [];
             game.chunkList[chunkypos] = [];
         }
-        if (typeof game.chunkList[chunkypos][chunkxpos] === "undefined") {
+        if (game.chunkList[chunkypos][chunkxpos] === undefined) {
             console.log("Generating 2d array...");
             game.chunkList[chunkypos] = [];
         }
@@ -138,10 +138,7 @@ class mapchunk {
         this.biomepoints = [];
         // Now check to see if there are any neighboring chunks to use for generating biomepoints
         // start with the top direction
-        if (
-            typeof game.chunkList[chunkypos - 1] != "undefined" &&
-            typeof game.chunkList[chunkypos - 1][chunkxpos] != "undefined"
-        ) {
+        if (game.chunkList[chunkypos - 1] != undefined && game.chunkList[chunkypos - 1][chunkxpos] != undefined) {
             // At this point, we can assume that chunkList[y-1][x] is another mapchunk. Run across its bottom edge and generate new biomepoints
             console.log("New chunk has a northern neighbor");
             let sourcechunk = game.chunkList[chunkypos - 1][chunkxpos];
@@ -167,10 +164,7 @@ class mapchunk {
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
         // now do the bottom direction
-        if (
-            typeof game.chunkList[chunkypos + 1] != "undefined" &&
-            typeof game.chunkList[chunkypos + 1][chunkxpos] != "undefined"
-        ) {
+        if (game.chunkList[chunkypos + 1] != undefined && game.chunkList[chunkypos + 1][chunkxpos] != undefined) {
             console.log("New chunk has a southern neighbor");
             let sourcechunk = game.chunkList[chunkypos + 1][chunkxpos];
             let lastcolormatch = -1;
@@ -194,7 +188,7 @@ class mapchunk {
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
         // left side... we can assume that chunkList[chunkypos] already exists
-        if (typeof game.chunkList[chunkypos][chunkxpos - 1] != "undefined") {
+        if (game.chunkList[chunkypos][chunkxpos - 1] != undefined) {
             console.log("New chunk has a western neighbor");
             let sourcechunk = game.chunkList[chunkypos][chunkxpos - 1];
             let lastcolormatch = -1;
@@ -217,7 +211,7 @@ class mapchunk {
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
         // right side
-        if (typeof game.chunkList[chunkypos][chunkxpos + 1] != "undefined") {
+        if (game.chunkList[chunkypos][chunkxpos + 1] != undefined) {
             console.log("New chunk has an eastern neighbor");
             let sourcechunk = game.chunkList[chunkypos][chunkxpos + 1];
             let lastcolormatch = -1;

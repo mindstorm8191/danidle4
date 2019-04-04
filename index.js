@@ -5,6 +5,7 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
+// 1) Start updating the map generation code so we can factor in various ores within rock formations
 // 1) For tools, have a variable to determine if a tool is in use or not. Assume this variable doesn't exist. We can also offer a function
 //    to return tools not in use
 // 1) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints

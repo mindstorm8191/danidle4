@@ -244,12 +244,12 @@ export const blockRequiresTool = state => ({
         const lasttool = group.targetTool;
         group.targetTool = newtool;
         $("#sidepaneltool" + danCommon.multiReplace(lasttool, " ", "")).css({
-            "background-color": state.chooseToolColor(lasttool)
+            "background-color": state.chooseToolColor(group.groupName, lasttool)
         });
         $("#sidepaneltool" + danCommon.multiReplace(group.targetTool, " ", "")).css({
-            "background-color": state.chooseToolColor(group.targetTool)
+            "background-color": state.chooseToolColor(group.groupName, group.targetTool)
         });
-        console.log("Group " + toolgroup + ", tool " + group.targetTool);
+        //console.log("Group " + toolgroup + ", tool " + group.targetTool);
     },
 
     returnTool() {
