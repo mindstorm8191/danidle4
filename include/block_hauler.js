@@ -3,7 +3,7 @@
 // Uses workers to move single items from one place to another. Worker-expensive, but still very versatile, and requires no tech
 
 import { game } from "./game.js";
-import { blockDeletesClean } from "./activeblock.js";
+import { blockDeletesClean, blockHasWorkerPriority } from "./activeblock.js";
 import { danCommon } from "./dancommon.js";
 import $ from "jquery";
 
@@ -76,7 +76,7 @@ export const hauler = mapsquare => {
                                 return neighbor.willOutput(itemgroup.name);
                             });
                             if (source === undefined) return false;
-                            console.log("Ready to share " + itemgroup.name);
+                            //console.log("Ready to share " + itemgroup.name);
                             let cutslot = -1;
                             // This block has an item which we can send to another block. Now, search the targets for some place to send it to
                             const dest = itemgroup.targets.find((target, index) => {
@@ -95,7 +95,7 @@ export const hauler = mapsquare => {
                                     cutslot = index;
                                     return false;
                                 }
-                                console.log("Check if block accepts " + itemgroup.name);
+                                //console.log("Check if block accepts " + itemgroup.name);
                                 return block.willAccept(itemgroup.name);
                             });
                             if (cutslot != -1) itemgroup.targets.splice(cutslot, 1);
@@ -161,15 +161,15 @@ export const hauler = mapsquare => {
                     if (state.counter <= Math.abs(state.tile.xpos - state.targetx)) {
                         // Working on moving left or right
                         if (state.targetx > state.tile.xpos) {
-                            console.log("xpos=" + (state.tile.xpos + state.counter));
+                            //console.log("xpos=" + (state.tile.xpos + state.counter));
                             $("#haulerimage" + state.id).css("left", (state.tile.xpos + state.counter) * 66 + 3 + "px");
                         } else {
-                            console.log("xpos=" + (state.tile.xpos + state.counter));
+                            //console.log("xpos=" + (state.tile.xpos + state.counter));
                             $("#haulerimage" + state.id).css("left", (state.tile.xpos - state.counter) * 66 + 3 + "px");
                         }
                     } else {
                         if (state.targety > state.tile.ypos) {
-                            console.log("ypos=" + (state.tile.ypos + state.counter));
+                            //console.log("ypos=" + (state.tile.ypos + state.counter));
                             $("#haulerimage" + state.id).css(
                                 "top",
                                 (state.tile.ypos + (state.counter - Math.abs(state.tile.xpos - state.targetx))) * 66 +
@@ -177,7 +177,7 @@ export const hauler = mapsquare => {
                                     "px"
                             );
                         } else {
-                            console.log("ypos=" + (state.tile.ypos + state.counter));
+                            //console.log("ypos=" + (state.tile.ypos + state.counter));
                             $("#haulerimage" + state.id).css(
                                 "top",
                                 (state.tile.ypos - (state.counter - Math.abs(state.tile.xpos - state.targetx))) * 66 +
@@ -235,6 +235,7 @@ export const hauler = mapsquare => {
                 Place Item Haulers near blocks providing the item. Select an output, then click the block to send items to. Haulers can
                 haul items any distance, but time needed depends on distance.
             `);
+            state.showPriority();
             state.showDeleteLink();
             $("#sidepanel").append(`
                 <br />
@@ -338,7 +339,7 @@ export const hauler = mapsquare => {
 
             // Now we are ready to add this target as a route
             const itemgroup = state.jobList.find(ele => ele.name === state.targetitem);
-            console.log(itemgroup);
+            //console.log(itemgroup);
             if (itemgroup === undefined) {
                 // We found no existing groups for this item.  Time to create a new one
                 state.jobList.push({
@@ -365,7 +366,7 @@ export const hauler = mapsquare => {
                 ypos: mappos.ypos
             });
             state.showTargets(state.targetitem);
-            console.log(state.jobList);
+            //console.log(state.jobList);
             //$("#sidepanel").append("<br />Success");
         },
 
@@ -398,5 +399,5 @@ export const hauler = mapsquare => {
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/bucketline_right.png" />');
-    return Object.assign(state, blockDeletesClean(state));
+    return Object.assign(state, blockDeletesClean(state), blockHasWorkerPriority(state));
 };

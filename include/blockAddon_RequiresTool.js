@@ -74,9 +74,7 @@ export const blockRequiresTool = state => ({
             .filter(group => !(group.currentTool === null))
             .filter(group => group.inUse === true)
             .map(group => group.currentTool.efficiency)
-            .reduce((sum, value) => {
-                return sum + value;
-            }, 0);
+            .reduce((sum, value) => sum + value, 0);
         /*
         if (state.currentTool === null) {
             if (state.targetTool === "None") return null; // We are currently not after any tools

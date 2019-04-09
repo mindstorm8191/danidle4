@@ -101,7 +101,7 @@ export const campfire = mapsquare => {
                 return;
             }
 
-            state.updateCook();
+            state.updateCook(state.onhand.length < 20);
             if (state.manageCooking()) return;
             if (state.manageFuel()) return;
             if (state.findFuel()) return;

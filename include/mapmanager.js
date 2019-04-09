@@ -33,6 +33,30 @@ const directionmap = [
     [{ x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 1 }, { x: 1, y: 0 }]
 ];
 
+const imageSelector = [
+    { value: 1, img: "img/grass.png" },
+    { value: 2, img: "img/forest.png" },
+    { value: 3, img: "img/rocktile.png" },
+    { value: 4, img: "img/watertile.png" }
+];
+
+const oreRates = [
+    { name: "Copper Ore", rate: 100 },
+    { name: "Tin Ore", rate: 50 },
+    { name: "Iron Ore", rate: 60 },
+    { name: "Aluminum Ore", rate: 25 }
+];
+
+function pickOre() {
+    // Selects an ore to used, based on the oreRates array
+    let target = Math.random() * oreRates.map(e => e.rate).reduce((sum, value) => sum + value);
+    return oreRates.find(ele => {
+        if (target <= ele.rate) return true;
+        target -= ele.rate;
+        return false;
+    }).name;
+}
+
 let lastMapTileId = 0;
 function nextMapTileId() {
     // Returns a new unique for a new tile to be used
@@ -41,6 +65,7 @@ function nextMapTileId() {
 }
 
 class maptile {
+    // Individual tiles on the final map.  Note that these exist and are functional during the game
     constructor(chunk, x, y) {
         this.chunk = chunk;
         this.xpos = x;
@@ -51,60 +76,63 @@ class maptile {
 
         this.vegetation = Math.random(); // we'll store a value between 0 and 1 for this
         // Vegetation determines how quickly weeds and additional trees regrow.  Does not apply to all blocks (such as rocks or water)
-        this.growth = 20000; // This will be a tracking rate of weed growth on this tile.  Every tick, this will go up an amount based on the vegetation value (capped at 20,000).
-        // We may also have 'spill-over', where tiles will pass growth values to other tiles.
+        this.growth = Math.random() * 20000; // This will be a tracking rate of weed growth on this tile.  Every tick, this will go up an
+        // amount based on the vegetation value (capped at 20,000).
+        // We may also have 'spill-over', where tiles will pass growth values to other tiles. This might be harder to achieve, though
+    }
+
+    update() {
+        // Handles updating this block once every tick
+        if (this.structure != null) return; // Cannot update vegetation if there's something growing here
+        if (this.growth < 20000) this.growth += this.vegetation;
+        if (this.tile === 2 && this.growth >= 20000 && this.numTrees < 4) {
+            console.log("New tree sprouted!");
+            this.growth -= 10000;
+            this.numTrees++;
+            this.chooseImage();
+            $("#" + this.id + "gametile").css({ "background-image": "url(" + this.image + ")" });
+        }
+    }
+
+    chooseImage() {
+        // Selects which image to use for this tile, based on the block's settings
+        this.image = imageSelector.find(ele => ele.value === this.tile).img;
+        if (this.tile === 2) {
+            // This is a forest tile, it gets more selection parameters
+            //            if (this.numTrees > 0) {
+            this.image = "img/tree" + Math.max(1, this.numTrees) + ".png";
+            //          } else {
+            //            this.image = "img/grass.png";
+            //      }
+        }
     }
 
     settile(color) {
         this.tile = color;
-        switch (this.tile) {
-            //case 1: this.image = 'img/dirttile.png'; break;
-            case 1:
-                this.image = "img/grass.png";
-                break;
-            case 2:
-                this.image = "img/forest.png";
-                break;
-            case 3:
-                this.image = "img/rocktile.png";
-                break;
-            case 4:
-                this.image = "img/watertile.png";
-                break;
+        if (color === 3) {
+            this.ore = pickOre();
+            console.log("Using ore " + this.ore);
         }
-        //console.log(this.image);
+        if (color === 2) {
+            this.numTrees = Math.floor(Math.random() * 4) + 1;
+        }
+        //this.image = imageSelector.find(ele => ele.value === color).img;
+        this.chooseImage();
 
         // Now we are able to draw the tile on the screen
-        $("#game").append(
-            '<div id="' +
-                this.id +
-                'gametileholder" class="gametileholder" style="top:' +
-                this.ypos * 66 +
-                "px; left:" +
-                this.xpos * 66 +
-                'px;" ' +
-                //'     onclick="handlegameboxclick(' +
-                //this.xpos +
-                //"," +
-                //this.ypos +
-                //')"
-                ">" +
-                '  <div class="gametile" id="' +
-                this.id +
-                'gametile" style="background-image:url(' +
-                this.image +
-                ');">' +
-                '    <div id="' +
-                this.id +
-                'imageholder" style="display:block; width:60px; height:60px; margin:auto; position:absolute; top:3px; left:3px">' +
-                "    </div>" +
-                //'    <img id="' + this.id + 'img" src="' + this.image + '" /></div>' +
-                '    <div id="' +
-                this.id +
-                'progress" style="z-index:4" class="progressbar"></div>' +
-                "  </div>" +
-                "</div>"
-        );
+        $("#game").append(`
+            <div id="${this.id}gametileholder"
+                class="gametileholder"
+                style="top:${this.ypos * 66}px; left:${this.xpos * 66}px;">
+                <div class="gametile" id="${this.id}gametile"
+                    style="background-image:url(${this.image});">
+                    <div id="${this.id}imageholder"
+                        style="display:block; width:60px; height:60px; margin:auto; position:absolute; top:3px; left:3px">
+                    </div>
+                    <div id="${this.id}progress" style="z-index:4" class="progressbar"></div>
+                </div>
+            </div>
+        `);
         document
             .getElementById(this.id + "gametileholder")
             .addEventListener("click", () => handlegameboxclick(this.xpos, this.ypos));

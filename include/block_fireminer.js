@@ -7,6 +7,7 @@ import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority } from
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { blockCooksItems } from "./blockAddon_CooksItems.js";
 import { item } from "../index.js";
+import { danCommon } from "./dancommon.js";
 import $ from "jquery";
 
 export const fireminer = mapsquare => {
@@ -15,7 +16,7 @@ export const fireminer = mapsquare => {
         tile: mapsquare,
         id: game.lastBlockId,
         counter: 0, // This is used in the clearing process, but not the heating process
-        depth: 0, // How deep this mine currently is. Mines have to get to a certain depth before they begin yielding metal ores
+        depth: 10, // How deep this mine currently is. Mines have to get to a certain depth before they begin yielding metal ores
         clearProgress: 0, // How many units of stone we have removed from this process
         allowOutput: true,
         mode: "heat",
@@ -31,7 +32,7 @@ export const fireminer = mapsquare => {
         tempDecay: 2,
         defaultTemp: 400,
         // This contains a list of all usable water containers, for shocking the hot rocks. Note we only have one, so it has little use - yet
-        waterContainers: ["Wooden Water Cup"],
+        waterContainers: ["Wooden Water Bowl"],
         water: [], // All water units we have on hand
         toolChoices: [
             { groupName: "Shovel", isRequired: true, inUse: false, choices: ["None", "Flint Hoe"] },
@@ -39,10 +40,11 @@ export const fireminer = mapsquare => {
         ],
         rockTemp: 0,
 
-        possibleOutputs() {
+        possibleoutputs() {
             // Returns all possible outputs that this block can produce
-            // We will eventually add ores to this as well... not just yet
-            return ["Gravel", "Boulder"];
+            // In order to output ores, when we don't know what kind of ores we might have, we need to consider what is in the
+            //return ["Gravel", "Boulder"];
+            return danCommon.removeDuplicates(["Gravel", "Boulder", ...state.onhand.map(ele => ele.name)]);
         },
 
         or_inputsAccepted() {
@@ -69,7 +71,7 @@ export const fireminer = mapsquare => {
         or_receiveItem(item) {
             // Handles receiving an item as input. Returns true if successful, or false if not
             if (state.waterContainers.includes(item.name) && state.water.length < 10) {
-                console.log(state.water.push(item));
+                //console.log(state.water.push(item));
                 return true;
             }
             if (state.fuelTypes.some(ele => ele.name === item.name) && state.toBurn.length < 10) {
@@ -129,7 +131,11 @@ export const fireminer = mapsquare => {
                     state.toolChoices.find(ele => ele.groupName === "Shovel").inUse = false;
                     state.toolChoices.find(ele => ele.groupName === "Crane").inUse = true;
                 } else {
-                    state.clearTarget = "Gravel";
+                    if (state.depth >= 10 && Math.random() > 0.5) {
+                        state.clearTarget = state.tile.ore;
+                    } else {
+                        state.clearTarget = "Gravel";
+                    }
                     state.toolChoices.find(ele => ele.groupName === "Shovel").inUse = true;
                     state.toolChoices.find(ele => ele.groupName === "Crane").inUse = false;
                 }
@@ -156,6 +162,7 @@ export const fireminer = mapsquare => {
             state.mode = "heat";
             state.clearProgress = 0;
             state.counter = 0;
+            state.depth++;
         },
 
         drawpanel() {
@@ -195,6 +202,8 @@ export const fireminer = mapsquare => {
             $("#sidepanelrocktemp").html(state.rockTemp);
             $("#sidepanelfuel").html(state.toBurn.length);
             $("#sidepanelonhand").html(state.displayItemsOnHand());
+            $("#sidepanelwater").html(state.water.length);
+            $("#sidepanelprogress").html(Math.floor((state.counter / 30) * 100));
         }
     };
 

@@ -47,16 +47,13 @@ export const blockCooksItems = state => ({
 
     inputsAccepted() {
         // Outputs an array of all items that this block will accept as input
-        if (state.or_inputsAccepted != undefined) {
-            console.log("Using blocks own function here");
-            return state.or_inputsAccepted();
-        }
+        if (state.or_inputsAccepted != undefined) return state.or_inputsAccepted();
         return [...state.itemsConversion.map(ele => ele.name), state.fuelTypes.map(ele => ele.name)];
     },
 
     willAccept(itemname) {
         // Returns true if this block will accept the specified item as input, right now.
-        console.log("Check item " + itemname);
+        //console.log("Check item " + itemname);
         if (state.or_willAccept != undefined) return state.or_willAccept(itemname);
 
         if (state.itemsConversion.some(ele => ele.name === itemname)) {
@@ -110,7 +107,7 @@ export const blockCooksItems = state => ({
         }
     },
 
-    updateCook() {
+    updateCook(makeProgress) {
         // Handles tracking the progress on the cooking of the current item.
         // Note that this doesn't manage when cook items are removed from the fire (this can be done at a later point), which means cook items
         // can burn if left on the fire too long.
@@ -119,6 +116,9 @@ export const blockCooksItems = state => ({
         if (state.toCook.length === 0) return; // we have nothing to cook anyway
         // We will need a few facts from the item we're currently cooking
         const cookObject = state.itemsConversion.find(ele => ele.name === state.toCook[0].name);
+
+        // Determine if we have permission to continue cooking this item or not
+        if (state.counter === 0 && makeProgress === false) return;
 
         // Make progress on this item. Note that we don't check if the item has finished yet; that is handled later
         state.counter += Math.min(

@@ -16,6 +16,8 @@ export const leanto = mapsquare => {
         endurance: 0, // Rather than using the counter to count down, we will use a second variable to determine how much
         // total endurance we can generate within the 'construction' time (based on what tools are used)
         status: 0,
+        housingSpace: 0, // This is read by a core function to determine how much housing space the user currently has.
+        // This will only be set to 2 if this leanTo is in a useable state
         toolChoices: [{ groupName: "Chopper", isRequired: false, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
 
         possibleoutputs() {
@@ -67,6 +69,7 @@ export const leanto = mapsquare => {
                 if (state.counter >= 120) {
                     // aka 2 minutes
                     state.status = 1;
+                    state.housingSpace = 2;
                     state.counter = state.endurance; // this will be 5 minutes if no tools are used (it will be longer with tools)
                     $("#" + state.tile.id + "progress").css({ "background-color": "brown" });
                 }
@@ -78,6 +81,7 @@ export const leanto = mapsquare => {
                     state.status = 0; // Go back to building this again
                     state.endurance = 0;
                     state.counter = 0;
+                    state.housingSpace = 0;
                     $("#" + state.tile.id + "progress").css({ "background-color": "green" });
                 }
             }
@@ -107,7 +111,7 @@ export const leanto = mapsquare => {
                 $("#sidepanel").append(`
                     <br />
                     Status: <span id="sidepanelstatus">In use. ${Math.floor(
-                        state.endurance / 6
+                        (state.counter * 100) / state.endurance
                     )}% lifespan remaining</span>
                     <br />
                 `);

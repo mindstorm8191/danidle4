@@ -12,6 +12,10 @@ export const danCommon = {
     multiReplace(workstring, target, replacewith) {
         // Works like string.replace(), but replaces all instances, instead of just one.
         // We need this function to turn output options (which is full item names with spaces) into DOM ids (which cannot contain spaces)
+        if (typeof workstring != "string") {
+            console.error("multiReplace works with strings. Got " + typeof workstring + ". workstring = " + workstring);
+            return "";
+        }
         let updated = workstring.replace(target, replacewith);
         while (updated != workstring) {
             workstring = updated;

@@ -19,6 +19,7 @@ import { butchershop } from "./block_butchershop.js";
 import { woodcrafter } from "./block_woodcrafter.js";
 import { waterfiller } from "./block_waterfiller.js";
 import { fireminer } from "./block_fireminer.js";
+import { gravelroad } from "./block_gravelroad.js";
 
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
@@ -45,6 +46,7 @@ export const game = {
     // to locate existing foods in our colony.  Foods consumed will be selected at random
     lastFoodID: 0, // Allows individual IDs to be given to edible items
     population: 4, // How many workers we have (aka how many mouths we have to feed)
+    housingSpace: 0, // How much space the player has available for housing workers. Housing will be required to gain more than 4 workers.
 
     // blockDemands provides us with an easy way to determine when new blocks are displayed on the left side.  We can also create the
     // respective block type by the generate field.
@@ -199,6 +201,15 @@ export const game = {
             highlight: "Fire Miner: Use fire & water to cut through rocks",
             prereq: [["Wooden Bowl"]],
             generate: fireminer
+        },
+        {
+            name: "gravelroad",
+            canBuildOn: [TILE_ROCK, TILE_GRASS],
+            image: "img/gravelroad.png",
+            state: 0,
+            highlight: "Gravel road, to make travel easier",
+            prereq: [["Gravel"]],
+            generate: gravelroad
         }
     ],
 
@@ -236,8 +247,8 @@ export const game = {
                 level: 4,
                 unlock: "I dont know what to put here yet",
                 show:
-                    "Step 5: Tool Storage. Place a Storage unit beside your Rock Knapper. Set it to receive the tool you are crafting. Only " +
-                    "when it is in storage can another block use it."
+                    "Step 5: Tool Storage. Tools travel differently than items. Place a Storage unit beside your Rock Knapper, and set it to " +
+                    "receive the tool you are crafting. Only when it is in storage can another block use it."
             }
         ]
     }
@@ -293,11 +304,10 @@ game.blockList.getById = function(id) {
 game.blockList.getInStorage = function(targetitem) {
     let hold = game.blockList.find(ele => {
         // find will only return elements, but we're not really after that, this time
-        if (ele.name === "Storage") return false; // ignore any non-storage blocks
-        if (typeof ele.onhand === "undefined") return false; // Not all activeblocks will contain an onhand array (such as housing)
+        if (ele.name !== "storage") return false; // ignore any non-storage blocks
         return ele.onhand.some(item => item.name == targetitem);
     });
-    // hold now contains the storage block which has the tool we are after
+    // 'hold' now contains the storage block which has the tool we are after
     if (hold === undefined) return null; // aka the item was not found in any storage unit
     let item = hold.onhand.splice(hold.onhand.findIndex(ele => ele.name === targetitem), 1)[0];
     // Here, we need to add the storage source to the item before returning it
@@ -306,10 +316,9 @@ game.blockList.getInStorage = function(targetitem) {
 };
 
 game.blockList.isInStorage = function(targetitem) {
-    return game.blockList.find(ele => {
+    return game.blockList.includes(ele => {
         // we want to return true if any activeblock satisfies the search function
-        if (ele.name == "Storage") return false;
-        if (typeof ele.onhand === "undefined") return false;
+        if (ele.name !== "storage") return false;
         return ele.onhand.find(item => item.name === targetitem);
         // return true if any item matches the search function
     });

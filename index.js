@@ -5,9 +5,12 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Start updating the map generation code so we can factor in various ores within rock formations
-// 1) For tools, have a variable to determine if a tool is in use or not. Assume this variable doesn't exist. We can also offer a function
-//    to return tools not in use
+// 1) Decide what to work on next
+// 2) Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
+// 3) Get the housing and food counts to turn red whenever they are the limitations on increasing population
+// 1) Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the main land type
+//    to describe more than just the 4 types. We can then include farm-dirt, gravel, stone, wall, wooden, carpeted, laminate, marble, etc
+// 1) For tools, create a function to return any tools that are listed as not in use
 // 1) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints
 //    if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
 // 2) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
@@ -31,20 +34,21 @@
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js             block_campfire.js         activeblock.js
-//    index.js                   block_foragepost.js         block_firewoodmaker.js    blockAddon_CooksItems.js
-//        dancommon.js               block_rockknapper.js       block_butchershop.js       blockAddon_HasOutputsPerInput.js
-//           game.js                     block_twinemaker.js        block_woodcrafter.js       blockAddon_HasRandomizedOutput.js
-//               mapmanager.js               block_stickmaker.js        block_waterfiller.js      blockAddon_HasSelectableCrafting.js
-//                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js         blockAddon_RequiresTool.js
-//                       block_storage.js            block_huntingpost.js      block_autoprovider.js
-// 41+271+38+373+321+397+173+153+108+141+112+107+175+105+191+92+130+159+85+144+115+200+212+117+68+336+252
+// index.html                block_leanto.js             block_campfire.js         block_autoprovider.js
+//    index.js                   block_foragepost.js         block_firewoodmaker.js    activeblock.js
+//        dancommon.js               block_rockknapper.js       block_butchershop.js       blockAddon_CooksItems.js
+//           game.js                     block_twinemaker.js        block_woodcrafter.js       blockAddon_HasOutputsPerInput
+//               mapmanager.js               block_stickmaker.js        block_waterfiller.js      blockAddon_HasRandomizedOutput.js
+//                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js         blockAddon_HasSelectableCrafting.js
+//                       block_storage.js            block_huntingpost.js      block_gravelroad.js        blockAddon_RequiresTool.js
+// 41+289+42+382+343+403+192+157+108+142+112+107+175+105+191+92+130+159+85+222+146+135+200+220+117+68+336+265
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
 // 3/24/19 - 4050 lines
 // 3/29/19 - 4544 lines
 // 4/01/19 - 4616 lines
+// 4/08/19 - 4964 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
@@ -161,6 +165,16 @@ function updateblocks() {
         }
     }
 
+    // Next, run through all the blocks to determine how much housing space we have available
+    game.housingSpace = game.blockList
+        .filter(block => block.housingSpace != undefined)
+        .map(block => block.housingSpace)
+        .reduce((sum, val) => sum + val, 0);
+    game.population = Math.min(game.population, Math.max(game.housingSpace, 4)); // Sets max population based on housing space, but ignores
+    // housing if it's under 4
+
+    // Go through all blocks in every chunk and update the maptile instance. This will be a lot of blocks, but the code involved isn't very much
+
     // Next, run through all blocks and update them. Note that not all blocks will need a worker to be updated
     game.workPoints = game.population;
     game.blockList.forEach(block => {
@@ -173,6 +187,7 @@ function updateblocks() {
     // Also, update the stats shown on the top left of the screen
     $("#showpopulation").html(game.workPoints + " / " + game.population);
     $("#showfood").html(game.foodList.length);
+    $("#showhousingspace").html(game.housingSpace);
     // There are other variables to consider here, but we don't yet have data to fill them out with.
 }
 

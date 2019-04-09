@@ -1,5 +1,7 @@
-// DanIdle Version 4
-// Auto-provider - A cheat-block
+// Auto-provider
+// for DanIdle version 4
+// A cheat-block. Its purpose is to provide resources and settings necessary to jump forward in the game. This allows us to test the newest
+// blocks faster, instead of progressing through the game to reach the needed block.
 
 import { item, food, tool } from "../index.js";
 import { game } from "./game.js";
@@ -17,12 +19,13 @@ export const autoprovider = mapsquare => {
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // We don't need to have a function to decide what gets generated - we can simply edit a fixed data structure here
         generate: [
-            { name: "Wooden Water Cup", class: "item", efficiency: 1, endurance: 20 },
-            { name: "Flint Hoe", class: "tool", efficiency: 1, endurance: 10000 },
-            { name: "Pole Crane", class: "tool", efficiency: 1, endurance: 10000 },
-            { name: "Apple", class: "food", lifetime: 10000 }
+            { name: "Wooden Bowl", class: "item" },
+            { name: "Flint Hoe", class: "tool", efficiency: 6, endurance: 10000 },
+            { name: "Pole Crane", class: "tool", efficiency: 6, endurance: 10000 },
+            { name: "Apple", class: "food", lifetime: 10000 },
+            { name: "Gravel", class: "item" }
         ],
-        fixedPopulation: 10,
+        fixedPopulation: 20,
         unlockItems: [
             "Twine",
             "Short Stick",
@@ -80,9 +83,21 @@ export const autoprovider = mapsquare => {
                 });
                 game.blockDemands.unlock();
                 state.isActivated = true;
-                //const one = [{ name: "Red", holding: 17 }, { name: "Blue", holding: 8 }];
-                //const two = [{ name: "Red", holding: 4 }, { name: "green", holding: 10 }];
-                //console.log(one.concat(two));
+                let array = [];
+                array[-4] = 5;
+                array[0] = 10;
+                array[4] = 8;
+                array[20] = 1;
+                console.log(
+                    Object.keys(array)
+                        .sort((a, b) => {
+                            if (a < b) return -1;
+                            if (a > b) return 1;
+                            return 0;
+                        })
+                        .map(ele => array[ele])
+                        .join()
+                );
             }
             state.generate.forEach(ele => {
                 if (ele.hand.onhand.length < 10) {
@@ -98,7 +113,7 @@ export const autoprovider = mapsquare => {
                     }
                 }
             });
-            game.population = Math.max(game.population, 10);
+            game.population = Math.max(game.population, state.fixedPopulation);
         },
 
         drawpanel() {
