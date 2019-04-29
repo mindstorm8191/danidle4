@@ -14,7 +14,7 @@ export const fireminer = mapsquare => {
     let state = {
         name: "fireminer",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0, // This is used in the clearing process, but not the heating process
         depth: 10, // How deep this mine currently is. Mines have to get to a certain depth before they begin yielding metal ores
         clearProgress: 0, // How many units of stone we have removed from this process
@@ -207,7 +207,6 @@ export const fireminer = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/minerspost.png" />');

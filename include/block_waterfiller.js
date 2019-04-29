@@ -11,7 +11,7 @@ export const waterfiller = mapsquare => {
     let state = {
         name: "waterfiller",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         outputItems: [
@@ -70,7 +70,6 @@ export const waterfiller = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/watercup.png" />');

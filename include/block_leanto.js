@@ -4,6 +4,7 @@
 
 import { blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
+import { blockIsStructure } from "./blockAddon_IsStructure.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
@@ -11,80 +12,33 @@ export const leanto = mapsquare => {
     let state = {
         name: "leanto",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
+        inItems: [],
+        mode: "collect",
         counter: 0,
         endurance: 0, // Rather than using the counter to count down, we will use a second variable to determine how much
         // total endurance we can generate within the 'construction' time (based on what tools are used)
-        status: 0,
+        //status: 0,
         housingSpace: 0, // This is read by a core function to determine how much housing space the user currently has.
         // This will only be set to 2 if this leanTo is in a useable state
         toolChoices: [{ groupName: "Chopper", isRequired: false, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
+        buildRequirements: [],
+        baseEndurance: 5,
+        toolEndurance: 5,
+        buildTime: 120,
 
-        possibleoutputs() {
-            // This block does not output any items
-            return [];
-        },
-
-        inputsAccepted() {
-            // This block does not accept any items as input
-            return [];
-        },
-
-        willOutput() {
-            // This block doesn't output any items
-            return false;
-        },
-
-        willAccept() {
-            // Returns true if this block will accept the given item right now.
-            // However, this block does not accept any items
-            return false;
-        },
-
-        receiveItem() {
-            // Accepts an item as input. Returns true if successful, or false if not.
-            // This block does not accept any items.
-            return false;
-        },
+        // getItem() is now handled by blockIsStorage
+        // possibleoutputs() is now handled by blockIsStorage
+        // inputsAccepted() is now handled by blockIsStorage
+        // willOutput() is now handled by blockIsStorage
+        // willAccept() is now handled by blockIsStorage
+        // receiveItem() is now handled by blockIsStorage
 
         update() {
             // Handles updating this block every tick
-            //console.log("workpoints=" + game.workPoints + ", pop=" + game.population);
-            if (state.status == 0) {
-                // This device is currently under construction
-                // We may add a check for the availability of tools later, but for now we will simply assume none are available
+            // All this update stuff should be handled by blockIsStructure now
 
-                if (game.workPoints <= 0) return; // Unable to build this without a worker
-                game.workPoints--;
-
-                state.counter++;
-                const efficiency = state.checkTool();
-                if (efficiency === null) {
-                    state.endurance += 5;
-                } else {
-                    state.endurance += 5 + 5 * efficiency;
-                    console.log("Endurance increased by " + (5 + 5 * efficiency));
-                }
-                $("#" + state.tile.id + "progress").css({ width: state.counter * 0.5 });
-                if (state.counter >= 120) {
-                    // aka 2 minutes
-                    state.status = 1;
-                    state.housingSpace = 2;
-                    state.counter = state.endurance; // this will be 5 minutes if no tools are used (it will be longer with tools)
-                    $("#" + state.tile.id + "progress").css({ "background-color": "brown" });
-                }
-            } else {
-                state.counter--;
-                $("#" + state.tile.id + "progress").css({ width: (state.counter * 60.0) / state.endurance });
-                //console.log('Counter '+ state.counter +', endurance '+ state.endurance);
-                if (state.counter <= 0) {
-                    state.status = 0; // Go back to building this again
-                    state.endurance = 0;
-                    state.counter = 0;
-                    state.housingSpace = 0;
-                    $("#" + state.tile.id + "progress").css({ "background-color": "green" });
-                }
-            }
+            state.handleUpdate();
         },
 
         drawpanel() {
@@ -101,38 +55,17 @@ export const leanto = mapsquare => {
             `);
             state.showPriority();
             state.showDeleteLink();
-            if (state.status == 0) {
-                $("#sidepanel").append(`
-                    <br />
-                    Status: <span id="sidepanelstatus">Building: ${Math.floor(state.counter / 1.2)}% complete</span>
-                    <br />
-                `);
-            } else {
-                $("#sidepanel").append(`
-                    <br />
-                    Status: <span id="sidepanelstatus">In use. ${Math.floor(
-                        (state.counter * 100) / state.endurance
-                    )}% lifespan remaining</span>
-                    <br />
-                `);
-            }
+            $("#sidepanel").append(`<br />Status: <span id="sidepanelstate">${state.showStatus()}</span><br />`);
             if (game.unlockedItems.includes("Flint Stabber")) {
                 state.showTools();
             }
         },
 
         updatepanel() {
-            if (state.status == 0) {
-                $("#sidepanelstatus").html(`Building: ${Math.floor(state.counter / 1.2)}% complete`);
-            } else {
-                $("#sidepanelstatus").html(
-                    `In use. ${Math.floor((state.counter * 100.0) / state.endurance)}% lifespan remaining`
-                );
+            $("#sidepanelstate").html(state.showStatus());
+            if (game.unlockedItems.includes("Flint Stabber")) {
+                state.updateToolPanel();
             }
-        },
-
-        getItem() {
-            return null; // This block has no items and outputs no items
         },
 
         deleteblock() {
@@ -149,9 +82,14 @@ export const leanto = mapsquare => {
         };
     }
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
-    return Object.assign(state, blockHasWorkerPriority(state), blockDeletesClean(state), blockRequiresTool(state));
+    return Object.assign(
+        state,
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state),
+        blockRequiresTool(state),
+        blockIsStructure(state)
+    );
 };

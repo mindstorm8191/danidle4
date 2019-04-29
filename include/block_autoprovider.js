@@ -14,16 +14,17 @@ export const autoprovider = mapsquare => {
     let state = {
         name: "autoprovider",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // We don't need to have a function to decide what gets generated - we can simply edit a fixed data structure here
         generate: [
             { name: "Wooden Bowl", class: "item" },
-            { name: "Flint Hoe", class: "tool", efficiency: 6, endurance: 10000 },
+            { name: "Flint Hoe", class: "tool", efficiency: 1, endurance: 10000 },
             { name: "Pole Crane", class: "tool", efficiency: 6, endurance: 10000 },
             { name: "Apple", class: "food", lifetime: 10000 },
-            { name: "Gravel", class: "item" }
+            { name: "Gravel", class: "item" },
+            { name: "Boulder", class: "item" }
         ],
         fixedPopulation: 20,
         unlockItems: [
@@ -127,7 +128,6 @@ export const autoprovider = mapsquare => {
         updatepanel() {} // We probably won't need this for anything here
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/axe_flint.png" />');

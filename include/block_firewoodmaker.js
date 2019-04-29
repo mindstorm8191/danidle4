@@ -11,7 +11,7 @@ export const firewoodmaker = mapsquare => {
     let state = {
         name: "firewoodmaker",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         craftTime: 6,

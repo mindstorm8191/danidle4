@@ -12,7 +12,7 @@ export const huntingpost = mapsquare => {
     let state = {
         name: "huntingpost",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         //outputitems: [{name: "None"}] - but wait - this has randomized output - not user-selected output
@@ -89,7 +89,7 @@ export const huntingpost = mapsquare => {
             state.finishDelete();
         }
     };
-    game.lastBlockId++;
+
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/huntingpost.png" />');

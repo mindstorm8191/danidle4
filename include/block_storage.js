@@ -1,3 +1,4 @@
+// Storage
 // Storage space for users to put things (especially tools)
 // For DanIdle version 4
 
@@ -16,7 +17,7 @@ export const storage = mapsquare => {
     let state = {
         name: "storage",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Note that this setting can be adjusted within this block
         targetitems: [], // list of items we want to store here. Contains only the name of the items we want
@@ -177,7 +178,7 @@ export const storage = mapsquare => {
             state.finishDelete();
         }
     };
-    game.lastBlockId++;
+
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/storage.png" />');

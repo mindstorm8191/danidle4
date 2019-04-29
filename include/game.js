@@ -20,11 +20,15 @@ import { woodcrafter } from "./block_woodcrafter.js";
 import { waterfiller } from "./block_waterfiller.js";
 import { fireminer } from "./block_fireminer.js";
 import { gravelroad } from "./block_gravelroad.js";
+import { boulderwall } from "./block_boulderwall.js";
+import { dirtmaker } from "./block_dirtmaker.js";
 
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
 const TILE_ROCK = 3; // land type of rocks
 const TILE_WATER = 4; // land type of water
+
+let lastBlockId = 1;
 
 export const game = {
     chunkList: [],
@@ -32,7 +36,7 @@ export const game = {
     chunkSize: 32, // how large each game-chunk is
     blockList: [], // List of all blocks placed in the game
     unlockedItems: [], // Array of names of all items the player has produced thus far.
-    lastBlockId: 1, // Last ID used for a new block. Used to provide unique block IDs for each block
+    //lastBlockId: 1, // Last ID used for a new block. Used to provide unique block IDs for each block
     haulerPickTarget: 0, // This is used exclusively by the Item Hauler block, to trigger a different response when clicking a
     cursorSelect: "none", // Which block on the left side of the screen is selected
     blockSelect: null, // What block is selected by the user. Its contents will be shown on the right side of the screen.
@@ -75,7 +79,7 @@ export const game = {
             highlight: "Item hauler: Move items between blocks",
             prereq: [],
             generate: hauler
-        }, // uses blockDeletes clean, and... that's about it
+        }, // uses blockDeletesclean, and... that's about it
         {
             name: "storage",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
@@ -93,7 +97,7 @@ export const game = {
             highlight: "Lean-to: Basic shelter of sticks and leaves",
             prereq: [],
             generate: leanto
-        }, // Uses blockHasWorkerPriority
+        }, // Uses blockHasWorkerPriority, blockDeletesClean, blockRequiresTool, blockIsStructure
         {
             name: "foragepost",
             canBuildOn: [TILE_GRASS],
@@ -192,7 +196,7 @@ export const game = {
             highlight: "Water Filler: fills liquid-holding items with water. Place in water",
             prereq: [["Wooden Bowl"]],
             generate: waterfiller
-        }, // users blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasOutputsPerInput
+        }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasOutputsPerInput
         {
             name: "fireminer",
             canBuildOn: [TILE_ROCK],
@@ -201,7 +205,7 @@ export const game = {
             highlight: "Fire Miner: Use fire & water to cut through rocks",
             prereq: [["Wooden Bowl"]],
             generate: fireminer
-        },
+        }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockRequiresTool, blockCooksItems
         {
             name: "gravelroad",
             canBuildOn: [TILE_ROCK, TILE_GRASS],
@@ -210,8 +214,32 @@ export const game = {
             highlight: "Gravel road, to make travel easier",
             prereq: [["Gravel"]],
             generate: gravelroad
+        }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
+        {
+            name: "boulderwall",
+            canBuildOn: [TILE_ROCK, TILE_GRASS],
+            image: "img/boulderwall.png",
+            state: 0,
+            highlight: "Boulder wall, to protect your camp",
+            prereq: [["Boulder", "Gravel"]],
+            generate: boulderwall
+        }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
+        {
+            name: "dirtmaker",
+            canBuildOn: [TILE_GRASS],
+            image: "img/dirt.png",
+            state: 0,
+            highlight: "Dirt maker, to craft with dirt",
+            prereq: [["Flint Hoe"]],
+            generate: dirtmaker
         }
     ],
+
+    getNextBlockId() {
+        // Returns the next available block ID, to be used in generating new blocks
+        lastBlockId++;
+        return lastBlockId;
+    },
 
     // This tutorial object is set up to handle what is displayed at the top for the tutorial section, as well as when that section
     // moves to the next tutorial task
@@ -357,18 +385,11 @@ game.blockDemands.unlock = function(itemname) {
             // left side of the screen
 
             element.state = 1;
-            $("#blockselector").append(
-                //document.getElementById("blockselector").append(
-                '<div id="cursor' +
-                    element.name +
-                    '" class="blockchoice" title="' +
-                    element.highlight +
-                    '"> ' +
-                    '<img src="' +
-                    element.image +
-                    '" /> ' +
-                    "</div>"
-            );
+            $("#blockselector").append(`
+                <div id="cursor${element.name}" class="blockchoice" title="${element.highlight}">
+                    <img src="${element.image}" />
+                </div>
+            `);
             document.getElementById("cursor" + element.name).addEventListener("click", () => setcursor(element.name));
         });
 };

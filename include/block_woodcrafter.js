@@ -12,7 +12,7 @@ export const woodcrafter = mapsquare => {
     let state = {
         name: "Woodcrafter",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Hatchet"] }],
@@ -142,7 +142,6 @@ export const woodcrafter = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/woodcrafter.png" />');

@@ -11,7 +11,7 @@ export const flinttoolmaker = mapsquare => {
     let state = {
         name: "Flint Tool Maker",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
 
@@ -161,7 +161,6 @@ export const flinttoolmaker = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/flinttoolset.png" />');

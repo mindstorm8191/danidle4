@@ -5,7 +5,9 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Decide what to work on next
+// 1) Write a function to handle getting the next block ID from 'game'. This will allow us to avoid sharing the last block ID with every block type
+// 2) Use a clay maker block to extract clay from dirt
+// 3) Figure out what we need to do to start smelting metal ores
 // 2) Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
 // 3) Get the housing and food counts to turn red whenever they are the limitations on increasing population
 // 1) Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the main land type
@@ -34,14 +36,14 @@
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js             block_campfire.js         block_autoprovider.js
-//    index.js                   block_foragepost.js         block_firewoodmaker.js    activeblock.js
-//        dancommon.js               block_rockknapper.js       block_butchershop.js       blockAddon_CooksItems.js
-//           game.js                     block_twinemaker.js        block_woodcrafter.js       blockAddon_HasOutputsPerInput
-//               mapmanager.js               block_stickmaker.js        block_waterfiller.js      blockAddon_HasRandomizedOutput.js
-//                   block_hauler.js             block_flinttoolmaker.js   block_fireminer.js         blockAddon_HasSelectableCrafting.js
-//                       block_storage.js            block_huntingpost.js      block_gravelroad.js        blockAddon_RequiresTool.js
-// 41+289+42+382+343+403+192+157+108+142+112+107+175+105+191+92+130+159+85+222+146+135+200+220+117+68+336+265
+// index.html                block_leanto.js            block_campfire.js        block_boulderwall.js      blockAddon_HasSelectableCrafting.js
+//    index.js                  block_foragepost.js         block_firewoodmaker.js  block_dirtmaker.js         blockAddon_IsStructure.js
+//        dancommon.js              block_rockknapper.js       block_butchershop.js     block_autoprovider.js      blockAddon_RequiresTool.js
+//           game.js                    block_twinemaker.js        block_woodcrafter.js     activeblock.js
+//               mapmanager.js              block_stickmaker.js        block_waterfiller.js     blockAddon_CooksItems.js
+//                   block_hauler.js            block_flinttoolmaker.js   block_fireminer.js        blockAddon_HasOutputsPerInput.js
+//                       block_storage.js           block_huntingpost.js      block_gravelroad.js       blockAddon_HasRandomizedOutput.js
+// 41+295+42+403+343+402+193+95+108+141+112+106+174+105+190+92+129+158+84+221+76+71+111+135+200+220+117+68+336+151+265
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
@@ -49,6 +51,7 @@
 // 3/29/19 - 4544 lines
 // 4/01/19 - 4616 lines
 // 4/08/19 - 4964 lines
+// 4/28/19 - 5814 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
@@ -60,7 +63,10 @@
 // Flint Hoe - Start farming to produce more food sources
 // Wet Firewood - Use Woodcrafter to build a wood shelter to dry out chopped logs
 // Clay mixing - Use water & dirt to produce clay, then dry it in various shapes for other tasks
-// Wood bowls - Collect water to dowse fires on rocks, to start mining - This is our fastest direction toward automation
+
+// Future ideas
+// Manual rock drill: A worker turns a wheel, and a set of hammers on the wheel pound the back of a drill. The wheel turns the drill
+//      at the same time. Needs lots of metal, though
 
 import $ from "jquery";
 import { game } from "./include/game.js";

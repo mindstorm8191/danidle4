@@ -11,7 +11,7 @@ export const hauler = mapsquare => {
     let state = {
         name: "Item Hauler",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         //allowOutput: true,  // This block won't be using the getItem function
         mode: "idle",
@@ -395,7 +395,6 @@ export const hauler = mapsquare => {
             state.finishDelete();
         }
     };
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/bucketline_right.png" />');

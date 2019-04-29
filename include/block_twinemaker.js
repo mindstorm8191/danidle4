@@ -13,7 +13,7 @@ export const twinemaker = mapsquare => {
     let state = {
         name: "Twine Maker",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         craftTime: 20,
         allowOutput: true,
@@ -98,7 +98,7 @@ export const twinemaker = mapsquare => {
             state.finishDelete();
         }
     };
-    game.lastBlockId++;
+
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/twinemaker.png" />');

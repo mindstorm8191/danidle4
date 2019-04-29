@@ -12,7 +12,7 @@ export const stickmaker = mapsquare => {
     let state = {
         name: "stickmaker",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
@@ -92,7 +92,6 @@ export const stickmaker = mapsquare => {
         };
     }
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/stickmaker.png" />');

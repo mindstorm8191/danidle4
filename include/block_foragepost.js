@@ -17,7 +17,7 @@ export const foragepost = mapsquare => {
     let state = {
         name: "foragepost",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNexttBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // and potentially other output types (like seeds to plant)
@@ -92,7 +92,7 @@ export const foragepost = mapsquare => {
             state.finishDelete();
         }
     };
-    game.lastBlockId++;
+
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/foragepost.png" />');

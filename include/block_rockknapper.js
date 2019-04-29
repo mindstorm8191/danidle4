@@ -11,7 +11,7 @@ export const rockknapper = mapsquare => {
     let state = {
         name: "rockknapper",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         currentcraft: "None", // What this block is currently working on. Note that this is only changed when the crafting cycle resets
@@ -128,7 +128,6 @@ export const rockknapper = mapsquare => {
         };
     }
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/rockknapper.png" />');

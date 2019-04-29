@@ -12,7 +12,7 @@ export const butchershop = mapsquare => {
     let state = {
         name: "butchershop",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         outputItems: [
@@ -114,7 +114,6 @@ export const butchershop = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/butcher.png" />');

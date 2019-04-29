@@ -11,7 +11,7 @@ export const campfire = mapsquare => {
     let state = {
         name: "campfire",
         tile: mapsquare,
-        id: game.lastBlockId,
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
         mode: "run", // This is used only for when the block is set to be deleted. Will be set to something else until the temperature is low enough
@@ -177,7 +177,6 @@ export const campfire = mapsquare => {
         }
     };
 
-    game.lastBlockId++;
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/campfire.png" />');
