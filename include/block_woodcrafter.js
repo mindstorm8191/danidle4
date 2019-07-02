@@ -10,7 +10,7 @@ import $ from "jquery";
 
 export const woodcrafter = mapsquare => {
     let state = {
-        name: "Woodcrafter",
+        name: "woodcrafter",
         tile: mapsquare,
         id: game.getNextBlockId(),
         counter: 0,
@@ -88,8 +88,7 @@ export const woodcrafter = mapsquare => {
             // Handles updating this block once every turn
             if (state.onhand.length > 15) return;
             if (!state.readyToCraft()) {
-                if (game.workPoints <= 0) return;
-                state.searchForItems();
+                state.searchForItems(true); // Managing the availability of workPoints is now handled in searchForItems
                 return;
             }
             const eff = state.checkTool();

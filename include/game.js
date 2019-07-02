@@ -22,6 +22,8 @@ import { fireminer } from "./block_fireminer.js";
 import { gravelroad } from "./block_gravelroad.js";
 import { boulderwall } from "./block_boulderwall.js";
 import { dirtmaker } from "./block_dirtmaker.js";
+import { claymaker } from "./block_claymaker.js";
+import { clayformer } from "./block_clayformer.js";
 
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
@@ -78,6 +80,10 @@ export const game = {
             state: 0,
             highlight: "Item hauler: Move items between blocks",
             prereq: [],
+            //            generate: async mapsquare => {
+            //const hauler = await import("./block_hauler.js");
+            //return hauler(mapsquare);
+            //}
             generate: hauler
         }, // uses blockDeletesclean, and... that's about it
         {
@@ -232,6 +238,24 @@ export const game = {
             highlight: "Dirt maker, to craft with dirt",
             prereq: [["Flint Hoe"]],
             generate: dirtmaker
+        }, // uses blockOutputsitems, blockRequiresTool, blockHasWorkerPriority, blockDeletesClean
+        {
+            name: "claymaker",
+            canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
+            image: "img/claymaker.png",
+            state: 0,
+            highlight: "Clay maker, extract clay from dirt",
+            prereq: [["Dirt"]],
+            generate: claymaker
+        }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting
+        {
+            name: "clayformer",
+            canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
+            image: "img/clayformmaker.png",
+            state: 0,
+            highlight: "Clay former, turn clay into shapes for uses",
+            prereq: [["Clay"]],
+            generate: clayformer
         }
     ],
 

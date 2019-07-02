@@ -2,7 +2,7 @@
 // Classes and other functions to help manage the map
 
 import $ from "jquery";
-import { handlegameboxclick } from "../index.js";
+import { handlegameboxclick, handlegameboxdown, handlegameboxmove, handlegameboxup } from "../index.js";
 import { game } from "./game.js";
 // These are essentially input parameters for our code
 
@@ -133,10 +133,26 @@ class maptile {
                 </div>
             </div>
         `);
+        //document
+        //    .getElementById(this.id + "gametileholder")
+        //    .addEventListener("click", () => handlegameboxclick(this.xpos, this.ypos));
         document
             .getElementById(this.id + "gametileholder")
-            .addEventListener("click", () => handlegameboxclick(this.xpos, this.ypos));
+            .addEventListener("mousedown", event => handlegameboxdown(event, this.xpos, this.ypos));
+        //document.getElementById(this.id + "gametileholder").addEventListener("mousemove", handlegameboxmove);
+        document
+            .getElementById(this.id + "gametileholder")
+            .addEventListener("mouseup", event => handlegameboxup(event, this.xpos, this.ypos));
+        // Note: If variables need to be passed to the called function, instead of using the function directly, do () => myfunction(params)
         //$("#"+ this.id +"gametile").css("background-image", "url("+ this.image +")");
+
+        // We also need to apply this to the image holder block, otherwise clicking on an existing block won't allow use to move the map
+        document
+            .getElementById(this.id + "imageholder")
+            .addEventListener("mousedown", event => handlegameboxdown(event, this.xpos, this.ypos));
+        document
+            .getElementById(this.id + "imageholder")
+            .addEventListener("mouseup", event => handlegameboxup(event, this.xpos, this.ypos));
     }
 }
 

@@ -38,5 +38,12 @@ export const danCommon = {
         // Returns the Manhattan Distance of two points.
         // The Manhattan distance is the different in X plus the difference in Y; as if you were traveling through city blocks.
         return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+    },
+
+    within(value, target, threshhold) {
+        // Returns true if the given value is close to the target value, within the threshhold. Aka 193 is near 200 +/- 10
+        if (value < target - threshhold) return false;
+        if (value > target + threshhold) return false;
+        return true;
     }
 };

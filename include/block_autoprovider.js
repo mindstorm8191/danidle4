@@ -23,8 +23,7 @@ export const autoprovider = mapsquare => {
             { name: "Flint Hoe", class: "tool", efficiency: 1, endurance: 10000 },
             { name: "Pole Crane", class: "tool", efficiency: 6, endurance: 10000 },
             { name: "Apple", class: "food", lifetime: 10000 },
-            { name: "Gravel", class: "item" },
-            { name: "Boulder", class: "item" }
+            { name: "Wooden Bowl", class: "item" }
         ],
         fixedPopulation: 20,
         unlockItems: [

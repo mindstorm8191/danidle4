@@ -5,30 +5,28 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Write a function to handle getting the next block ID from 'game'. This will allow us to avoid sharing the last block ID with every block type
-// 2) Use a clay maker block to extract clay from dirt
-// 3) Figure out what we need to do to start smelting metal ores
-// 2) Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
-// 3) Get the housing and food counts to turn red whenever they are the limitations on increasing population
-// 1) Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the main land type
+// 1) Start figuring out how we can get this game to work easily on cellphones
+// 1) Continue building the blocks we need to get to smelting (and using) metal ores.
+// 4) Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
+// 5) Get the housing and food counts to turn red whenever they are the limitations on increasing population
+// 6) Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the main land type
 //    to describe more than just the 4 types. We can then include farm-dirt, gravel, stone, wall, wooden, carpeted, laminate, marble, etc
-// 1) For tools, create a function to return any tools that are listed as not in use
-// 1) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints
+// 7) For tools, create a function to return any tools that are listed as not in use
+// 8) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints
 //    if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
-// 2) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
-// 3) Find uses for the gravel and boulders that the mining post will generate. We could be able to construct gravel walkways and stone walls,
+// 9) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
+// 10) Find uses for the gravel and boulders that the mining post will generate. We could be able to construct gravel walkways and stone walls,
 //    yet I'm not sure what to use them for.
-// 4) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
-// 5) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
-// 6) Search for places where array.some() would work better than array.find()
-// 7) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
-// 8) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
-// 9) Push forward in building new blocks, so we can start processing metals. Next step is to build the fire mining post
-// 10) Update the hauler block to accept input items for specific things they are searching for
-// 11) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
-// 12) Modify the block constructors to pass in a pre-set ID value. This will free some amount of dependencies on requiring 'game' for all blocks
-// 13) Start setting up farming (this will be a major opportunity towards automation in late-game)
-// 14) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
+// 11) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
+// 12) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
+// 13) Search for places where array.some() would work better than array.find()
+// 14) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
+// 15) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
+// 16) Push forward in building new blocks, so we can start processing metals. Next step is to build the fire mining post
+// 17) Update the hauler block to accept input items for specific things they are searching for
+// 18) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
+// 19) Start setting up farming (this will be a major opportunity towards automation in late-game)
+// 20) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
 
 // Things to look up:
 // JSDocs
@@ -62,16 +60,22 @@
 // Feathers - produce bow and arrows, to get better results from hunting
 // Flint Hoe - Start farming to produce more food sources
 // Wet Firewood - Use Woodcrafter to build a wood shelter to dry out chopped logs
-// Clay mixing - Use water & dirt to produce clay, then dry it in various shapes for other tasks
+// Clay mixing - Using clay to produce various shapes for other tasks
 
 // Future ideas
 // Manual rock drill: A worker turns a wheel, and a set of hammers on the wheel pound the back of a drill. The wheel turns the drill
 //      at the same time. Needs lots of metal, though
 
-import $ from "jquery";
+//-------------------------------
+//----- How to start server -----
+// from command prompt run: parcel index.html (NOT index.js)
+
+//import $ from "jquery";
+import $ from "./include/jquery-3.4.1.min.js";
 import { game } from "./include/game.js";
 import { mapchunk } from "./include/mapmanager.js";
 import { autoprovider } from "./include/block_autoprovider.js";
+import { danCommon } from "./include/dancommon.js";
 //import {} from "./img/*";
 
 const cheatenabled = true; // Set this to true to allow the AutoProvider to be displayed.
@@ -79,6 +83,11 @@ const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
 const TILE_ROCK = 3; // land type of rocks
 const TILE_WATER = 4; // land type of water
+let mouseState = 0; // This is set to 1 if the user clicks on something, then to 2 if the user has moved the mouse more than 20 pixels away
+let selectedX = 0; // which block in the map that was selected
+let selectedY = 0; // which block in the map that was selected
+let mouseStartX = 0; // X position where mousedown was triggered
+let mouseStartY = 0; // Y position where mousedown was triggered
 
 if (cheatenabled === true) {
     // This is only added on if cheats have been enabled
@@ -123,6 +132,8 @@ function start() {
     game.blockDemands.unlock();
     game.cursorSelect = "selector";
     setInterval(updateblocks, 1000);
+
+    document.addEventListener("mousemove", handlegameboxmove);
 }
 
 function updateblocks() {
@@ -195,6 +206,59 @@ function updateblocks() {
     $("#showfood").html(game.foodList.length);
     $("#showhousingspace").html(game.housingSpace);
     // There are other variables to consider here, but we don't yet have data to fill them out with.
+}
+
+export function handlegameboxdown(event, gridx, gridy) {
+    mouseState = 1;
+
+    selectedX = gridx + 3;
+    selectedY = gridy;
+    mouseStartX = event.clientX - parseInt($("#centermapbox").css("left")); // These need to be relative to the game div
+    mouseStartY = event.clientY; // - parseInt($("#centermapbox").css("top"));
+    console.log(
+        `Compare [${event.clientX},${event.clientY}]
+         vs [${selectedX * 66},${selectedY * 66}]`
+    );
+    event.preventDefault();
+}
+
+export function handlegameboxmove(event) {
+    if (mouseState === 0) return;
+
+    // Here, we want to use mouseState to also determine if the user has gone beyond the 10-pixel range threshhold
+    if (mouseState === 1) {
+        console.log(`Event: [${event.clientX},${event.clientY}], start: [${mouseStartX},${mouseStartY}]`);
+        if (!(danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10))) {
+            console.log("Time to handle moving!");
+            mouseState = 2; // With this value we may fall-through to the next section
+        }
+    }
+
+    if (mouseState === 2) {
+        // Here, we need to use the difference between event.offsetX and mouseX to determine how far to move the game's map. We also need
+        // to get the current game div's offset, so we can provide a proper adjustment amount
+        //console.log("X position currently at " + $("#game").css("top"));
+        //console.log(`Coords are [${myNewX},${myNewY}] vs [${$("#game").css("left")},${$("#game").css("top")}]`);
+        //console.log(`Event: [${event.offsetX},${event.offsetY}], prev location: [${mouseX},${mouseY}]`);
+
+        // Instead of calculating how far to move the mouse, based on offset difference, we want to place the game's coordinates
+        // relative to the mouse's current position. The offset will be based on the square of the map selected
+
+        // With selectedX and selectedY, we need to determine the X and Y coordinate of that block, and then translate further to get to the
+        // center of that block
+
+        $("#game").css("left", event.clientX - selectedX * 66 - 33 + "px");
+        $("#game").css("top", event.clientY - selectedY * 66 - 33 + "px");
+        event.preventDefault();
+    }
+}
+
+export function handlegameboxup(event, mapx, mapy) {
+    mouseState = 0;
+    console.log(`mouse up: [${event.clientX},${event.clientY}] (previously at [${mouseStartX},${mouseStartY}]`);
+    if (danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10)) {
+        handlegameboxclick(mapx, mapy);
+    }
 }
 
 export function handlegameboxclick(xpos, ypos) {

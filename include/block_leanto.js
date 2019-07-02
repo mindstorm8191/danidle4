@@ -85,6 +85,7 @@ export const leanto = mapsquare => {
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
+    let red = "blue";
     return Object.assign(
         state,
         blockHasWorkerPriority(state),

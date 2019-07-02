@@ -30,6 +30,11 @@ export const blockHasSelectableCrafting = state => ({
     //            efficiencyGain - How much efficiency is gained on each completed crafting.  This will change the value of efficiency.
     //            efficiencyTaper - Reduces the amount of gain on efficiency, per each completed crafting, causing gains to eventually
     //                              level off
+    //            craftQty - Optional field. How many of this item is to be generated upon completion of crafting. Defaults to 1.
+    //            byProducts - Optional field. Array of object pairings to determine what is also produced when this item is finished.
+    //                         These are (currently) not able to be tools. Object pairings are:
+    //                name - Item name produced by this crafting
+    //                qty - How many of this item is produced by this crafting
     //         Must also contain an onhand array. This will store items completed by this block and is ready for output.
 
     currentCraft: "None",
@@ -41,16 +46,26 @@ export const blockHasSelectableCrafting = state => ({
     possibleoutputs() {
         // Rather than returning a fixed array, let's feed data from our tables. If those tables change, we won't
         // have to modify this to update its output
-        return state.outputItems
-            .filter(inner => {
-                if (inner.name === "None") return false; // we don't need to show this item to other blocks
-                // Determine if the prerequisite items has been reached for this possible output
-                if (inner.prereq.length == 0) return true; // This block has no prerequisites anyway
-                // ensure that every item in this prereqs list has been unlocked
-                return inner.prereq.every(needed => game.unlockedItems.includes(needed));
-            })
-            .map(inner => inner.name);
-        // Only return the name, as that's all we need
+
+        // This gets more complicated when we add byproducts to our possible outputs. Filtering task is still the same, but we may have multiple
+        // outputs from .map(). Therefore we should have .map() output arrays for all elements, then flatten it. Considering that byproduct outputs
+        // may be in multiple craft options, we should remove duplicates before returning the array.
+        return danCommon.removeDuplicates(
+            danCommon.flatten(
+                state.outputItems
+                    .filter(inner => {
+                        if (inner.name === "None") return false; // we don't need to show this item to other blocks
+                        // Determine if the prerequisite items has been reached for this possible output
+                        if (inner.prereq.length == 0) return true; // This block has no prerequisites anyway
+                        // ensure that every item in this prereqs list has been unlocked
+                        return inner.prereq.every(needed => game.unlockedItems.includes(needed));
+                    })
+                    .map(inner => {
+                        if (inner.byProducts === undefined) return [inner.name];
+                        return [inner.name, ...inner.byProducts.map(byp => byp.name)];
+                    })
+            )
+        );
     },
 
     inputsAccepted() {
@@ -164,6 +179,17 @@ export const blockHasSelectableCrafting = state => ({
                     // Now, switch to the next item the user wants us to craft
                 }
             }
+            // Next, we need to handle adding byproduct items to the onhand array.  Not every block in our world has a byProducts array, though
+            console.log(crafting.byProducts);
+            if (crafting.byProducts != undefined) {
+                console.log("We have byproducts to produce");
+                crafting.byProducts.forEach(ele => {
+                    console.log("First byproduct: " + ele.name + " x" + ele.qty);
+                    for (let i = 0; i < ele.qty; i++) {
+                        state.onhand.push(item(ele.name));
+                    }
+                });
+            }
             state.currentCraft = state.targetCraft;
             // Ensure we can start this.  If not, we should set the progress counter to zero. This will allow us to change crafting targets
             // if the current one cannot be done.
@@ -180,13 +206,16 @@ export const blockHasSelectableCrafting = state => ({
         $("#" + state.tile.id + "progress").css({ width: (state.counter / crafting.craftTime) * 60 });
     },
 
-    searchForItems() {
+    searchForItems(needsWorkPoint) {
         // Searches neighbor blocks for items that this block needs before it can craft its target item
+        // needsWorkPoint - Set to true if this block must use a work point to receive an item
+
+        if (needsWorkPoint && game.workPoints < 1) return;
 
         const needed = state.partsPending();
         let cyclecount = 0;
         if (needed.length === 0) return; // We already have everything we need here
-        game.blockList.neighbors(state.tile).find(neighbor => {
+        game.blockList.neighbors(state.tile).some(neighbor => {
             // Here, we want to return on the first instance where we find a matching item
             cyclecount++;
             if (neighbor === undefined) {
@@ -194,6 +223,10 @@ export const blockHasSelectableCrafting = state => ({
             }
             let pickup = neighbor.getItem(needed);
             if (pickup === null) return false; // we found no items from this block
+
+            // Item was accepted. Go ahead and use a workpoint, if necessary
+            if (needsWorkPoint) game.workPoints--;
+
             // Since we don't have a standard input array here, we need to do a bit more work to determine where this item gets
             // stored.
             let mybox = state.stockList.find(ele => ele.name === pickup.name);
@@ -216,7 +249,7 @@ export const blockHasSelectableCrafting = state => ({
         if (state.targetCraft === "None") {
             return "First, pick something to craft!";
         }
-        console.log(state.targetCraft);
+        //console.log(state.targetCraft);
         // start by finding the matching output item we are trying to craft
         return state.outputItems
             .find(ele => ele.name === state.targetCraft)

@@ -46,7 +46,7 @@ export const blockOutputsItems = state => ({
         // Returns true if the specific item will be output, if getItem is called for that specific item
         // Anything in the onhand array can be output here.
         if (state.allowOutput === false) return false;
-        return state.onhand.map(ele => ele.name).includes(itemname);
+        return state.onhand.some(ele => ele.name === itemname);
     }
 });
 

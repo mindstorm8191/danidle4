@@ -120,7 +120,7 @@ export const flinttoolmaker = mapsquare => {
         update() {
             // Handles updating the stats of this block
             if (!state.readyToCraft()) {
-                return state.searchForItems();
+                return state.searchForItems(true);
             }
             state.processCraft(1);
         },

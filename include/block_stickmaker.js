@@ -41,7 +41,7 @@ export const stickmaker = mapsquare => {
 
         update() {
             if (state.onhand.length >= 15) return;
-            if (!state.readyToCraft()) return;
+            if (!state.readyToCraft()) return; // Normally we'd call searchForItems here, but this block doesn't need any inputs
             const eff = state.checkTool();
             if (eff === null) return;
             //console.log("StickMaker using " + eff + " efficiency");

@@ -17,7 +17,7 @@ export const foragepost = mapsquare => {
     let state = {
         name: "foragepost",
         tile: mapsquare,
-        id: game.getNexttBlockId(),
+        id: game.getNextBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // and potentially other output types (like seeds to plant)

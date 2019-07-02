@@ -80,7 +80,7 @@ export const rockknapper = mapsquare => {
 
         update() {
             if (state.onhand.length > 15) return; // Stop when this reaches a capacity limit
-            if (!state.readyToCraft()) return;
+            if (!state.readyToCraft()) return; // Normally we'd call searchForItems here, but since this block has no input, that isn't needed
             state.processCraft(1);
         },
 
