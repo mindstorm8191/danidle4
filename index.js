@@ -297,20 +297,38 @@ export function handlegameboxclick(xpos, ypos) {
             return;
         }
 
+        /*
+        We are trying to get this code to work, which is known as lazy loading, or code splitting, which Parcel supports. It allows us to load our
+        block code on an as-needed basis.  As the code base continues to grow, and we accumulate more block types, it will take additional time for
+        the game to complete its initial loading. This would correct that.
+
+        However, I continue to get errors related to this. When running locally, I get:
+        Failed to load module script: The server responded with a non-JavaScript MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec.
+        Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: http://localhost:1234/include/block_leanto.js
+        Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: http://localhost:1234/include/block_leanto.js
+
+        Remotely, I get a similar error:
+        GET https://danidle.netlify.com/include/block_leanto.js net::ERR_ABORTED 404
+        Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: https://danidle.netlify.com/include/block_leanto.js
+        Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: https://danidle.netlify.com/include/block_leanto.js
+
+        It appears that the browser is unable to find the target file, despite the path being correct. A friend on Discord's TheProgrammerHangout
+        (credit to Kanosaki) thought it was a 404 error, but both of us were unable to fix the issue. I have decided to revert back to the old
+        code style (for now).
+
         import(toBuild.sourcePath).then(() => {
             game.blockSelect = toBuild.generate(mappos);
             // Now that this has been constructed, show this on the right panel
             game.blockSelect.drawpanel();
             game.tutorial.checkAdvance("build=" + game.cursorSelect);
         });
+        */
 
-        /*
         game.blockSelect = toBuild.generate(mappos);
 
         // Now that this has been constructed, let's show this on the right panel
         game.blockSelect.drawpanel();
         game.tutorial.checkAdvance("build=" + game.cursorSelect);
-        */
     }
 }
 
