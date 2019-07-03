@@ -67,6 +67,7 @@ export const game = {
             state: 0,
             highlight: "Move cursor: Recenter the map to the square clicked",
             prereq: [],
+            sourcePath: "",
             generate: () => {
                 console.log(
                     "Error: attempted to use game.blockDemands[...].generate for the selector block - this shouldn't have one!"
@@ -80,10 +81,7 @@ export const game = {
             state: 0,
             highlight: "Item hauler: Move items between blocks",
             prereq: [],
-            //            generate: async mapsquare => {
-            //const hauler = await import("./block_hauler.js");
-            //return hauler(mapsquare);
-            //}
+            sourcePath: "./block_hauler.js",
             generate: hauler
         }, // uses blockDeletesclean, and... that's about it
         {
@@ -93,6 +91,7 @@ export const game = {
             state: 0,
             highlight: "Storage: Keep items (like tools)",
             prereq: [],
+            sourcePath: "./block_storage.js",
             generate: storage
         }, // Uses blockOutputsItems, blockHasWorkerPriority
         {
@@ -102,6 +101,7 @@ export const game = {
             state: 0,
             highlight: "Lean-to: Basic shelter of sticks and leaves",
             prereq: [],
+            sourcePath: "./include/block_leanto.js",
             generate: leanto
         }, // Uses blockHasWorkerPriority, blockDeletesClean, blockRequiresTool, blockIsStructure
         {
@@ -111,6 +111,7 @@ export const game = {
             state: 0,
             highlight: "Forage Post; College food from surrounding lands",
             prereq: [],
+            sourcePath: "./block_foragepost.js",
             generate: foragepost
         }, // uses blockOutputsItems, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
@@ -120,6 +121,7 @@ export const game = {
             state: 0,
             highlight: "Rock Knapper; Smash rocks into basic tools",
             prereq: [],
+            sourcePath: "./block_rockknapper.js",
             generate: rockknapper
         }, // uses blockOutputsItems, blockHasSelectableCrafting, blockHasWorkerPriority
         {
@@ -129,6 +131,7 @@ export const game = {
             state: 0,
             highlight: "Firewood Collector; collect dead wood for fires",
             prereq: [],
+            sourcePath: "./block_firewoodmaker.js",
             generate: firewoodmaker
         }, // uses blockOutputsItems, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
@@ -138,6 +141,7 @@ export const game = {
             state: 0,
             highlight: "Twine Maker; cuts bark from trees to make rope",
             prereq: [["Flint Knife"]],
+            sourcePath: "./block_twinemaker.js",
             generate: twinemaker
         }, // uses blockOutputsItems, blockRequiresTools, blockHasWorkerPriority
         {
@@ -147,6 +151,7 @@ export const game = {
             state: 0,
             highlight: "Stick Maker; cuts branches from trees for sticks",
             prereq: [["Flint Stabber"]],
+            sourcePath: "./block_stickmaker.js",
             generate: stickmaker
         }, // uses blockOutputsItems, blockRequiresTools, blockHasSelectableCrafting, blockHasWorkerPriority
         {
@@ -156,6 +161,7 @@ export const game = {
             state: 0,
             highlight: "Flint Toolshop; makes larger tools from flint, wood & twine",
             prereq: [["Twine"], ["Short Stick", "Long Stick"]],
+            sourcePath: "./block_flinttoolmaker.js",
             generate: flinttoolmaker
         }, // uses blockOutputsItems, blockHasSelectableCrafting, blockHasWorkerPriority
         {
@@ -165,6 +171,7 @@ export const game = {
             state: 0,
             highlight: "Hunting Post; Hunts for animals in local area",
             prereq: [["Flint Spear"]],
+            sourcePath: "./block_huntingpost.js",
             generate: huntingpost
         }, // uses blockOutputsItems, blockRequiresTools, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
@@ -174,6 +181,7 @@ export const game = {
             state: 0,
             highlight: "Campfire; build fires to cook foods and keep warm",
             prereq: [["Dead Deer", "Dead Wolf", "Dead Chicken"]],
+            sourcePath: "./block_campfire.js",
             generate: campfire
         }, // uses blockOutputsItems, blockHasWorkerPriority. Needs blockHasOutputsPerInput
         {
@@ -183,6 +191,7 @@ export const game = {
             state: 0,
             highlight: "Butcher Shop: turn dead animals into meats & byproducts",
             prereq: [["Dead Deer", "Dead Wolf", "Dead Chicken"]],
+            sourcePath: "./block_butchershop.js",
             generate: butchershop
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockHasOutputsPerInput, blockShowsOutputItems, blockRequiresTool
         {
@@ -192,6 +201,7 @@ export const game = {
             state: 0,
             highlight: "Woodcrafter: craft stuff out of wood",
             prereq: [["Log"]],
+            sourcePath: "./block_woodcrafter.js",
             generate: woodcrafter
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting, blockRequiresTool
         {
@@ -201,6 +211,7 @@ export const game = {
             state: 0,
             highlight: "Water Filler: fills liquid-holding items with water. Place in water",
             prereq: [["Wooden Bowl"]],
+            sourcePath: "./block_waterfiller.js",
             generate: waterfiller
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasOutputsPerInput
         {
@@ -210,6 +221,7 @@ export const game = {
             state: 0,
             highlight: "Fire Miner: Use fire & water to cut through rocks",
             prereq: [["Wooden Bowl"]],
+            sourcePath: "./block_fireminer.js",
             generate: fireminer
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockRequiresTool, blockCooksItems
         {
@@ -219,6 +231,7 @@ export const game = {
             state: 0,
             highlight: "Gravel road, to make travel easier",
             prereq: [["Gravel"]],
+            sourcePath: "./block_gravelroad.js",
             generate: gravelroad
         }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
         {
@@ -228,6 +241,7 @@ export const game = {
             state: 0,
             highlight: "Boulder wall, to protect your camp",
             prereq: [["Boulder", "Gravel"]],
+            sourcePath: "./block_boulderwall.js",
             generate: boulderwall
         }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
         {
@@ -237,6 +251,7 @@ export const game = {
             state: 0,
             highlight: "Dirt maker, to craft with dirt",
             prereq: [["Flint Hoe"]],
+            sourcePath: "./block_dirtmaker.js",
             generate: dirtmaker
         }, // uses blockOutputsitems, blockRequiresTool, blockHasWorkerPriority, blockDeletesClean
         {
@@ -246,6 +261,7 @@ export const game = {
             state: 0,
             highlight: "Clay maker, extract clay from dirt",
             prereq: [["Dirt"]],
+            sourcePath: "./block_claymaker.js",
             generate: claymaker
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting
         {
@@ -255,6 +271,7 @@ export const game = {
             state: 0,
             highlight: "Clay former, turn clay into shapes for uses",
             prereq: [["Clay"]],
+            sourcePath: "./block_clayformer.js",
             generate: clayformer
         }
     ],

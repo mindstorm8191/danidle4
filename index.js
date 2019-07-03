@@ -98,6 +98,7 @@ if (cheatenabled === true) {
         state: 0,
         highlight: "Auto-Provider, a cheat block. Its game effects are decided by code ",
         prereq: [],
+        sourcePath: "./block_autoprovider.js",
         generate: autoprovider
     });
 }
@@ -295,13 +296,21 @@ export function handlegameboxclick(xpos, ypos) {
             console.log("Alert! Wrong land type. Try somewhere else");
             return;
         }
-        //blockselect = leanto(mappos);
-        //blockselect = item("fun");
+
+        import(toBuild.sourcePath).then(() => {
+            game.blockSelect = toBuild.generate(mappos);
+            // Now that this has been constructed, show this on the right panel
+            game.blockSelect.drawpanel();
+            game.tutorial.checkAdvance("build=" + game.cursorSelect);
+        });
+
+        /*
         game.blockSelect = toBuild.generate(mappos);
 
         // Now that this has been constructed, let's show this on the right panel
         game.blockSelect.drawpanel();
         game.tutorial.checkAdvance("build=" + game.cursorSelect);
+        */
     }
 }
 

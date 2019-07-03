@@ -42,6 +42,7 @@ export const leanto = mapsquare => {
         },
 
         drawpanel() {
+            console.log("Rendering lean-to!");
             $("#sidepanel").html(`
                 <b>Lean-To</b><br />
                 Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; for the
