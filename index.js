@@ -5,9 +5,14 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) General: Split the task list into types of tasks: for example, deeper tech, wider tech, user experience, etc
-// 2) UX: Find a reliable way to detect when a user is using a cellphone, instead of a desktop
-// 3) UX: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
+// 1) General: Update ALL blocks to have a status field. Use this to show the status of the block, most notably why the block is not progressing
+//    with its work. Examples include 'need workers', 'need tools', 'need parts', and of course 'working'. These will usually be set during
+//    an exit state within update(), and read during display.
+// 2) General: When selecting a target with the item hauler block, keep the interface from jumping to the new target. It should be a simple
+//    mode check.
+// 3) Fire miner: Figure out why the pole crane isn't allowed to be selected
+// 2) Mobile users: Find a reliable way to detect when a user is using a cellphone, instead of a desktop
+// 3) Mobile users: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
 //    side bar content will be displayed as a popup that can be closed. I think we can show the general stats (and load & save) as a block
 //    directly above the map, with the tutorial instructions (make this one hideable)
 // 4) Deeper Tech: Continue building the blocks we need to get to smelting (and using) metal ores.
@@ -195,7 +200,9 @@ function updateblocks() {
         .filter(block => block.housingSpace != undefined)
         .map(block => block.housingSpace)
         .reduce((sum, val) => sum + val, 0);
-    game.population = Math.min(game.population, Math.max(game.housingSpace, 4)); // Sets max population based on housing space, but ignores
+    if (game.housingSpace < 4) game.housingSpace = 4;
+    if (game.population > game.housingSpace) game.population = game.housingSpace;
+    //game.population = Math.min(game.population, Math.max(game.housingSpace, 4)); // Sets max population based on housing space, but ignores
     // housing if it's under 4
 
     // Go through all blocks in every chunk and update the maptile instance. This will be a lot of blocks, but the code involved isn't very much
@@ -236,6 +243,7 @@ export function handlegameboxmove(event) {
         if (!(danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10))) {
             //console.log("Time to handle moving!");
             mouseState = 2; // With this value we may fall-through to the next section
+            game.tutorial.checkAdvance("movemap");
         }
     }
 
@@ -254,13 +262,13 @@ export function handlegameboxmove(event) {
 
         $("#game").css("left", event.clientX - selectedX * 66 - 33 + "px");
         $("#game").css("top", event.clientY - selectedY * 66 - 33 + "px");
-        event.preventDefault();
     }
+    event.preventDefault();
 }
 
 export function handlegameboxup(event, mapx, mapy) {
     mouseState = 0;
-    console.log(`mouse up: [${event.clientX},${event.clientY}] (previously at [${mouseStartX},${mouseStartY}]`);
+    //console.log(`mouse up: [${event.clientX},${event.clientY}] (previously at [${mouseStartX},${mouseStartY}]`);
     if (danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10)) {
         handlegameboxclick(mapx, mapy);
     }

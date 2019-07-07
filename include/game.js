@@ -61,7 +61,7 @@ export const game = {
     // whenever that block type has newly available functionality (whenever new item types become available). This is called within
     // blockDemands.unlock(), and will then set that block's border green (on the left side panel)
     blockDemands: [
-        {
+        /*        {
             name: "selector",
             canBuildOn: [],
             image: "img/cursormove.png",
@@ -74,7 +74,8 @@ export const game = {
                     "Error: attempted to use game.blockDemands[...].generate for the selector block - this shouldn't have one!"
                 );
             }
-        },
+        }, */ // This was a specialty block, to allow players to move the screen around.
+        // This is no longer needed, as mouse dragging now moves the map
         {
             name: "hauler",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
@@ -300,9 +301,8 @@ export const game = {
         choices: [
             {
                 level: 0,
-                unlock: "cursor=selector",
-                show:
-                    "Welcome! I'll help you get started. Step 1: Select the center-screen tool (with the 4 arrows). Click the map to re-center"
+                unlock: "movemap",
+                show: "Welcome! I'll help you get started. Step 1: Click and drag on the map to move the view around"
             },
             {
                 level: 1,

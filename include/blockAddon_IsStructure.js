@@ -110,8 +110,11 @@ export const blockIsStructure = state => ({
             if (usesWorkPoint === true && game.workPoints < 1) return; // This needs a work point to work, and we don't have any
 
             // Get tool efficiency values. Note that this will not affect construction time, but how long this block lasts after construction
-            let eff = state.checkTool();
+            let eff = 1;
+            if (state.checkTool != undefined) state.checkTool();
             if (eff === null) return; // Aka we require tools we don't have
+
+            if (game.workPoints < 1) return; // This structure cannot be built without a worker of some kind
             game.workPoints--;
             state.counter++;
             state.endurance += state.baseEndurance + state.toolEndurance * eff;
@@ -124,6 +127,7 @@ export const blockIsStructure = state => ({
             state.counter = state.endurance;
             $("#" + state.tile.id + "progress").css({ "background-color": "brown" });
             state.mode = "use";
+            state.isReady(true);
             return;
         }
 
@@ -134,6 +138,7 @@ export const blockIsStructure = state => ({
 
         // Now this block must be repaired. Lets clear our variables so it can be rebuilt
         state.mode = "collect";
+        state.isReady(false);
         state.counter = 0;
         state.endurance = 0;
         state.inItems.splice(0, state.inItems.length);

@@ -70,6 +70,11 @@ export const leanto = mapsquare => {
 
         deleteblock() {
             state.finishDelete();
+        },
+
+        isReady(newState) {
+            // This is called by blockIsStructure whenever the block mode is changed to/from in-use
+            state.housingSpace = newState ? 2 : 0;
         }
     };
 
