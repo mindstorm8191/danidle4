@@ -24,6 +24,7 @@ import { boulderwall } from "./block_boulderwall.js";
 import { dirtmaker } from "./block_dirtmaker.js";
 import { claymaker } from "./block_claymaker.js";
 import { clayformer } from "./block_clayformer.js";
+import { dryer } from "./block_dryer.js";
 
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
@@ -273,6 +274,16 @@ export const game = {
             prereq: [["Clay"]],
             sourcePath: "./block_clayformer.js",
             generate: clayformer
+        }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting
+        {
+            name: "dryer",
+            canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
+            image: "img/dryer.png",
+            state: 0,
+            highlight: "A covered area for drying things, like clay",
+            prereq: [["Clay"]],
+            sourcePath: "./block_dryer.js",
+            generate: dryer
         }
     ],
 

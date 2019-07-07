@@ -14,6 +14,7 @@ export const stickmaker = mapsquare => {
         tile: mapsquare,
         id: game.getNextBlockId(),
         counter: 0,
+        maxOutput: 8,
         allowOutput: true,
         toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
         currenttool: null,
@@ -55,7 +56,7 @@ export const stickmaker = mapsquare => {
                 The effective use of wood is crucial for continued expansion of your colony. Durable yet easily workable, and there's
                 plenty to be made use of.<br />
                 <br />
-                Cuts down small trees and branches of larger ones to produce sticks of various sizes, including firewood.<br />
+                Cuts down small trees and branches of larger ones to produce sticks of various sizes.<br />
                 <br />
             `);
             state.showPriority();

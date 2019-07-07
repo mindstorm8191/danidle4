@@ -35,7 +35,10 @@ export const blockHasSelectableCrafting = state => ({
     //                         These are (currently) not able to be tools. Object pairings are:
     //                name - Item name produced by this crafting
     //                qty - How many of this item is produced by this crafting
-    //         Must also contain an onhand array. This will store items completed by this block and is ready for output.
+    //         Must also contain an onhand array. This will store items completed by this block and is ready for output. This is usually
+    //            provided by thte blockOutputsItems add-on unit.
+    //         Must also contain a maxOutput integer, which defines the maximum number of output items this block can have, before
+    //            it stops producing more products
 
     currentCraft: "None",
     targetCraft: "None",
@@ -112,6 +115,11 @@ export const blockHasSelectableCrafting = state => ({
     readyToCraft() {
         // Determines if this block is ready to start crafting an item.  This mainly checks that an item has been selected.
         // Use this in the update() function. Returns true if this block can proceed with crafting, or false if not.
+
+        // Start by checking if there is enough room to hold more items
+        if (state.maxOutput !== undefined) {
+            if (state.onhand.length >= state.maxOutput) return false;
+        }
 
         if (state.currentCraft === "None") {
             if (state.targetCraft === "None") return false;

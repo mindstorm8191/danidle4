@@ -5,24 +5,26 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
-// 1) Start figuring out how we can get this game to work easily on cellphones
-// 1) Continue building the blocks we need to get to smelting (and using) metal ores.
-// 4) Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
-// 5) Get the housing and food counts to turn red whenever they are the limitations on increasing population
-// 6) Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the main land type
-//    to describe more than just the 4 types. We can then include farm-dirt, gravel, stone, wall, wooden, carpeted, laminate, marble, etc
-// 7) For tools, create a function to return any tools that are listed as not in use
-// 8) Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial workpoints
-//    if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
+// 1) General: Split the task list into types of tasks: for example, deeper tech, wider tech, user experience, etc
+// 2) UX: Find a reliable way to detect when a user is using a cellphone, instead of a desktop
+// 3) UX: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
+//    side bar content will be displayed as a popup that can be closed. I think we can show the general stats (and load & save) as a block
+//    directly above the map, with the tutorial instructions (make this one hideable)
+// 4) Deeper Tech: Continue building the blocks we need to get to smelting (and using) metal ores.
+// 5) Environment: Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
+// 5) UX: Get the housing and food counts to turn red whenever they are the limitations on increasing population
+// 6) Environment: Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the
+//    main land type to describe more than just the 4 types. We can then include farm-dirt, gravel, stone, wall, wooden, carpeted, laminate,
+//    marble, etc
+// 7) General: For tools, create a function to return any tools that are listed as not in use
+// 8) General: Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial
+//    workpoints if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
 // 9) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
-// 10) Find uses for the gravel and boulders that the mining post will generate. We could be able to construct gravel walkways and stone walls,
-//    yet I'm not sure what to use them for.
 // 11) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
 // 12) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
 // 13) Search for places where array.some() would work better than array.find()
 // 14) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
 // 15) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
-// 16) Push forward in building new blocks, so we can start processing metals. Next step is to build the fire mining post
 // 17) Update the hauler block to accept input items for specific things they are searching for
 // 18) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
 // 19) Start setting up farming (this will be a major opportunity towards automation in late-game)
@@ -34,14 +36,14 @@
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js            block_campfire.js        block_boulderwall.js      blockAddon_HasSelectableCrafting.js
-//    index.js                  block_foragepost.js         block_firewoodmaker.js  block_dirtmaker.js         blockAddon_IsStructure.js
-//        dancommon.js              block_rockknapper.js       block_butchershop.js     block_autoprovider.js      blockAddon_RequiresTool.js
-//           game.js                    block_twinemaker.js        block_woodcrafter.js     activeblock.js
-//               mapmanager.js              block_stickmaker.js        block_waterfiller.js     blockAddon_CooksItems.js
-//                   block_hauler.js            block_flinttoolmaker.js   block_fireminer.js        blockAddon_HasOutputsPerInput.js
-//                       block_storage.js           block_huntingpost.js      block_gravelroad.js       blockAddon_HasRandomizedOutput.js
-// 41+295+42+403+343+402+193+95+108+141+112+106+174+105+190+92+129+158+84+221+76+71+111+135+200+220+117+68+336+151+265
+// index.html                block_leanto.js            block_campfire.js        block_boulderwall.js     blockAddon_HasOutputsPerInput.js
+//    index.js                  block_foragepost.js         block_firewoodmaker.js  block_dirtmaker.js        blockAddon_HasRandomizedOutput.js
+//        dancommon.js              block_rockknapper.js       block_butchershop.js     block_claymaker.js       blockAddon_HasSelectableCrafting.js
+//           game.js                    block_twinemaker.js        block_woodcrafter.js    block_clayformer.js       blockAddon_IsStructure.js
+//               mapmanager.js              block_stickmaker.js        block_waterfiller.js   block_autoprovider.js      blockAddon_RequiresTool.js
+//                   block_hauler.js            block_flinttoolmaker.js   block_fireminer.js      activeblock.js
+//                       block_storage.js           block_huntingpost.js      block_gravelroad.js     blockAddon_CooksItems.js
+// 41+395+49+444+359+402+193+95+108+141+112+107+175+105+190+92+129+158+84+221+76+71+111+98+94+134+200+220+117+68+377+151+265
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
@@ -50,6 +52,7 @@
 // 4/01/19 - 4616 lines
 // 4/08/19 - 4964 lines
 // 4/28/19 - 5814 lines
+// 7/4/19 - 5582 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
@@ -65,6 +68,10 @@
 // Future ideas
 // Manual rock drill: A worker turns a wheel, and a set of hammers on the wheel pound the back of a drill. The wheel turns the drill
 //      at the same time. Needs lots of metal, though
+// Windmills: This will first require fabric of some kind.  The easiest to acquire is wool.  Sheep can be domesticated, and if fed, can
+//      provide sufficient quantities of wool.  Note, however, that wild sheep did not shed their wool naturally; it grew to a stable point
+//      (like a bear's fur) and stopped. Heavy wool production has been bread into sheep over thousands of years. For this game, that means
+//      players will need shears before being able to work with wool.  Shears will require metal.
 
 //-------------------------------
 //----- How to start server -----
@@ -78,7 +85,7 @@ import { autoprovider } from "./include/block_autoprovider.js";
 import { danCommon } from "./include/dancommon.js";
 //import {} from "./img/*";
 
-const cheatenabled = true; // Set this to true to allow the AutoProvider to be displayed.
+const cheatenabled = false; // Set this to true to allow the AutoProvider to be displayed.
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
 const TILE_ROCK = 3; // land type of rocks
@@ -216,10 +223,7 @@ export function handlegameboxdown(event, gridx, gridy) {
     selectedY = gridy;
     mouseStartX = event.clientX - parseInt($("#centermapbox").css("left")); // These need to be relative to the game div
     mouseStartY = event.clientY; // - parseInt($("#centermapbox").css("top"));
-    console.log(
-        `Compare [${event.clientX},${event.clientY}]
-         vs [${selectedX * 66},${selectedY * 66}]`
-    );
+    //console.log(`Compare [${event.clientX},${event.clientY}] vs [${selectedX * 66},${selectedY * 66}]`);
     event.preventDefault();
 }
 
@@ -228,9 +232,9 @@ export function handlegameboxmove(event) {
 
     // Here, we want to use mouseState to also determine if the user has gone beyond the 10-pixel range threshhold
     if (mouseState === 1) {
-        console.log(`Event: [${event.clientX},${event.clientY}], start: [${mouseStartX},${mouseStartY}]`);
+        //console.log(`Event: [${event.clientX},${event.clientY}], start: [${mouseStartX},${mouseStartY}]`);
         if (!(danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10))) {
-            console.log("Time to handle moving!");
+            //console.log("Time to handle moving!");
             mouseState = 2; // With this value we may fall-through to the next section
         }
     }
@@ -274,6 +278,11 @@ export function handlegameboxclick(xpos, ypos) {
         return game.blockSelect.accepttarget(mappos);
     }
 
+    if (mappos.structure != null) {
+        game.blockSelect = mappos.structure;
+        game.blockSelect.drawpanel();
+    }
+    /*
     if (game.cursorSelect === "selector") {
         // Use the cursor to decide where to center the screen at
         // This is probably not the most ideal setup, but will do for now
@@ -285,6 +294,7 @@ export function handlegameboxclick(xpos, ypos) {
         }
         return;
     }
+    */
 
     if (mappos.structure === null) {
         // Nothing is here yet. Add the selected building type (if possible)

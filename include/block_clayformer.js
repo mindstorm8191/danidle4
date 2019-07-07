@@ -51,8 +51,44 @@ export const clayformer = mapsquare => {
                 What use is clay if you cannot form it to the shapes you need? You don't have a spinning wheel yet, but there are still many things
                 to be made.<br />
                 <br />
-                Forms clay into the shapes you need before being dried out
+                Forms clay into the shapes you need before being dried out.<br />
+                <br />
             `);
+            state.showPriority();
+
+            $("#sidepanel").append(`
+                <br />
+                <div id="sidepanelparts">${state.drawStocks()}</div>
+                Finished items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Currently building: <span id="sidepanelcurrent">${state.currentcraft}</span><br />
+                Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
+            `);
+            state.showDeleteLink();
+            $("#sidepanel").append("<br /><br />");
+            state.drawOutputChoices();
+        },
+
+        updatepanel() {
+            $("#sidepanelparts").html(state.drawStocks());
+            $("#sidepanelonhand").html(state.onhand.length);
+            $("#sidepanelcurrent").html(state.currentcraft);
+            $("#sidepanelprogress").html(state.drawProgressPercent());
+            state.updateOutputChoices();
+        },
+
+        deleteblock() {
+            state.finishDelete();
         }
     };
+
+    game.blockList.push(state);
+    mapsquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/clayformmaker.png">');
+    return Object.assign(
+        state,
+        blockOutputsItems(state),
+        blockHasWorkerPriority(state),
+        blockDeletesClean(state),
+        blockHasSelectableCrafting(state)
+    );
 };

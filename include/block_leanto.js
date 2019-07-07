@@ -27,12 +27,12 @@ export const leanto = mapsquare => {
         toolEndurance: 5,
         buildTime: 120,
 
-        // getItem() is now handled by blockIsStorage
-        // possibleoutputs() is now handled by blockIsStorage
-        // inputsAccepted() is now handled by blockIsStorage
-        // willOutput() is now handled by blockIsStorage
-        // willAccept() is now handled by blockIsStorage
-        // receiveItem() is now handled by blockIsStorage
+        // getItem() is now handled by blockIsStructure
+        // possibleoutputs() is now handled by blockIsStructure
+        // inputsAccepted() is now handled by blockIsStructure
+        // willOutput() is now handled by blockIsStructure
+        // willAccept() is now handled by blockIsStructure
+        // receiveItem() is now handled by blockIsStructure
 
         update() {
             // Handles updating this block every tick
@@ -42,7 +42,6 @@ export const leanto = mapsquare => {
         },
 
         drawpanel() {
-            console.log("Rendering lean-to!");
             $("#sidepanel").html(`
                 <b>Lean-To</b><br />
                 Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; for the
@@ -86,7 +85,6 @@ export const leanto = mapsquare => {
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
-    let red = "blue";
     return Object.assign(
         state,
         blockHasWorkerPriority(state),

@@ -16,6 +16,7 @@ export const claymaker = mapsquare => {
         tile: mapsquare,
         id: game.getNextBlockId(),
         counter: 0,
+        maxOutput: 10,
         allowOutput: true,
         outputItems: [
             {

@@ -13,11 +13,17 @@ export const blockIsStructure = state => ({
     //          qty: how many of that item this block needs
     //      buildTime: How long this block will take to be constructed
 
+    mode: "collect", // Handles what mode this block is in.  Options are:
+    // collect - the block is waiting for all the materials to arrive. If there are none, this will advance to the next mode
+    // build - the block is being constructed, using the the tools on hand to construct it.
+    // use - this block is in use and is providing the benefits it allows
+
     // This mainly manages the regular function list for each block
 
-    getItem() {
+    getItem(name) {
         // Returns an output item, when given the target item name
         // This block doesn't return anything anyway.
+        if (state.or_getItem != undefined) return state.or_getItem(name);
         return null;
     },
 

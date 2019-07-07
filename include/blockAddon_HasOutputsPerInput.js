@@ -17,7 +17,11 @@ export const blockHasOutputsPerInput = state => ({
     //          name: name of the item to output
     //          qty: how many of this item to output
 
-    inItems: [],
+    inItems: [], // Holds all items that are received by this block, in linear fashion
+    //inputEnabled: true, // Set to false for this block to refuse any input items. Useful for blocks that need structures built first,
+    // such as the Bloomery
+    // Note: we were going to add inputEnabled for the dryer block. However this wouldn't solve any problems, as the dryer would need to
+    // input items during construction. If this becomes useful later, we can add it in.
 
     possibleoutputs() {
         // Returns all possible outputs that this block has

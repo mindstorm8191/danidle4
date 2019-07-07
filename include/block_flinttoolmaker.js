@@ -14,6 +14,7 @@ export const flinttoolmaker = mapsquare => {
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
+        maxOutput: 5,
 
         outputItems: [
             { name: "None", needs: [] }, // 'none' is included so we can simply list all the items later
