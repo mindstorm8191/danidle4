@@ -5,35 +5,39 @@
 // that (or whatever parts of it we are able to)
 
 // Task List
+// 1) Set up the game to where, instead of searching for food items to apply decay to, find all items that have a lifetime attribute and
+//    reduce that. Have some set behavior when the item's lifetime hits zero.
 // 1) General: Update ALL blocks to have a status field. Use this to show the status of the block, most notably why the block is not progressing
 //    with its work. Examples include 'need workers', 'need tools', 'need parts', and of course 'working'. These will usually be set during
 //    an exit state within update(), and read during display.
 // 2) General: When selecting a target with the item hauler block, keep the interface from jumping to the new target. It should be a simple
 //    mode check.
-// 3) Fire miner: Figure out why the pole crane isn't allowed to be selected
-// 2) Mobile users: Find a reliable way to detect when a user is using a cellphone, instead of a desktop
-// 3) Mobile users: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
+// 3) Fire Miner: Add a delete-block button. We will have to wait for the fire to cool off before removing it (or, if there's sufficient water
+//    on hand, we can skip that step)
+// 4) Mobile users: Find a reliable way to detect when a user is using a cellphone, instead of a desktop
+// 5) Mobile users: Add buttons on the sides of the map to allow users to scroll around the screen manually by clicking them
+// 5) Mobile users: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
 //    side bar content will be displayed as a popup that can be closed. I think we can show the general stats (and load & save) as a block
 //    directly above the map, with the tutorial instructions (make this one hideable)
-// 4) Deeper Tech: Continue building the blocks we need to get to smelting (and using) metal ores.
-// 5) Environment: Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
-// 5) UX: Get the housing and food counts to turn red whenever they are the limitations on increasing population
-// 6) Environment: Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the
+// 6) Deeper Tech: Before we can build a dryer structure, we need players to be able to produce & harvest straw
+// 7) Environment: Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
+// 8) UX: Get the housing and food counts (or both) to turn red whenever they are the limitations on increasing population
+// 9) Environment: Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the
 //    main land type to describe more than just the 4 types. We can then include farm-dirt, gravel, stone, wall, wooden, carpeted, laminate,
 //    marble, etc
-// 7) General: For tools, create a function to return any tools that are listed as not in use
-// 8) General: Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial
+// 10) General: For tools, create a function to return any tools that are listed as not in use
+// 11) General: Add a worker effectiveness variable, which will affect how much work a worker can do for one block (maybe we can use partial
 //    workpoints if work amount is fixed?). Use this to add additional colonist happiness variables to the game.
-// 9) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
-// 11) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
-// 12) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
-// 13) Search for places where array.some() would work better than array.find()
-// 14) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
-// 15) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
-// 17) Update the hauler block to accept input items for specific things they are searching for
-// 18) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
-// 19) Start setting up farming (this will be a major opportunity towards automation in late-game)
-// 20) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
+// 12) Set up a way for block haulers to use certain tools. Require them to use twine sleds for moving large objects (like logs or boulders)
+// 13) Determine a way to allow tool slots to be flagged for returning to the source storage block, when they are not in use
+// 14) Figure out how to display icons on the blocks to help determine what they are waiting on before processing.
+// 15) Search for places where array.some() would work better than array.find()
+// 16) Update the receiveItem function of blockHasOutputsPerInput to check that the received item is allowed in the block or not
+// 17) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
+// 18) Update the hauler block to accept input items for specific things they are searching for
+// 19) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
+// 20) Start setting up farming (this will be a major opportunity towards automation in late-game)
+// 21) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
 
 // Things to look up:
 // JSDocs
@@ -41,14 +45,14 @@
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js            block_campfire.js        block_boulderwall.js     blockAddon_HasOutputsPerInput.js
-//    index.js                  block_foragepost.js         block_firewoodmaker.js  block_dirtmaker.js        blockAddon_HasRandomizedOutput.js
-//        dancommon.js              block_rockknapper.js       block_butchershop.js     block_claymaker.js       blockAddon_HasSelectableCrafting.js
-//           game.js                    block_twinemaker.js        block_woodcrafter.js    block_clayformer.js       blockAddon_IsStructure.js
-//               mapmanager.js              block_stickmaker.js        block_waterfiller.js   block_autoprovider.js      blockAddon_RequiresTool.js
-//                   block_hauler.js            block_flinttoolmaker.js   block_fireminer.js      activeblock.js
-//                       block_storage.js           block_huntingpost.js      block_gravelroad.js     blockAddon_CooksItems.js
-// 41+395+49+444+359+402+193+95+108+141+112+107+175+105+190+92+129+158+84+221+76+71+111+98+94+134+200+220+117+68+377+151+265
+// index.html                block_leanto.js             block_campfire.js         block_gravelroad.js     blockAddon_CooksItems.js
+//    index.js                   block_foragepost.js         block_firewoodmaker.js   block_boulderwall.js     blockAddon_HasOutputsPerInput.js
+//        dancommon.js               block_rockknapper.js       block_butchershop.js     block_dirtmaker.js        blockAddon_HasRandomizedOutput.js
+//           game.js                     block_twinemaker.js        block_farm.js            block_claymaker.js       blockAddon_HasSelectableCrafting.js
+//               mapmanager.js               block_stickmaker.js        block_woodcrafter.js    block_clayformer.js       blockAddon_IsStructure.js
+//                   block_hauler.js             block_flinttoolmaker.js    block_waterfiller.js   block_autoprovider.js      blockAddon_RequiresTool.js
+//                       block_storage.js            block_huntingpost.js      block_fireminer.js      activeblock.js
+// 41+407+49+466+359+402+193+100+172+141+112+107+175+105+190+92+129+290+158+84+221+76+71+111+98+94+134+200+220+121+68+383+162+271
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
@@ -57,16 +61,15 @@
 // 4/01/19 - 4616 lines
 // 4/08/19 - 4964 lines
 // 4/28/19 - 5814 lines
-// 7/4/19 - 5582 lines
+// 7/04/19 - 5582 lines
+// 7/22/19 - 6002 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
 // Rafts and sleds - enable haulers to haul larger objects
 // Tables - increase output speed of crafting blocks (such as flint tool-maker)
-// Flint hatchets - Increase endurance value of lean-to's so they stay standing longer
 // Bone and skin materials - produce needles from bones, then clothing from animal hides
 // Feathers - produce bow and arrows, to get better results from hunting
-// Flint Hoe - Start farming to produce more food sources
 // Wet Firewood - Use Woodcrafter to build a wood shelter to dry out chopped logs
 // Clay mixing - Using clay to produce various shapes for other tasks
 
@@ -90,7 +93,7 @@ import { autoprovider } from "./include/block_autoprovider.js";
 import { danCommon } from "./include/dancommon.js";
 //import {} from "./img/*";
 
-const cheatenabled = false; // Set this to true to allow the AutoProvider to be displayed.
+const cheatenabled = true; // Set this to true to allow the AutoProvider to be displayed.
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
 const TILE_ROCK = 3; // land type of rocks
@@ -108,7 +111,8 @@ if (cheatenabled === true) {
         canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK, TILE_WATER], // We don't really care where this is put
         image: "img/axe_flint.png",
         state: 0,
-        highlight: "Auto-Provider, a cheat block. Its game effects are decided by code ",
+        highlight:
+            "Auto-Provider, a cheat block. Its game effects are decided by code ",
         prereq: [],
         sourcePath: "./block_autoprovider.js",
         generate: autoprovider
@@ -126,7 +130,7 @@ function updatemapsize() {
 
 export function setcursor(newvalue) {
     // Changes the value of cursorselect, based on which square (on the left) the user clicks on
-    //console.log("Change cursor to " + newvalue);
+
     $("#cursor" + game.cursorSelect).css("background-color", "white");
     game.cursorSelect = newvalue;
     $("#cursor" + game.cursorSelect).css("background-color", "red");
@@ -142,7 +146,7 @@ function start() {
     new mapchunk(0, 0);
     updatemapsize();
     document.getElementById("blockselector").innerHTML = "";
-    game.blockDemands.unlock();
+    game.blockDemands.unlock(); // Unlock all the basic items, which have no requirements
     game.cursorSelect = "selector";
     setInterval(updateblocks, 1000);
 
@@ -175,12 +179,17 @@ function updateblocks() {
             // in the array, keep the ID of the block we need to find it in
             let holder = game.blockList.getById(foodItem.location);
             if (holder === null) {
-                console.log("Error in food consumption: did not find block with ID=" + foodItem.location);
+                console.log(
+                    "Error in food consumption: did not find block with ID=" +
+                        foodItem.location
+                );
                 // Note that this means we need to remove any food entries when deleting a block... we haven't added controls
                 // to remove blocks yet, though
             } else {
                 if (holder.consumeFood(foodItem.id) === false) {
-                    console.log("Error in food consumption: block.consumeFood returned fail state");
+                    console.log(
+                        "Error in food consumption: block.consumeFood returned fail state"
+                    );
                 } else {
                     // Now, remove the item from the foodList array as well.
                     game.foodList.splice(foodSlot, 1);
@@ -201,7 +210,8 @@ function updateblocks() {
         .map(block => block.housingSpace)
         .reduce((sum, val) => sum + val, 0);
     if (game.housingSpace < 4) game.housingSpace = 4;
-    if (game.population > game.housingSpace) game.population = game.housingSpace;
+    if (game.population > game.housingSpace)
+        game.population = game.housingSpace;
     //game.population = Math.min(game.population, Math.max(game.housingSpace, 4)); // Sets max population based on housing space, but ignores
     // housing if it's under 4
 
@@ -240,7 +250,12 @@ export function handlegameboxmove(event) {
     // Here, we want to use mouseState to also determine if the user has gone beyond the 10-pixel range threshhold
     if (mouseState === 1) {
         //console.log(`Event: [${event.clientX},${event.clientY}], start: [${mouseStartX},${mouseStartY}]`);
-        if (!(danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10))) {
+        if (
+            !(
+                danCommon.within(event.clientX, mouseStartX, 10) &&
+                danCommon.within(event.clientY, mouseStartY, 10)
+            )
+        ) {
             //console.log("Time to handle moving!");
             mouseState = 2; // With this value we may fall-through to the next section
             game.tutorial.checkAdvance("movemap");
@@ -269,7 +284,10 @@ export function handlegameboxmove(event) {
 export function handlegameboxup(event, mapx, mapy) {
     mouseState = 0;
     //console.log(`mouse up: [${event.clientX},${event.clientY}] (previously at [${mouseStartX},${mouseStartY}]`);
-    if (danCommon.within(event.clientX, mouseStartX, 10) && danCommon.within(event.clientY, mouseStartY, 10)) {
+    if (
+        danCommon.within(event.clientX, mouseStartX, 10) &&
+        danCommon.within(event.clientY, mouseStartY, 10)
+    ) {
         handlegameboxclick(mapx, mapy);
     }
 }

@@ -17,29 +17,44 @@ export const dryer = mapsquare => {
         counter: 0,
         allowOutput: true,
 
-        // Since this block requires parts to be provided before it can be built, we can't simply disable inputs through blockHasOutputsPerInput.
-        // Instead, we should use two different functions to define structure-type input verses production-type input. We will use these functions
-        // to swap out what input values this function expects.
+        // Using blockHasOutputsPerInput with this block will just not work. This block will need the common functions to behave based on if
+        // the block is completed or not.
+        // So instead of trying to use blockHasOutputsPerInput, we will setup another block add-on type to handle this. Our next block
+        // (the Bloomery) will require a very similar setup to this one.
 
-        // getItem() is already defined in blockOutputsItems
-        // possibleOutputs() is already defined in blockHasOutputsPerInput
-        // inputsAccepted() is already defined in blockHasOutputsPerInput
+        outputItems: [
+            {
+                name: "Wet Bloomery Block",
+                craftTime: 300,
+                output: "Bloomery Block"
+            },
+            {
+                name: "Firewood Log Wet",
+                craftTime: 400,
+                output: "Firewood Log"
+            }
+        ],
+
+        buildParts: [{ name: "Pole", qty: 4 }, { name: "Long Stick", qty: 8 }, { name: "Wood Shingle", qty: 64 }],
+        // Hmm. It seems that, before we can really build this block, we'll need some straw, so we can make a thatch roof with it. So we have to
+        // create a farming industry
+
+        // getItem() is already defined in blockOutputsItems (Yes, we will allow finished items to be output, even while this is being rebuilt).
+        possibleOutputs() {
+            // Returns an array of all possible output items this block will have
+            return state.outputItems.map(ele => {
+                return ele.output;
+            });
+        },
+
+        inputsAccepted() {
+            // Returns an array of all items that this block will accept as input
+            // For this block, we need to consider both the build requirements and the production items
+        },
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasOutputsPerInput
         // receiveItem() is already defined in blockHasOutputsPerInput
 
-        setupBuilding() {
-            // Handles setting the input parameters to accept structure based items, for when the building is being built (or replaced)
-        },
-
-        setupProduction() {
-            // Handles setting the input parameters to accept productino based items, for when the building can be used
-        },
-
-        update() {
-            state.handleUpdate();
-            if (state.mode === "use") {
-            }
-        }
+        update() {}
     };
 };

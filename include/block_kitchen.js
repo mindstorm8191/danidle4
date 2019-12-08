@@ -1,51 +1,35 @@
-// Butcher Shop
+// Kitchen
 // for DanIdle version 4
-// Cuts dead animals into smaller meats, easy for cooking. Also outputs animal byproducts, such as fur, bones and feathers
+// provides a place where foods can be processed and prepared to be eaten. Since we're starting with very limited technology, this assumes the
+// only real tools you have (to start with) is a knife
 
+import { game } from "./game.js";
+import { item, food } from "../index.js";
 import {
     blockOutputsItems,
-    blockShowsOutputItems,
     blockHasWorkerPriority,
-    blockDeletesClean
+    blockHandlesFood,
+    blockDeletesClean,
+    blockShowsOutputItems
 } from "./activeblock.js";
-import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
-import { game } from "./game.js";
+import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput.js";
 import $ from "jquery";
 
-export const butchershop = mapsquare => {
+export const kitchen = mapsquare => {
     let state = {
-        name: "butchershop",
+        name: "kitchen",
         tile: mapsquare,
         id: game.getNextBlockId(),
         counter: 0,
-        allowOutput: true, // Determines if this block will output items. Later in the game, we will allow this item to output items,
+        alloutOutput: true,
         outputItems: [
             {
-                name: "Dead Deer",
-                craftTime: 50,
+                name: "Whole Wheat",
+                craftTime: 5,
                 output: [
-                    { name: "Raw Deer Meat", qty: 7 },
-                    { name: "Bone", qty: 4 },
-                    { name: "Fur", qty: 3 }
-                ]
-            },
-            {
-                name: "Dead Wolf",
-                craftTime: 30,
-                output: [
-                    { name: "Raw Wolf Meat", qty: 4 },
-                    { name: "Bone", qty: 2 },
-                    { name: "Fur", qty: 2 }
-                ]
-            },
-            {
-                name: "Dead Chicken",
-                craftTime: 20,
-                output: [
-                    { name: "Raw Chicken Meat", qty: 2 },
-                    { name: "Bone", qty: 1 },
-                    { name: "Feather", qty: 5 }
+                    { name: "Wheat Seeds", qty: 1 },
+                    { name: "Wheat Stems", qty: 1 }
                 ]
             }
         ],
@@ -65,22 +49,22 @@ export const butchershop = mapsquare => {
         // receiveItem() is already defined in blockHasOutputsPerInput
 
         update() {
-            // Handles updating this block once every turn
-            // Most of this is handled by our add-on code blocks
+            // Yes, this is copied directly from the ButcherShop block. But they behave exactly the same
+
             if (!state.readyToCraft()) {
                 if (game.workPoints <= 0) return; // We have no workers to work this block anyway
                 state.searchForItems();
                 return;
             }
             if (game.workPoints <= 0) return;
-            const eff = state.checkTool();
+            const eff = state.checkTool(true);
             if (eff === null) return;
+
             game.workPoints--;
-            state.processCraft(eff);
+            state.processCraft(1);
         },
 
         drawpanel() {
-            // Handles drawing the contents on the side panel
             let curjob = "n/a";
             let craftPercent = "n/a";
             if (state.inItems.length > 0) {
@@ -93,19 +77,22 @@ export const butchershop = mapsquare => {
                 );
             }
             $("#sidepanel").html(`
-                <b><center>Butcher Shop</center></b><br />
+                <b><center>Kitchen</center></b><br />
                 <br />
-                While cooking meats whole gets the job done, it is a lengthy process. Cutting meats into smaller pieces allows for
-                faster cooking. Plus, other resources can be extracted from your catches.<br />
-                <br />
-                Chops dead animals into raw meats and other resources.  Requires a knife.<br />
-                <br />
+                <p>As more food options become available, preparing foods before cooking becomes necessary.</p>
+                <p>
+                    Actions available:
+                    <ul>
+                        <li>Cut whole wheat into stems and seeds
+                        <li>Other options to come later
+                    </ul>
+                </p>
             `);
             state.showPriority();
             $("#sidepanel").append(`
                 <br />
-                Items to butcher:<span id="sidepanelinput">${state.inItems.length}</span><br />
-                Current work:<span id="sidepanelworking">${curjob}</span><br />
+                Items to process:<span id="sidepanelinput">${state.inItems.length}</span><br />
+                Current work: <span id="sidepanelworking">${curjob}</span><br />
                 Current progress: <span id="sidepanelprogress">${craftPercent}</span>%<br />
             `);
             state.showDeleteLink();
@@ -138,6 +125,7 @@ export const butchershop = mapsquare => {
         },
 
         deleteblock() {
+            // Nothing extra to do here
             state.finishDelete();
         }
     };
@@ -145,7 +133,7 @@ export const butchershop = mapsquare => {
     game.blockList.push(state);
     mapsquare.structure = state;
     $("#" + state.tile.id + "imageholder").html(
-        '<img src="img/butcher.png" />'
+        '<img src="img/kitchen.png" />'
     );
     return Object.assign(
         state,

@@ -14,6 +14,7 @@ export const blockRequiresTool = state => ({
     //      Must contain a toolChoices array, containing objects, one for each tool slot:
     //          slotName: name of the slot, as shown to the user
     //          isRequired: set to true if this tool is required before this block can begin working, or false if not.
+    //          isUsed: set to true if this tool is to be used for the current crafting operation, or false if it is left out.
     //          choices: the name (only) of all possible tools that can be used by this block. Any tools that have not been unlocked will
     //              not be displayed here. (Currently) This array must contain a 'None' option, which is what all users will start with.
     //              Users may choose to select this later to avoid picking up a tool for this block.
@@ -25,10 +26,31 @@ export const blockRequiresTool = state => ({
     //currentTool: null, // Loaded tool that is being used
     //targetTool: "None", // Which tool the user wants to use when the current tool breaks
 
-    checkTool() {
+    requiresTool_isSetup: false, // This is used within CheckTool, to allow additional setups on the first run
+
+    checkTool(debug = false) {
         // Used in the block's update() function. Returns the efficiency value for this tool, or null if no tool is available.
         // If a tool can be used, its endurance counter is deducted from. Once a tool's endurance reaches zero, it will be destroyed;
         // another tool can then be loaded automatically at that point (if one is selected)
+
+        // Start by ensuring all additional fields of each tool slot exists.
+        // targetTool is the current tool that the user wishes to use
+        // currentTool is the actual tool object, loaded here
+        // isUsed is set to true or false if the tool is used for the current task.
+        //      This can be changed manually by the parent block.
+        if (!state.requiresTool_isSetup) {
+            state.requiresTool_isSetup = true;
+            state.toolChoices = state.toolChoices.map(ele => {
+                return {
+                    targetTool: "None",
+                    currentTool: null,
+                    isUsed: true,
+                    ...ele
+                };
+                // The spread, in this way, will allow the existing properties in 'ele'
+                // to overwrite any added here
+            });
+        }
 
         // With having multiple choices for tools, we need to account for current and target tools for each possible slot.  currentTool
         // and targetTool should now be kept within the toolChoices array.
@@ -39,23 +61,27 @@ export const blockRequiresTool = state => ({
         // total efficiency of these tools, while alos using up endurance
         if (
             !state.toolChoices.every(ele => {
-                // Check that this slot has the additional fields we need to function.
-                if (ele.targetTool === undefined) {
-                    ele.targetTool = "None";
-                    ele.currentTool = null;
-                }
-                if (ele.inUse === undefined) {
-                    ele.inUse = true;
-                }
+                // See if the tool is being used in the current task.
+                //  If it's not used, the task can be done without it. This
+                // is different than saying that the tool is required.
+                if (ele.isUsed === false) return true;
 
                 if (ele.currentTool === null) {
-                    if (ele.targetTool === "None") return !ele.isRequired;
-                    ele.currentTool = game.blockList.getInStorage(ele.targetTool);
+                    if (ele.targetTool === "None") return !ele.isRequired; // Return status based on if this tool is required or not
+                    ele.currentTool = game.blockList.getInStorage(
+                        ele.targetTool
+                    );
                     if (ele.currentTool === null) {
-                        console.log("Could not find tool " + ele.targetTool);
+                        //console.log("Could not find tool " + ele.targetTool);
                         return !ele.isRequired;
                     } else {
-                        console.log("Tool (target " + ele.targetTool + ") loaded (got " + ele.currentTool.name + ")");
+                        console.log(
+                            "Tool (target " +
+                                ele.targetTool +
+                                ") loaded (got " +
+                                ele.currentTool.name +
+                                ")"
+                        );
                     }
                 }
                 return true;
@@ -63,18 +89,28 @@ export const blockRequiresTool = state => ({
         )
             return null;
 
+        if (debug === true) {
+            console.log(
+                state.toolChoices
+                    .filter(group => !(group.currentTool === null))
+                    .map(group => group.currentTool.efficiency)
+            );
+        }
+
         // Now, reduce the total endurance of each tool we're using here
         state.toolChoices
             .filter(group => !(group.currentTool === null))
-            .filter(group => group.inUse === true)
+            .filter(group => group.isUsed === true)
             .forEach(group => group.currentTool.endurance--);
 
         // Now return the sum of efficiency that all the tools provide
         return state.toolChoices
             .filter(group => !(group.currentTool === null))
-            .filter(group => group.inUse === true)
+            .filter(group => group.isUsed === true)
             .map(group => group.currentTool.efficiency)
-            .reduce((sum, value) => sum + value, 0);
+            .reduce((sum, value) => {
+                return sum + value;
+            }, 0);
         /*
         if (state.currentTool === null) {
             if (state.targetTool === "None") return null; // We are currently not after any tools
@@ -94,9 +130,11 @@ export const blockRequiresTool = state => ({
 */
     },
 
-    showTools() {
+    showTools(debugState = false) {
         // For the side panel, appends content showing what tools the user can select. Also provides a means for the user to select
         // one of those tools
+        // debugState - set this to true to provide debugging information through this function, as it operates.  Debugging is
+        //      currently on an as-needed basis
 
         // Start by showing the user a header section for this tool type
         state.toolChoices.forEach(group => {
@@ -106,19 +144,34 @@ export const blockRequiresTool = state => ({
             }
             $("#sidepanel").append(`
                 <br />
-                <b>${group.groupName}:</b> ${group.isRequired ? "Required" : "Not Required"}
-                    (selected: ${group.currentTool === null ? "None" : group.currentTool.name})<br />
+                <b>${group.groupName}:</b> ${
+                group.isRequired ? "Required" : "Not Required"
+            }
+                    (selected: ${
+                        group.currentTool === null
+                            ? "None"
+                            : group.currentTool.name
+                    })<br />
             `);
             // Next, run through all choosable tools and display them, including a way to select them
             group.choices
                 .filter(tool => {
                     if (tool === "None") return true; // This gets a free pass
-                    return game.unlockedItems.includes(tool);
+                    let isUnlocked = game.unlockedItems.includes(tool);
+                    if (!isUnlocked && debugState)
+                        console.log(
+                            "Target tool " + tool + " is not unlocked yet."
+                        );
+                    return isUnlocked;
                 })
                 .forEach(choice => {
                     $("#sidepanel").append(`
                         <span class="sidepanelbutton"
-                              id="sidepaneltool${danCommon.multiReplace(choice, " ", "")}"
+                              id="sidepaneltool${danCommon.multiReplace(
+                                  choice,
+                                  " ",
+                                  ""
+                              )}"
                               style="background-color: ${state.chooseToolColor(
                                   group.groupName,
                                   choice
@@ -126,8 +179,13 @@ export const blockRequiresTool = state => ({
                     `);
                     console.log(group.groupName);
                     document
-                        .getElementById("sidepaneltool" + danCommon.multiReplace(choice, " ", ""))
-                        .addEventListener("click", () => game.blockSelect.picktool(group.groupName, choice));
+                        .getElementById(
+                            "sidepaneltool" +
+                                danCommon.multiReplace(choice, " ", "")
+                        )
+                        .addEventListener("click", () =>
+                            game.blockSelect.picktool(group.groupName, choice)
+                        );
                 });
         });
         /*
@@ -170,8 +228,13 @@ export const blockRequiresTool = state => ({
                     return game.unlockedItems.includes(tool);
                 })
                 .forEach(tool => {
-                    $("#sidepaneltool" + danCommon.multiReplace(tool, " ", "")).css({
-                        "background-color": state.chooseToolColor(group.groupName, tool)
+                    $(
+                        "#sidepaneltool" + danCommon.multiReplace(tool, " ", "")
+                    ).css({
+                        "background-color": state.chooseToolColor(
+                            group.groupName,
+                            tool
+                        )
                     });
                 });
         });
@@ -204,8 +267,15 @@ export const blockRequiresTool = state => ({
         // Search for an outputItems structure. Not all blocks will have this; those that won't will have all possible
         // tools available.  For those that do, blocks may have minimum tool requirements for each craft option, which must be put into
         // consideration.
-        if (!(state.outputItems === undefined || state.currentCraft === undefined)) {
-            const crafting = state.outputItems.find(ele => ele.name === state.currentCraft);
+        if (
+            !(
+                state.outputItems === undefined ||
+                state.currentCraft === undefined
+            )
+        ) {
+            const crafting = state.outputItems.find(
+                ele => ele.name === state.currentCraft
+            );
             if (crafting === undefined) {
                 console.log(
                     "Error in blockRequiresTool->chooseToolColor: did not find current state.currentCraft in state.outputItems"
@@ -213,7 +283,8 @@ export const blockRequiresTool = state => ({
             } else {
                 if (!(crafting.toolsUsable === undefined)) {
                     // We only want to show white when a tool isn't available for this crafting option. Anything else will be as normal
-                    if (!crafting.toolsUsable.includes(toolname)) return "white";
+                    if (!crafting.toolsUsable.includes(toolname))
+                        return "white";
                     // Any other condition will behave as normal
                 }
             }
@@ -238,14 +309,21 @@ export const blockRequiresTool = state => ({
     picktool(toolgroup, newtool) {
         // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
         // need to access it directly
-        const group = state.toolChoices.find(group => group.groupName === toolgroup);
+        const group = state.toolChoices.find(
+            group => group.groupName === toolgroup
+        );
         const lasttool = group.targetTool;
         group.targetTool = newtool;
         $("#sidepaneltool" + danCommon.multiReplace(lasttool, " ", "")).css({
             "background-color": state.chooseToolColor(group.groupName, lasttool)
         });
-        $("#sidepaneltool" + danCommon.multiReplace(group.targetTool, " ", "")).css({
-            "background-color": state.chooseToolColor(group.groupName, group.targetTool)
+        $(
+            "#sidepaneltool" + danCommon.multiReplace(group.targetTool, " ", "")
+        ).css({
+            "background-color": state.chooseToolColor(
+                group.groupName,
+                group.targetTool
+            )
         });
         //console.log("Group " + toolgroup + ", tool " + group.targetTool);
     },
@@ -255,7 +333,9 @@ export const blockRequiresTool = state => ({
         state.toolChoices.forEach(group => {
             if (group.currentTool === null) return; // No tool is loaded anyway. Nothing to do here
 
-            var storageSource = game.blockList.getById(group.currentTool.storageSource);
+            var storageSource = game.blockList.getById(
+                group.currentTool.storageSource
+            );
             if (storageSource === undefined) return; // failed to find the source block to store this in. We'll just have to drop the tool.
             if (storageSource.onhand.length > 10) return; // We have the block, but we have no space left in it. Loosing a used
             // We could correct the storage source (or blank it out), but if the tool is selected again, it will be set anyway

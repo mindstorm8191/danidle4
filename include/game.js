@@ -16,6 +16,8 @@ import { huntingpost } from "./block_huntingpost.js";
 import { campfire } from "./block_campfire.js";
 import { firewoodmaker } from "./block_firewoodmaker.js";
 import { butchershop } from "./block_butchershop.js";
+import { farm } from "./block_farm.js";
+import { kitchen } from "./block_kitchen.js";
 import { woodcrafter } from "./block_woodcrafter.js";
 import { waterfiller } from "./block_waterfiller.js";
 import { fireminer } from "./block_fireminer.js";
@@ -197,6 +199,26 @@ export const game = {
             generate: butchershop
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockHasOutputsPerInput, blockShowsOutputItems, blockRequiresTool
         {
+            name: "farm",
+            canBuildOn: [TILE_GRASS],
+            image: "img/farm.png",
+            state: 0,
+            highlight: "Farm: grow crops here",
+            prereq: [["Flint Hoe"]],
+            sourcePath: "./block_farm.js",
+            generate: farm
+        }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockRequiresTool, blockHandlesFood, blockShowsOutputItems
+        {
+            name: "kitchen",
+            canBuildOn: [TILE_GRASS],
+            image: "img/kitchen.png",
+            state: 0,
+            highlight: "Kitchen: prepare foods before eating. Cleaver optional",
+            prereq: [["Whole Wheat", "Carrot", "Potato", "Bean"]],
+            sourcePath: "./block_kitchen.js",
+            generate: kitchen
+        },
+        {
             name: "woodcrafter",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
             image: "img/woodcrafter.png",
@@ -222,7 +244,7 @@ export const game = {
             image: "img/minerspost.png",
             state: 0,
             highlight: "Fire Miner: Use fire & water to cut through rocks",
-            prereq: [["Wooden Bowl"]],
+            prereq: [["Wooden Bowl"], ["Basic Crane"]],
             sourcePath: "./block_fireminer.js",
             generate: fireminer
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockRequiresTool, blockCooksItems

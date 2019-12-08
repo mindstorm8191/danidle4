@@ -19,11 +19,14 @@ export const autoprovider = mapsquare => {
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
         // We don't need to have a function to decide what gets generated - we can simply edit a fixed data structure here
         generate: [
-            { name: "Wooden Bowl", class: "item" },
-            { name: "Flint Hoe", class: "tool", efficiency: 1, endurance: 10000 },
-            { name: "Pole Crane", class: "tool", efficiency: 6, endurance: 10000 },
             { name: "Apple", class: "food", lifetime: 10000 },
-            { name: "Clay", class: "item" }
+            {
+                name: "Flint Knife",
+                class: "tool",
+                efficiency: 1,
+                endurance: 10000
+            },
+            { name: "Whole Wheat", class: "item", lifetime: 10000 }
         ],
         fixedPopulation: 20,
         unlockItems: [
@@ -72,7 +75,10 @@ export const autoprovider = mapsquare => {
                 // to the right of this block - we don't need to care what land they fall into
                 let position = 1;
                 state.generate.forEach(ele => {
-                    let mappos = game.chunkList[0][0].map[state.tile.ypos][state.tile.xpos + position];
+                    let mappos =
+                        game.chunkList[0][0].map[state.tile.ypos][
+                            state.tile.xpos + position
+                        ];
                     ele.hand = storage(mappos);
                     ele.hand.allowOutput = true;
                     position++;
@@ -103,10 +109,15 @@ export const autoprovider = mapsquare => {
                 if (ele.hand.onhand.length < 10) {
                     switch (ele.class) {
                         case "food":
-                            ele.hand.onhand.push(food(ele.name, ele.lifetime, ele.hand));
+                            ele.hand.onhand.push(
+                                food(ele.name, ele.lifetime, ele.hand)
+                            );
                             break;
                         case "tool":
-                            ele.hand.onhand.push(tool(ele.name, ele.efficiency, ele.endurance));
+                            console.log("In autoprovider: " + ele.efficiency);
+                            ele.hand.onhand.push(
+                                tool(ele.name, ele.efficiency, ele.endurance)
+                            );
                             break;
                         default:
                             ele.hand.onhand.push(item(ele.name));
@@ -129,6 +140,8 @@ export const autoprovider = mapsquare => {
 
     game.blockList.push(state);
     mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/axe_flint.png" />');
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/axe_flint.png" />'
+    );
     return Object.assign(state);
 };

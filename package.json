@@ -4,14 +4,14 @@
     "description": "An Idle game climbing a tech tree, starting from nothing but sticks & dirt, working up to advanced tech through automation",
     "main": "index.js",
     "dependencies": {
-        "jquery": "^3.3.1",
+        "jquery": "^3.4.1",
         "jquery-ui-bundle": "^1.12.1-migrate"
     },
     "devDependencies": {
         "cssnano": "^4.1.10",
-        "eslint": "^5.15.3",
-        "parcel": "^1.12.3",
-        "parcel-bundler": "^1.12.3"
+        "eslint": "^5.16.0",
+        "parcel": "^1.12.4",
+        "parcel-bundler": "^1.12.4"
     },
     "scripts": {
         "test": "whatever",
@@ -26,5 +26,8 @@
     "bugs": {
         "url": "https://github.com/mindstorm8191/danidle4/issues"
     },
-    "homepage": "https://github.com/mindstorm8191/danidle4#readme"
+    "homepage": "https://github.com/mindstorm8191/danidle4#readme",
+    "prettier": {
+        "tabWidth": 4
+    }
 }

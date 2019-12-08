@@ -38,7 +38,7 @@ export const woodcrafter = mapsquare => {
             },
             // a craftTime of 40 might seem like a lot, but the Flint Hatchet has double production speed
             {
-                name: "Firewood Log Chunk Wet",
+                name: "Firewood Log Wet",
                 info: "Chop wood for fire. Requires drying",
                 prereq: [],
                 parts: [{ name: "Log Chunk", qty: 1 }],
@@ -57,7 +57,7 @@ export const woodcrafter = mapsquare => {
             },
             {
                 name: "Basic Crane",
-                info: "Pick up heavy objects (like rocks)",
+                info: "Pick up heavy objects (like boulders)",
                 prereq: [],
                 parts: [
                     { name: "Pole", qty: 1 },

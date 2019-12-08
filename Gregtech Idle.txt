@@ -1,0 +1,109 @@
+Gregtech Idle
+Idle game inspired by Gregtech (and Factory Idle coupled with Reactor Idle)
+
+
+game will behave a lot like factory idle: different places will generate goods, other places
+  will consume them.  However, user will have to hire and keep workers paid, and provide the tools
+  needed to keep them working (except the first 3 that the game starts with)
+any and all items can be sold in bulk, or by being sent to a selling station
+
+stick source --> shovel producer
+shovels open up gravel source
+gravel source (requires shovel) --> flint filter (requires shovel) --> flint axe, shovel, pickaxe
+flint pickaxe opens up rock source
+rock --> stone blocks --> stone oven
+rock --> copper filter (requires pickaxe) --> copper smelter (requires oven)
+log source (requires axe) --> charcoal (requires oven)
+
+Item movement
+Items will need to be moved about from machine to machine in order for everything to work.
+Bucket-line: Players will start by using lines of workers to transport items, one at a time,
+	     between shops.  This won't be very cost-effective, but will not require any equipment,
+	     besides the workers.  While being basic, this method will also allow the most
+	     flexibility, enabling sorting and routing management, even early in the game.  Players
+	     will likely keep using single workers for routing management even when higher level
+	     flow options exist.
+Ramps: Ramps can be loaded items by the workers to move items one block in the same direction.  This
+       can help reduce the total number of workers in the bucket lines
+Roller ramps: Like normal ramps, but can be extended for many blocks, but only in straight lines
+Steam belts: Can move items automatically between machines.  Compared to later options, this will
+	     be a bit slow.
+Linked Steam Belts: these pass steam power as well as items, allowing you to improve your layout
+Electric belts: These can be run at much higher speeds, allowing much better logistical management
+Linked Electric Belts: Passes electric power as well as items.
+Air plates: These can toss items from one side of your factory to the other, but only in straight
+	    lines.  Air plates will have some restrictions on what can be passed this way (anything
+	    fragile / volatile is probably a bad idea).  Requires a linked catch-plate for the items
+	    to stop at
+Teleporter: Automatically move items to where-ever you want them.  Requires a lot of power input.
+
+
+
+
+Player starts by having an exploration token.  By using it, they find a
+forest.  They can then upgrade that to start producing sticks.
+
+With 10 sticks, they can produce a shovel.  With 10 shovels, they can have
+a second exploration token.  Using that gives them dirt and gravel sources
+
+1st great exploration = forest (yields 100 sticks, 600 logs), dirt field (yields 1000 dirt, 800 gravel)
+trees --> sticks
+sticks --> wooden shovel
+shovel --> dirt & gravel
+gravel + sticks --> flint pickaxe
+gravel + sticks --> flint shovel (increases dirt & gravel production)
+gravel + sticks --> flint axe (starts basic log production)
+gravel + sticks --> flint spears
+log + flint axe use --> lumber
+log + flint axe use --> sticks (low yield)
+10 flint spears --> 2nd great exploration - gain copper ore, stone, clay,
+	tin ore, water sources
+stone + clay + (lots of) dirt --> wood farm
+stone + clay --> furnace
+furnace + stone + clay --> charcoal furnace
+furnace + -wood- --> charcoal
+furnace + -charcoal- + -copper ore- --> copper ingot
+furnace + -charcoal- + -tin ore- --> tin ingot
+sticks + stone --> stone hammer
+stone hammer (use) + -copper ingot- --> copper dust
+stone hammer (use) + -tin ingot- --> tin dust
+-copper dust (x3)- + -tin dust- --> bronze dust
+furnace + -bronze dust- --> bronze ingot
+sticks + bronze ingot --> bronze hammer (lasts much longer than stone hammer)
+-bronze ingot- + bronze hammer (use) --> bronze plate
+sticks + bronze plate --> bronze chisel
+sticks + bronze chisel + bronze plate --> bronze file
+filed bronze plates --> boiler
+filed bronze plates --> steam pipes
+filed bronze plates --> water pipes
+filed bronze plates --> gears
+filed bronze plates + gears --> steam-powered conveyor
+bronze plates + gears --> steam furnace (can be connected with conveyors)
+bronze plates + gears --> steam ore crusher (increases material yield)
+bronze plates + gears --> steam saw (replaces bronze chisel)
+bronze plates + steam saw --> lumbermill (increases wood output)
+charcoal furnace + gears + conveyor --> rolling charcoal maker (to feed
+	the blast furnace)
+bronze plates + gears --> steam drill
+gears + steam drill --> water pump (hooks up to boiler to never run out of
+	water)
+bronze plates + water pump --> ore washer
+bronze plates + steam hammer + more gears --> steam mining machine
+bronze plates + steam drill + more gears --> steam dirt moving machine
+bronze plates + gears --> steam hammer (replaces bronze hammer)
+bronze plates --> bronze armor, bronze weapons, 3rd great exploration - gain
+	iron, rubber, lead, aluminum
+bronze plates + clay + gears --> blast furnace
+iron ore + charcoal (blast furnace) --> steel ingot
+
+All items will be sorted into categorized groups.  At some point, the player
+will no longer need earlier groups, but focus on the later groups
+
+Map will be a scrollable map, with limited size & fixed layout.  Player will
+gain access to new areas as they progress.
+
+Small explorations yield additional resource stashes of existing unlocked
+materials.  Each one costs 10% more in goods, but increases in possible yields
+
+Great explorations yield new resource types, and have a fixed cost
+

@@ -184,11 +184,15 @@ export const blockHasSelectableCrafting = state => ({
                     crafting.efficiency += crafting.efficiencyGain;
                     crafting.enduranceGain = Math.max(0, crafting.enduranceGain - crafting.enduranceTaper);
                     crafting.efficiencyGain = Math.max(0, crafting.efficiencyGain - crafting.efficiencyTaper);
-                    // Now, switch to the next item the user wants us to craft
                 }
             }
+
+            // Don't forget to run this through the unlock code as well.
+            // - but wait - item and tool (even food) unlocking is handled at item generation
+            // If there are issues with items not being available when needed, first determine if the names match (exactly, it's case sensitive)
+
             // Next, we need to handle adding byproduct items to the onhand array.  Not every block in our world has a byProducts array, though
-            console.log(crafting.byProducts);
+            //console.log(crafting.byProducts);
             if (crafting.byProducts != undefined) {
                 console.log("We have byproducts to produce");
                 crafting.byProducts.forEach(ele => {
@@ -198,6 +202,8 @@ export const blockHasSelectableCrafting = state => ({
                     }
                 });
             }
+
+            // Now, switch to the next item the user wants us to craft
             state.currentCraft = state.targetCraft;
             // Ensure we can start this.  If not, we should set the progress counter to zero. This will allow us to change crafting targets
             // if the current one cannot be done.

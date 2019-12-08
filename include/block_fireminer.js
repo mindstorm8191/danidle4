@@ -36,7 +36,7 @@ export const fireminer = mapsquare => {
         water: [], // All water units we have on hand
         toolChoices: [
             { groupName: "Shovel", isRequired: true, inUse: false, choices: ["None", "Flint Hoe"] },
-            { groupName: "Crane", isRequired: true, inUse: false, choices: ["None", "Pole Crane"] }
+            { groupName: "Crane", isRequired: true, inUse: false, choices: ["None", "Basic Crane"] }
         ],
         rockTemp: 0,
 
@@ -192,7 +192,7 @@ export const fireminer = mapsquare => {
                 <div id="sidepanelonhand">${state.displayItemsOnHand()}</div>
                 <br />
             `);
-            state.showTools();
+            state.showTools(true);
         },
 
         updatepanel() {
