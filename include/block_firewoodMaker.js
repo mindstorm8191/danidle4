@@ -2,15 +2,15 @@
 // For DanIdle Version 4
 // Allows colonists to collect loose dried wood from the local area, for burning in fires
 
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const firewoodmaker = mapsquare => {
+export const firewoodMaker = mapSquare => {
     let state = {
-        name: "firewoodmaker",
-        tile: mapsquare,
+        name: "firewoodMaker",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -22,7 +22,7 @@ export const firewoodmaker = mapsquare => {
             { name: "Large Firewood", isFood: false }
         ],
 
-        //possibleoutputs is defined in HasRandomizedOutput
+        //possibleOutputs is defined in HasRandomizedOutput
         // willOutput() is already defined in blockOutputsItems
 
         inputsAccepted() {
@@ -47,7 +47,7 @@ export const firewoodmaker = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b><center>Firewood Collector</center></b><br />
                 <br />
@@ -68,19 +68,19 @@ export const firewoodmaker = mapsquare => {
             state.showDeleteLink();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelprogress").html(Math.floor((state.counter / state.craftTime) * 100));
             $("#sidepanelonhand").html(state.onhand.length);
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
     game.lastBlockId++;
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/firewoodmaker.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/firewoodMaker.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

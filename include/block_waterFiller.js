@@ -3,14 +3,14 @@
 // Fills liquid-holding items (such as wooden bowls) with water
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput";
 import $ from "jquery";
 
-export const waterfiller = mapsquare => {
+export const waterFiller = mapSquare => {
     let state = {
-        name: "waterfiller",
-        tile: mapsquare,
+        name: "waterFiller",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -24,7 +24,7 @@ export const waterfiller = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasOutputsPerInput
+        // possibleOutputs() is already defined in blockHasOutputsPerInput
         // inputsAccepted() is already defined in blockHasOutputsPerInput
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasOutputsPerInput
@@ -40,7 +40,7 @@ export const waterfiller = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b><center>Water Filler</center></b><br />
                 Water is easily available, but moving it is easier said than done. Fortunately, you have a tool for that.<br />
@@ -58,12 +58,12 @@ export const waterfiller = mapsquare => {
             `);
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelinput").html(state.inItems.length);
             $("#sidepanelonhand").html(state.displayItemsOnHand());
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Handles deleting this block when the user chooses to delete it.
             // This block doesn't do anything special when deleting
             state.finishDelete();
@@ -71,8 +71,8 @@ export const waterfiller = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/watercup.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/waterFiller.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

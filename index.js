@@ -19,7 +19,6 @@
 // 5) Mobile users: Figure out how we can organize the page properly for cellphones. We plan to have all the block types in a popup menu, and right
 //    side bar content will be displayed as a popup that can be closed. I think we can show the general stats (and load & save) as a block
 //    directly above the map, with the tutorial instructions (make this one hideable)
-// 6) Deeper Tech: Before we can build a dryer structure, we need players to be able to produce & harvest straw
 // 7) Environment: Set up code to update all of the blocks in a given chunk. Our plans were to update forage rates every second
 // 8) UX: Get the housing and food counts (or both) to turn red whenever they are the limitations on increasing population
 // 9) Environment: Add a base land type to map tiles. Use this to determine what will develop there whenever it is left abandoned. Use the
@@ -36,7 +35,6 @@
 // 17) In the blockCooksItems addon, modify the progress bar to show a different effect whenever a food starts to cook for too long
 // 18) Update the hauler block to accept input items for specific things they are searching for
 // 19) Create an add-on block for all blocks that have no inputs (blockHasNoInput)
-// 20) Start setting up farming (this will be a major opportunity towards automation in late-game)
 // 21) Add a field to all blocks using tools, to determine how much tool endurance to drain per usage
 
 // Things to look up:
@@ -45,14 +43,14 @@
 // Code Fragility: When making a change to one piece of code causes other parts of the code to no longer work
 
 // code size calculation
-// index.html                block_leanto.js             block_campfire.js         block_gravelroad.js     blockAddon_CooksItems.js
-//    index.js                   block_foragepost.js         block_firewoodmaker.js   block_boulderwall.js     blockAddon_HasOutputsPerInput.js
-//        dancommon.js               block_rockknapper.js       block_butchershop.js     block_dirtmaker.js        blockAddon_HasRandomizedOutput.js
-//           game.js                     block_twinemaker.js        block_farm.js            block_claymaker.js       blockAddon_HasSelectableCrafting.js
-//               mapmanager.js               block_stickmaker.js        block_woodcrafter.js    block_clayformer.js       blockAddon_IsStructure.js
-//                   block_hauler.js             block_flinttoolmaker.js    block_waterfiller.js   block_autoprovider.js      blockAddon_RequiresTool.js
-//                       block_storage.js            block_huntingpost.js      block_fireminer.js      activeblock.js
-// 41+407+49+466+359+402+193+100+172+141+112+107+175+105+190+92+129+290+158+84+221+76+71+111+98+94+134+200+220+121+68+383+162+271
+// index.html                block_leanto.js             block_campfire.js         block_fireMiner.js      activeBlock.js
+//    index.js                   block_foragePost.js         block_firewoodMaker.js    block_gravelRoad.js     blockAddon_CooksItems.js
+//        danCommon.js               block_rockKnapper.js       block_butcherShop.js      block_boulderWall.js     blockAddon_HasOutputsPerInput.js
+//           game.js                     block_twineMaker.js        block_farm.js            block_dirtMaker.js        blockAddon_HasRanomizedOutput.js
+//               mapManager.js               block_stickMaker.js        block_kitchen.js         block_clayMaker.js       blockAddon_HasSelectableCrafting.js
+//                   block_hauler.js             block_flintToolMaker.js    block_woodCrafter.js    block_clayFormer.js       blockAddon_IsStructure.js
+//                       block_storage.js            block_huntingPost.js       block_waterFiller.js   block_autoProvider.js      blockAddon_RequiresTool.js
+// 41+422+49+477+359+402+193+100+172+141+112+107+175+105+190+92+159+296+147+158+84+221+76+71+111+98+94+147+200+220+121+68+383+162+345
 // 3/14/19 - 2683 lines
 // 3/17/19 - 3342 lines
 // 3/21/19 - 3768 lines
@@ -63,6 +61,7 @@
 // 4/28/19 - 5814 lines
 // 7/04/19 - 5582 lines
 // 7/22/19 - 6002 lines
+// 12/8/19 - 6298 lines
 
 // Tech directions to go that are left open:
 // -----------------------------------------
@@ -88,12 +87,12 @@
 //import $ from "jquery";
 import $ from "./include/jquery-3.4.1.min.js";
 import { game } from "./include/game.js";
-import { mapchunk } from "./include/mapmanager.js";
-import { autoprovider } from "./include/block_autoprovider.js";
-import { danCommon } from "./include/dancommon.js";
+import { mapchunk } from "./include/mapManager.js";
+import { autoProvider } from "./include/block_autoProvider.js";
+import { danCommon } from "./include/danCommon.js";
 //import {} from "./img/*";
 
-const cheatenabled = true; // Set this to true to allow the AutoProvider to be displayed.
+const cheatEnabled = true; // Set this to true to allow the AutoProvider to be displayed.
 const TILE_GRASS = 1; // land type of grass
 const TILE_FOREST = 2; // land type of forest
 const TILE_ROCK = 3; // land type of rocks
@@ -104,22 +103,22 @@ let selectedY = 0; // which block in the map that was selected
 let mouseStartX = 0; // X position where mousedown was triggered
 let mouseStartY = 0; // Y position where mousedown was triggered
 
-if (cheatenabled === true) {
+if (cheatEnabled === true) {
     // This is only added on if cheats have been enabled
     game.blockDemands.push({
-        name: "autoprovider",
+        name: "autoProvider",
         canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK, TILE_WATER], // We don't really care where this is put
         image: "img/axe_flint.png",
         state: 0,
         highlight:
             "Auto-Provider, a cheat block. Its game effects are decided by code ",
         prereq: [],
-        sourcePath: "./block_autoprovider.js",
-        generate: autoprovider
+        sourcePath: "./block_autoProvider.js",
+        generate: autoProvider
     });
 }
 
-function updatemapsize() {
+function updateMapSize() {
     // A simple function to adjust the height of the drawn map whenever the size of the screen is changed.
     // I found that in other browsers (such as Firefox) the div for the map, using flexboxes, would not expand to fill the screen
     // by using "height:100%;", and instead would assume a size of zero, showing none of the map. Rather than setting the displayed
@@ -128,13 +127,13 @@ function updatemapsize() {
     $("#centermapbox").css("height", $(window).height());
 }
 
-export function setcursor(newvalue) {
+export function setCursor(newValue) {
     // Changes the value of cursorselect, based on which square (on the left) the user clicks on
 
     $("#cursor" + game.cursorSelect).css("background-color", "white");
-    game.cursorSelect = newvalue;
+    game.cursorSelect = newValue;
     $("#cursor" + game.cursorSelect).css("background-color", "red");
-    game.tutorial.checkAdvance("cursor=" + newvalue);
+    game.tutorial.checkAdvance("cursor=" + newValue);
     // To ensure no confusion, go ahead and clear this setting if it is set
     game.haulerPickTarget = 0;
 }
@@ -144,16 +143,16 @@ function start() {
 
     $("#game").html(""); // Clear the game section, and display a new map chunk
     new mapchunk(0, 0);
-    updatemapsize();
+    updateMapSize();
     document.getElementById("blockselector").innerHTML = "";
     game.blockDemands.unlock(); // Unlock all the basic items, which have no requirements
     game.cursorSelect = "selector";
-    setInterval(updateblocks, 1000);
+    setInterval(updateBlocks, 1000);
 
-    document.addEventListener("mousemove", handlegameboxmove);
+    document.addEventListener("mousemove", handleGameBoxMove);
 }
 
-function updateblocks() {
+function updateBlocks() {
     // Handles updating all blocks each second (or game tick).
 
     // Start by managing food consumption
@@ -224,7 +223,7 @@ function updateblocks() {
     });
 
     // While we're here, let's update the currently selected block's side panel
-    if (game.blockSelect != null) game.blockSelect.updatepanel();
+    if (game.blockSelect != null) game.blockSelect.updatePanel();
 
     // Also, update the stats shown on the top left of the screen
     $("#showpopulation").html(game.workPoints + " / " + game.population);
@@ -233,7 +232,7 @@ function updateblocks() {
     // There are other variables to consider here, but we don't yet have data to fill them out with.
 }
 
-export function handlegameboxdown(event, gridx, gridy) {
+export function handleGameBoxDown(event, gridx, gridy) {
     mouseState = 1;
 
     selectedX = gridx + 3;
@@ -244,7 +243,7 @@ export function handlegameboxdown(event, gridx, gridy) {
     event.preventDefault();
 }
 
-export function handlegameboxmove(event) {
+export function handleGameBoxMove(event) {
     if (mouseState === 0) return;
 
     // Here, we want to use mouseState to also determine if the user has gone beyond the 10-pixel range threshhold
@@ -281,18 +280,18 @@ export function handlegameboxmove(event) {
     event.preventDefault();
 }
 
-export function handlegameboxup(event, mapx, mapy) {
+export function handleGameBoxUp(event, mapx, mapy) {
     mouseState = 0;
     //console.log(`mouse up: [${event.clientX},${event.clientY}] (previously at [${mouseStartX},${mouseStartY}]`);
     if (
         danCommon.within(event.clientX, mouseStartX, 10) &&
         danCommon.within(event.clientY, mouseStartY, 10)
     ) {
-        handlegameboxclick(mapx, mapy);
+        handleGameBoxClick(mapx, mapy);
     }
 }
 
-export function handlegameboxclick(xpos, ypos) {
+export function handleGameBoxClick(xpos, ypos) {
     // Handles all clicks on the game map
 
     let mappos = game.chunkList[0][0].map[ypos][xpos];
@@ -301,12 +300,12 @@ export function handlegameboxclick(xpos, ypos) {
         // they have attempted to pick a target
         //console.log("Picked a target...");
         game.haulerPickTarget = 0;
-        return game.blockSelect.accepttarget(mappos);
+        return game.blockSelect.acceptTarget(mappos);
     }
 
     if (mappos.structure != null) {
         game.blockSelect = mappos.structure;
-        game.blockSelect.drawpanel();
+        game.blockSelect.drawPanel();
     }
     /*
     if (game.cursorSelect === "selector") {
@@ -316,7 +315,7 @@ export function handlegameboxclick(xpos, ypos) {
         $("#game").css("left", 330 - xpos * 66 + "px");
         if (mappos.structure != null) {
             game.blockSelect = mappos.structure;
-            game.blockSelect.drawpanel();
+            game.blockSelect.drawPanel();
         }
         return;
     }
@@ -348,14 +347,14 @@ export function handlegameboxclick(xpos, ypos) {
         Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: https://danidle.netlify.com/include/block_leanto.js
         Uncaught (in promise) TypeError: Failed to fetch dynamically imported module: https://danidle.netlify.com/include/block_leanto.js
 
-        It appears that the browser is unable to find the target file, despite the path being correct. A friend on Discord's TheProgrammerHangout
+        It appears that the browser is unable to find the target file, despite the path being correct. A friend on Discord's TheProgrammersHangout
         (credit to Kanosaki) thought it was a 404 error, but both of us were unable to fix the issue. I have decided to revert back to the old
         code style (for now).
 
         import(toBuild.sourcePath).then(() => {
             game.blockSelect = toBuild.generate(mappos);
             // Now that this has been constructed, show this on the right panel
-            game.blockSelect.drawpanel();
+            game.blockSelect.drawPanel();
             game.tutorial.checkAdvance("build=" + game.cursorSelect);
         });
         */
@@ -363,22 +362,22 @@ export function handlegameboxclick(xpos, ypos) {
         game.blockSelect = toBuild.generate(mappos);
 
         // Now that this has been constructed, let's show this on the right panel
-        game.blockSelect.drawpanel();
+        game.blockSelect.drawPanel();
         game.tutorial.checkAdvance("build=" + game.cursorSelect);
     }
 }
 
 // Manages each item in the game
-export const item = itemname => {
+export const item = itemName => {
     let state = {
-        name: itemname,
+        name: itemName,
         kind: "item" // this is a classification (but 'class' is a keyword)
     };
     // Now, add this to the list of unlocked items, if not already in it
-    if (!game.unlockedItems.includes(itemname)) {
-        game.unlockedItems.push(itemname);
+    if (!game.unlockedItems.includes(itemName)) {
+        game.unlockedItems.push(itemName);
         // Now, run the unlock function of the blockdemands structure. This will enable new blocks whenever available
-        game.blockDemands.unlock(itemname);
+        game.blockDemands.unlock(itemName);
     }
     return Object.assign(state);
 };
@@ -399,10 +398,10 @@ export const tool = (toolname, efficiency, endurance) => {
     return Object.assign(state);
 };
 
-export const food = (foodname, lifespan, inBlock) => {
+export const food = (foodName, lifespan, inBlock) => {
     // Like an item, but somebody's gonna eat it! Also has a shelflife... we haven't fully coded that in yet, though
     let state = {
-        name: foodname,
+        name: foodName,
         life: lifespan,
         id: game.lastFoodID,
         location: inBlock.id,
@@ -412,12 +411,12 @@ export const food = (foodname, lifespan, inBlock) => {
     game.foodList.push(state);
     // This is a global list, holding all the food items we have. Foods are selected at random for consumption. This list
     // allows us to select any of the food items to eat.
-    if (!game.unlockedItems.includes(foodname)) {
-        game.unlockedItems.push(foodname);
-        game.blockDemands.unlock(foodname);
+    if (!game.unlockedItems.includes(foodName)) {
+        game.unlockedItems.push(foodName);
+        game.blockDemands.unlock(foodName);
     }
     return Object.assign(state);
 };
 
 document.body.onload = start;
-document.body.onresize = updatemapsize;
+document.body.onresize = updateMapSize;

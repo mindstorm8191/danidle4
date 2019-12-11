@@ -1,17 +1,17 @@
-// block_huntingpost.js
+// block_huntingPost.js
 // for DanIdle version 4
 // The place where players hunt for nearby game animals. Produces meats, along with other animal-based resources (such as furs, bones and feathers)
 
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const huntingpost = mapsquare => {
+export const huntingPost = mapSquare => {
     let state = {
-        name: "huntingpost",
-        tile: mapsquare,
+        name: "huntingPost",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -24,7 +24,7 @@ export const huntingpost = mapsquare => {
         toolChoices: [{ groupName: "Spear", isRequired: true, choices: ["None", "Flint Spear"] }],
         craftTime: 30,
 
-        // possibleoutputs is defined in HasRandomizedOutput
+        // possibleOutputs is defined in HasRandomizedOutput
 
         inputsAccepted() {
             // This does not have any inputs
@@ -55,7 +55,7 @@ export const huntingpost = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Hunting Post</b><br />
                 <br />
@@ -78,21 +78,21 @@ export const huntingpost = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handle updating any fields in the side panel that may change between ticks
             $("#sidepanelprogress").html(Math.floor((this.counter * 100) / state.craftTime));
             state.updateOutput();
             state.updateToolPanel();
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/huntingpost.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/huntingPost.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

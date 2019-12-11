@@ -3,16 +3,21 @@
 // provides a place for drying things, that is covered (to protect from rain)
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import {
+    blockOutputsItems,
+    blockShowsOutputItems,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeBlock.js";
 import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 //import { blockIsStructure } from "./blockAddon_IsStructure.js"; We still cannot use blockIsStructure here, as that would conflict with the
 // declared functions that blockHasOutputsPerInput has
 
-export const dryer = mapsquare => {
+export const dryer = mapSquare => {
     let state = {
         name: "dryer",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -35,7 +40,11 @@ export const dryer = mapsquare => {
             }
         ],
 
-        buildParts: [{ name: "Pole", qty: 4 }, { name: "Long Stick", qty: 8 }, { name: "Wood Shingle", qty: 64 }],
+        buildParts: [
+            { name: "Pole", qty: 4 },
+            { name: "Long Stick", qty: 8 },
+            { name: "Wood Shingle", qty: 64 }
+        ],
         // Hmm. It seems that, before we can really build this block, we'll need some straw, so we can make a thatch roof with it. So we have to
         // create a farming industry
 
@@ -56,5 +65,7 @@ export const dryer = mapsquare => {
         // receiveItem() is already defined in blockHasOutputsPerInput
 
         update() {}
+
+        // A great many things in early tech require drying out, which can sometimes take days. But
     };
 };

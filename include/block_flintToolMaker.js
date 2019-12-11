@@ -2,15 +2,15 @@
 // for DanIdle version 4
 // Produces more advanced (aka less primitive) tools out of flint, sticks and twine
 
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const flinttoolmaker = mapsquare => {
+export const flintToolMaker = mapSquare => {
     let state = {
         name: "Flint Tool Maker",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -112,7 +112,7 @@ export const flinttoolmaker = mapsquare => {
             }
         ],
 
-        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // possibleOutputs() is already defined in blockHasSelectableCrafting
         // inputsAccepted() is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -126,7 +126,7 @@ export const flinttoolmaker = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Flint Tool Maker</b><br />
                 <br />
@@ -149,7 +149,7 @@ export const flinttoolmaker = mapsquare => {
             state.drawOutputChoices();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelparts").html(state.drawStocks());
             state.updateOutputChoices();
             $("#sidepanelprogress").html(state.drawProgressPercent());
@@ -157,14 +157,14 @@ export const flinttoolmaker = mapsquare => {
 
         // pickcraft used to be here, but it is already defined in HasSelectableCrafting
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/flinttoolset.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/flintToolMaker.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

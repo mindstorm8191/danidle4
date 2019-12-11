@@ -2,7 +2,7 @@
 // for DanIdle verison 4
 // Provides extra functionality for any blocks that use fire to cook items
 
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import { game } from "./game.js";
 import { food } from "../index.js";
 import $ from "jquery";
@@ -51,16 +51,16 @@ export const blockCooksItems = state => ({
         return [...state.itemsConversion.map(ele => ele.name), state.fuelTypes.map(ele => ele.name)];
     },
 
-    willAccept(itemname) {
+    willAccept(itemName) {
         // Returns true if this block will accept the specified item as input, right now.
-        //console.log("Check item " + itemname);
-        if (state.or_willAccept != undefined) return state.or_willAccept(itemname);
+        //console.log("Check item " + itemName);
+        if (state.or_willAccept != undefined) return state.or_willAccept(itemName);
 
-        if (state.itemsConversion.some(ele => ele.name === itemname)) {
+        if (state.itemsConversion.some(ele => ele.name === itemName)) {
             if (state.toCook.length > 15) return false; // ensure we have space for the selected item
             return true;
         }
-        if (state.fuelTypes.some(ele => ele.name === itemname)) {
+        if (state.fuelTypes.some(ele => ele.name === itemName)) {
             if (state.toBurn.length > 15) return false;
             return true;
         }

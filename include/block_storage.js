@@ -8,19 +8,19 @@ import {
     blockHasWorkerPriority,
     blockHandlesFood,
     blockDeletesClean
-} from "./activeblock.js";
+} from "./activeBlock.js";
 import { game } from "./game.js";
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import $ from "jquery";
 
-export const storage = mapsquare => {
+export const storage = mapSquare => {
     let state = {
         name: "storage",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Note that this setting can be adjusted within this block
-        targetitems: [], // list of items we want to store here. Contains only the name of the items we want
+        targetItems: [], // list of items we want to store here. Contains only the name of the items we want
 
         consumeFood() {
             // We don't have a means to transfer foods yet, but we will need this eventually anyway.
@@ -28,7 +28,7 @@ export const storage = mapsquare => {
             console.log("Error - game trying to remove food from storage unit - code hasn't been built for that yet");
         },
 
-        possibleoutputs() {
+        possibleOutputs() {
             // This only outputs the names of the items
             if (!state.allowOutput) return [];
             // I couldn't come up with a reasonable way to do this with functional programming (besides using Set(), which just feels
@@ -46,11 +46,11 @@ export const storage = mapsquare => {
             return "any";
         },
 
-        willOutput(itemname) {
+        willOutput(itemName) {
             // Returns true if this block will output the stated item (or not)
 
-            // Since anything this block holds is returned in possibleoutputs(), just check within that
-            return state.possibleoutputs().includes(itemname);
+            // Since anything this block holds is returned in possibleOutputs(), just check within that
+            return state.possibleOutputs().includes(itemName);
         },
 
         willAccept() {
@@ -69,7 +69,7 @@ export const storage = mapsquare => {
         update() {
             // Here, we will search nearby blocks for items to pull in, if they are allowed
 
-            if (state.targetitems.length == 0) return; // There's nothing here to collect anyway, don't bother
+            if (state.targetItems.length == 0) return; // There's nothing here to collect anyway, don't bother
             if (state.onhand.length >= 10) return; // This storage space is full
 
             // Before continuing, make sure we have a worker free to move items about
@@ -77,7 +77,7 @@ export const storage = mapsquare => {
 
             // Run through all the neighbors and see if we can pick up one of our target items
             game.blockList.neighbors(state.tile).find(neighbor => {
-                let pickup = neighbor.getItem(state.targetitems);
+                let pickup = neighbor.getItem(state.targetItems);
                 if (pickup == null) return false;
                 state.onhand.push(pickup);
 
@@ -86,7 +86,7 @@ export const storage = mapsquare => {
                 return true;
             });
         },
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Storage Unit</b><br />
                 <br />
@@ -110,11 +110,11 @@ export const storage = mapsquare => {
             let built = danCommon.removeDuplicates(
                 danCommon.flatten(
                     game.blockList.neighbors(state.tile).map(ele => {
-                        if (ele.possibleoutputs === undefined) {
-                            // Not all block types will have a possibleoutputs function
+                        if (ele.possibleOutputs === undefined) {
+                            // Not all block types will have a possibleOutputs function
                             return []; // Not to worry, any empty array entries will be filtered out below
                         }
-                        return ele.possibleoutputs();
+                        return ele.possibleOutputs();
                     })
                 )
             );
@@ -128,12 +128,12 @@ export const storage = mapsquare => {
                         <span id="sidepanelpick${danCommon.multiReplace(ele, " ", "")}"
                             class="sidepanelbutton" ' +
                             style="background-color: ${
-                                state.targetitems.includes(ele) ? "green" : "red"
+                                state.targetItems.includes(ele) ? "green" : "red"
                             };" >${ele}</span>
                     `);
                     document
                         .getElementById("sidepanelpick" + danCommon.multiReplace(ele, " ", ""))
-                        .addEventListener("click", () => game.blockList.getById(state.id).toggleinput(ele));
+                        .addEventListener("click", () => game.blockList.getById(state.id).toggleInput(ele));
                 });
                 // Note that this list can be changed when a new block gets placed nearby and this is loaded again.
             }
@@ -151,19 +151,19 @@ export const storage = mapsquare => {
                 .addEventListener("click", () => game.blockList.getById(state.id).toggleOutput());
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
         },
 
-        toggleinput(itemname) {
-            if (state.targetitems.includes(itemname)) {
+        toggleInput(itemName) {
+            if (state.targetItems.includes(itemName)) {
                 // Item is currently in the grab-list. Remove it now
-                state.targetitems.splice(state.targetitems.indexOf(itemname), 1);
-                $("#sidepanelpick" + danCommon.multiReplace(itemname, " ", "")).css({ "background-color": "red" });
+                state.targetItems.splice(state.targetItems.indexOf(itemName), 1);
+                $("#sidepanelpick" + danCommon.multiReplace(itemName, " ", "")).css({ "background-color": "red" });
             } else {
                 // Item is not currently in the list. Add it now
-                state.targetitems.push(itemname);
-                $("#sidepanelpick" + danCommon.multiReplace(itemname, " ", "")).css({ "background-color": "green" });
+                state.targetItems.push(itemName);
+                $("#sidepanelpick" + danCommon.multiReplace(itemName, " ", "")).css({ "background-color": "green" });
             }
         },
 
@@ -173,14 +173,14 @@ export const storage = mapsquare => {
             $("#sidepaneloutputmode").css({ "background-color": state.allowOutput ? "green" : "red" });
         },
 
-        deleteblock() {
+        deleteBlock() {
             //state.deleteWithFood(); We currently have deleteWithFood being called within finishDelete (if such exists, which we check for)
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/storage.png" />');
     return Object.assign(
         state,

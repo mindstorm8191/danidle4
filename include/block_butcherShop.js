@@ -7,16 +7,16 @@ import {
     blockShowsOutputItems,
     blockHasWorkerPriority,
     blockDeletesClean
-} from "./activeblock.js";
+} from "./activeBlock.js";
 import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const butchershop = mapsquare => {
+export const butcherShop = mapSquare => {
     let state = {
-        name: "butchershop",
-        tile: mapsquare,
+        name: "butcherShop",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true, // Determines if this block will output items. Later in the game, we will allow this item to output items,
@@ -58,7 +58,7 @@ export const butchershop = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasOutputsPerInput
+        // possibleOutputs() is already defined in blockHasOutputsPerInput
         // inputsAccepted() is already defined in blockHasOutputsPerInput
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasOutputsPerInput
@@ -79,7 +79,7 @@ export const butchershop = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles drawing the contents on the side panel
             let curjob = "n/a";
             let craftPercent = "n/a";
@@ -117,7 +117,7 @@ export const butchershop = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelinput").html(state.inItems.length);
             if (state.inItems.length > 0) {
                 $("#sidepanelworking").html(state.inItems[0].name);
@@ -137,15 +137,15 @@ export const butchershop = mapsquare => {
             state.updateToolPanel();
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html(
-        '<img src="img/butcher.png" />'
+        '<img src="img/butcherShop.png" />'
     );
     return Object.assign(
         state,

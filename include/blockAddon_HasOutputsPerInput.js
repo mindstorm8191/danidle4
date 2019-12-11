@@ -3,7 +3,7 @@
 // Provides extra functionality for any blocks where their output is determined by what items are put into it.
 
 import { game } from "./game.js";
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import { item } from "../index.js";
 import $ from "jquery";
 
@@ -23,7 +23,7 @@ export const blockHasOutputsPerInput = state => ({
     // Note: we were going to add inputEnabled for the dryer block. However this wouldn't solve any problems, as the dryer would need to
     // input items during construction. If this becomes useful later, we can add it in.
 
-    possibleoutputs() {
+    possibleOutputs() {
         // Returns all possible outputs that this block has
         return danCommon.removeDuplicates(
             // Even after flattening, we may have duplicates. We need to remove those.
@@ -39,11 +39,11 @@ export const blockHasOutputsPerInput = state => ({
         return state.outputItems.map(ele => ele.name).filter(iname => game.unlockedItems.includes(iname));
     },
 
-    willAccept(itemname) {
+    willAccept(itemName) {
         // Returns true if this block will accept the specified item as input, right now.
 
         if (state.inItems.length > 15) return false; // because we're out of room
-        return state.outputItems.map(ele => ele.name).includes(itemname);
+        return state.outputItems.map(ele => ele.name).includes(itemName);
     },
 
     receiveItem(item) {

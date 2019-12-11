@@ -4,15 +4,15 @@
 // Note this was originally added to provide a use for all the gravel produced by the fire miner
 
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
-import { blockHasWorkerPriority } from "./activeblock.js";
+import { blockHasWorkerPriority } from "./activeBlock.js";
 import { blockIsStructure } from "./blockAddon_IsStructure.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const gravelroad = mapsquare => {
+export const gravelRoad = mapSquare => {
     let state = {
-        name: "gravelroad",
-        tile: mapsquare,
+        name: "gravelRoad",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         inItems: [], // Array that holds all the gravel that this block will receive
         mode: "collect",
@@ -27,7 +27,7 @@ export const gravelroad = mapsquare => {
         buildTime: 120,
 
         // getItem() is now handled by blockIsStorage
-        // possibleoutputs() is now handled in blockIsStructure
+        // possibleOutputs() is now handled in blockIsStructure
         // inputsAccepted() is now handled in blockIsStructure
         // willOutput() is now handled in blockIsStructure
         // willAccept() is now handled in blockIsStructure
@@ -39,7 +39,7 @@ export const gravelroad = mapsquare => {
             state.handleUpdate();
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles drawing the content on the right side of the page, when this block is selected.
 
             $("#sidepanel").html(`
@@ -59,7 +59,7 @@ export const gravelroad = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the content shown on the right side of the page, if this block is selected.
             $("#sidepanelstate").html(state.showStatus());
             $("#sidepanelonhand").html(state.inItems.length);
@@ -70,7 +70,7 @@ export const gravelroad = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/gravelroad.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/gravelRoad.png" />');
     return Object.assign(state, blockHasWorkerPriority(state), blockRequiresTool(state), blockIsStructure(state));
 };

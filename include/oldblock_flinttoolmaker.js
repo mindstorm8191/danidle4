@@ -1,14 +1,14 @@
-const flinttoolmaker = mapsquare => {
+const flinttoolmaker = mapSquare => {
     let state = {
         name: "Flint Tool Maker",
-        tile: mapsquare,
+        tile: mapSquare,
         priority: blocklist.lastpriority(),
         id: lastblockid,
         counter: 0,
         allowOutput: true,
         onhand: [], // This handles output items only
         outputitems: ["None", "Short Stick", "Long Stick"],
-        currentcraft: "None",
+        currentCraft: "None",
         targetcraft: "None",
         stocklist: [
             { name: "Short Stick", hold: [] }, // This manages holding input items
@@ -50,7 +50,7 @@ const flinttoolmaker = mapsquare => {
             }
         ],
 
-        possibleoutputs: function() {
+        possibleOutputs: function() {
             // Rather than returning a fixed array, let's feed data from our tables. If those tables change, we won't
             // have to modify this to update its output
             return state.itemsneeded.map(function(inner) {
@@ -60,14 +60,14 @@ const flinttoolmaker = mapsquare => {
 
         update: function() {
             // Start by ensuring we have something to work on
-            if (state.targetcraft === "None" && state.currentcraft === "None") return;
-            if (state.currentcraft === "None") state.currentcraft = state.targetcraft;
+            if (state.targetcraft === "None" && state.currentCraft === "None") return;
+            if (state.currentCraft === "None") state.currentCraft = state.targetcraft;
 
             // Get to the tool type we are trying to craft
             const crafting =
                 state.itemsneeded[
                     state.itemsneeded.findIndex(function(ele) {
-                        return ele.tool === state.currentcraft;
+                        return ele.tool === state.currentCraft;
                     })
                 ];
 
@@ -122,8 +122,8 @@ const flinttoolmaker = mapsquare => {
                         })
                         .hold.splice(0, used.qty);
                 });
-                state.onhand.push(tool(state.currentcraft, 1.0, 100));
-                state.currentcraft = state.targetcraft;
+                state.onhand.push(tool(state.currentCraft, 1.0, 100));
+                state.currentCraft = state.targetcraft;
             }
             $("#" + state.tile.id + "progress").css({ width: state.counter * 3 });
         },
@@ -216,7 +216,7 @@ const flinttoolmaker = mapsquare => {
 
     lastblockid++;
     blocklist.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/flinttoolset.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/flintToolMaker.png" />');
     return Object.assign(state, blockHandlesItems(state));
 };

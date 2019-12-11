@@ -3,22 +3,32 @@
 // Uses a flint hoe (or better) to collect units of dirt, for crafting
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import {
+    blockOutputsItems,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { item } from "../index.js";
 import $ from "jquery";
 
-export const dirtmaker = mapsquare => {
+export const dirtMaker = mapSquare => {
     let state = {
-        name: "dirtmaker",
-        tile: mapsquare,
+        name: "dirtMaker",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         craftTime: 20,
         allowOutput: true,
-        toolChoices: [{ groupName: "Digger", isRequired: true, choices: ["None", "Flint Hoe"] }],
+        toolChoices: [
+            {
+                groupName: "Digger",
+                isRequired: true,
+                choices: ["None", "Flint Hoe"]
+            }
+        ],
 
-        possibleoutputs() {
+        possibleOutputs() {
             // Outputs an array of items that this block can output.
             // Unlike other block types, this has only one output type
             return ["Dirt"];
@@ -56,10 +66,12 @@ export const dirtmaker = mapsquare => {
                 state.onhand.push(item("Dirt"));
                 state.counter -= state.craftTime;
             }
-            $("#" + state.tile.id + "progress").css({ width: (state.counter * 60) / state.craftTime });
+            $("#" + state.tile.id + "progress").css({
+                width: (state.counter * 60) / state.craftTime
+            });
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles filling out the side panel with content for this block
 
             $("#sidepanel").html(`
@@ -73,7 +85,9 @@ export const dirtmaker = mapsquare => {
             state.showPriority();
             $("#sidepanel").append(`
                 <br />
-                Dirt on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Dirt on hand: <span id="sidepanelonhand">${
+                    state.onhand.length
+                }</span><br />
                 Progress: <span id="sidepanelprogress">${Math.floor(
                     (state.counter * 100) / state.craftTime
                 )}</span>%<br />
@@ -83,11 +97,13 @@ export const dirtmaker = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the side panel when this block is selected
 
             $("#sidepanelonhand").html(state.onhand.length);
-            $("#sidepanelprogress").html(Math.floor((state.counter * 100) / state.craftTime));
+            $("#sidepanelprogress").html(
+                Math.floor((state.counter * 100) / state.craftTime)
+            );
             state.updateToolPanel();
         },
 
@@ -99,8 +115,8 @@ export const dirtmaker = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/dirt.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/dirtMaker.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

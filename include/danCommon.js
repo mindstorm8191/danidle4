@@ -1,4 +1,4 @@
-// dancommon.js
+// danCommon.js
 // general-purpose functions of usefulness, created by me
 
 export const danCommon = {

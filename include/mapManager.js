@@ -1,43 +1,168 @@
-// mapmanager.js
+// mapManager.js
 // Classes and other functions to help manage the map
 
 import $ from "jquery";
-import { handlegameboxclick, handlegameboxdown, handlegameboxmove, handlegameboxup } from "../index.js";
+import {
+    handleGameBoxClick,
+    handleGameBoxDown,
+    handleGameBoxMove,
+    handleGameBoxUp
+} from "../index.js";
 import { game } from "./game.js";
 // These are essentially input parameters for our code
 
 const directionmap = [
-    [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }],
-    [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }],
-    [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: -1, y: 0 }],
-    [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }],
-    [{ x: 0, y: -1 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
-    [{ x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }],
-    [{ x: 1, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }],
-    [{ x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 0, y: 1 }],
-    [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: 0 }],
-    [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }],
-    [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }],
-    [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }],
-    [{ x: 0, y: 1 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: -1, y: 0 }],
-    [{ x: 0, y: 1 }, { x: 0, y: -1 }, { x: -1, y: 0 }, { x: 1, y: 0 }],
-    [{ x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: -1, y: 0 }],
-    [{ x: 0, y: 1 }, { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: -1 }],
-    [{ x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }],
-    [{ x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }],
-    [{ x: -1, y: 0 }, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
-    [{ x: -1, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: 1, y: 0 }],
-    [{ x: -1, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 }],
-    [{ x: -1, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }],
-    [{ x: -1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
-    [{ x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 1 }, { x: 1, y: 0 }]
+    [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 }
+    ],
+    [
+        { x: 0, y: -1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: 0, y: -1 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: -1 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: -1 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: 0, y: -1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: -1, y: 0 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 1, y: 0 }
+    ],
+    [
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: -1 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: -1 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 }
+    ],
+    [
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: 1 },
+        { x: 1, y: 0 }
+    ]
 ];
 
 const imageSelector = [
-    { value: 1, img: "img/grass.png" },
-    { value: 2, img: "img/forest.png" },
-    { value: 3, img: "img/rocktile.png" },
-    { value: 4, img: "img/watertile.png" }
+    { value: 1, img: "img/grassTile.png" },
+    { value: 2, img: "img/forest.png" },    // This slot is actually not used directly
+    { value: 3, img: "img/rockTile.png" },
+    { value: 4, img: "img/waterTile.png" }
 ];
 
 const oreRates = [
@@ -49,7 +174,9 @@ const oreRates = [
 
 function pickOre() {
     // Selects an ore to used, based on the oreRates array
-    let target = Math.random() * oreRates.map(e => e.rate).reduce((sum, value) => sum + value);
+    let target =
+        Math.random() *
+        oreRates.map(e => e.rate).reduce((sum, value) => sum + value);
     return oreRates.find(ele => {
         if (target <= ele.rate) return true;
         target -= ele.rate;
@@ -90,7 +217,9 @@ class maptile {
             this.growth -= 10000;
             this.numTrees++;
             this.chooseImage();
-            $("#" + this.id + "gametile").css({ "background-image": "url(" + this.image + ")" });
+            $("#" + this.id + "gametile").css({
+                "background-image": "url(" + this.image + ")"
+            });
         }
     }
 
@@ -102,7 +231,7 @@ class maptile {
             //            if (this.numTrees > 0) {
             this.image = "img/tree" + Math.max(1, this.numTrees) + ".png";
             //          } else {
-            //            this.image = "img/grass.png";
+            //            this.image = "img/grassTile.png";
             //      }
         }
     }
@@ -129,30 +258,40 @@ class maptile {
                     <div id="${this.id}imageholder"
                         style="display:block; width:60px; height:60px; margin:auto; position:absolute; top:3px; left:3px">
                     </div>
-                    <div id="${this.id}progress" style="z-index:4" class="progressbar"></div>
+                    <div id="${
+                        this.id
+                    }progress" style="z-index:4" class="progressbar"></div>
                 </div>
             </div>
         `);
         //document
         //    .getElementById(this.id + "gametileholder")
-        //    .addEventListener("click", () => handlegameboxclick(this.xpos, this.ypos));
+        //    .addEventListener("click", () => handleGameBoxClick(this.xpos, this.ypos));
         document
             .getElementById(this.id + "gametileholder")
-            .addEventListener("mousedown", event => handlegameboxdown(event, this.xpos, this.ypos));
+            .addEventListener("mousedown", event =>
+                handleGameBoxDown(event, this.xpos, this.ypos)
+            );
         //document.getElementById(this.id + "gametileholder").addEventListener("mousemove", handlegameboxmove);
         document
             .getElementById(this.id + "gametileholder")
-            .addEventListener("mouseup", event => handlegameboxup(event, this.xpos, this.ypos));
+            .addEventListener("mouseup", event =>
+                handleGameBoxUp(event, this.xpos, this.ypos)
+            );
         // Note: If variables need to be passed to the called function, instead of using the function directly, do () => myfunction(params)
         //$("#"+ this.id +"gametile").css("background-image", "url("+ this.image +")");
 
         // We also need to apply this to the image holder block, otherwise clicking on an existing block won't allow use to move the map
         document
             .getElementById(this.id + "imageholder")
-            .addEventListener("mousedown", event => handlegameboxdown(event, this.xpos, this.ypos));
+            .addEventListener("mousedown", event =>
+                handleGameBoxDown(event, this.xpos, this.ypos)
+            );
         document
             .getElementById(this.id + "imageholder")
-            .addEventListener("mouseup", event => handlegameboxup(event, this.xpos, this.ypos));
+            .addEventListener("mouseup", event =>
+                handleGameBoxUp(event, this.xpos, this.ypos)
+            );
     }
 }
 
@@ -182,7 +321,10 @@ class mapchunk {
         this.biomepoints = [];
         // Now check to see if there are any neighboring chunks to use for generating biomepoints
         // start with the top direction
-        if (game.chunkList[chunkypos - 1] != undefined && game.chunkList[chunkypos - 1][chunkxpos] != undefined) {
+        if (
+            game.chunkList[chunkypos - 1] != undefined &&
+            game.chunkList[chunkypos - 1][chunkxpos] != undefined
+        ) {
             // At this point, we can assume that chunkList[y-1][x] is another mapchunk. Run across its bottom edge and generate new biomepoints
             console.log("New chunk has a northern neighbor");
             let sourcechunk = game.chunkList[chunkypos - 1][chunkxpos];
@@ -197,7 +339,12 @@ class mapchunk {
                         lastpoint.x = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, x, 0, sourcechunk.map[game.chunkSize][x].tile);
+                    lastpoint = new biomepoint(
+                        this,
+                        x,
+                        0,
+                        sourcechunk.map[game.chunkSize][x].tile
+                    );
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -208,7 +355,10 @@ class mapchunk {
             lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
         }
         // now do the bottom direction
-        if (game.chunkList[chunkypos + 1] != undefined && game.chunkList[chunkypos + 1][chunkxpos] != undefined) {
+        if (
+            game.chunkList[chunkypos + 1] != undefined &&
+            game.chunkList[chunkypos + 1][chunkxpos] != undefined
+        ) {
             console.log("New chunk has a southern neighbor");
             let sourcechunk = game.chunkList[chunkypos + 1][chunkxpos];
             let lastcolormatch = -1;
@@ -222,7 +372,12 @@ class mapchunk {
                         lastpoint.x = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, x, game.chunkSize, sourcechunk.map[0][x].tile);
+                    lastpoint = new biomepoint(
+                        this,
+                        x,
+                        game.chunkSize,
+                        sourcechunk.map[0][x].tile
+                    );
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -245,7 +400,12 @@ class mapchunk {
                         lastpoint.y = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, 0, y, sourcechunk.map[y][game.chunkSize].tile);
+                    lastpoint = new biomepoint(
+                        this,
+                        0,
+                        y,
+                        sourcechunk.map[y][game.chunkSize].tile
+                    );
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -268,7 +428,12 @@ class mapchunk {
                         lastpoint.y = Math.floor(lastpoint.stretchcount / 2);
                         lastpoint.points = [{ x: lastpoint.x, y: lastpoint.y }];
                     }
-                    lastpoint = new biomepoint(this, game.chunkSize, y, sourcechunk.map[y][0].tile);
+                    lastpoint = new biomepoint(
+                        this,
+                        game.chunkSize,
+                        y,
+                        sourcechunk.map[y][0].tile
+                    );
                     this.biomepoints.push(lastpoint);
                     lastpoint.stretchcount = 1;
                     lastcolormatch = lastpoint.c;
@@ -279,7 +444,9 @@ class mapchunk {
         }
 
         // With all the sides considered, we can now generate points for inside the chunk
-        let count = Math.floor((game.chunkSize * game.chunkSize) / game.mapKindDensity);
+        let count = Math.floor(
+            (game.chunkSize * game.chunkSize) / game.mapKindDensity
+        );
         console.log("We have " + count + " new points to generate");
         for (let i = 0; i < count; i++) {
             this.biomepoints.push(
@@ -332,8 +499,10 @@ class biomepoint {
         let pickedspot = Math.floor(Math.random() * this.points.length);
         let pickeddir = Math.floor(Math.random() * 24);
         for (let i = 0; i < 4; i++) {
-            let targetx = this.points[pickedspot].x + directionmap[pickeddir][i].x;
-            let targety = this.points[pickedspot].y + directionmap[pickeddir][i].y;
+            let targetx =
+                this.points[pickedspot].x + directionmap[pickeddir][i].x;
+            let targety =
+                this.points[pickedspot].y + directionmap[pickeddir][i].y;
             //console.log("Trying ["+ targetx +","+ targety +"]");
             if (targety < 0) continue;
             if (targety >= game.chunkSize) continue;

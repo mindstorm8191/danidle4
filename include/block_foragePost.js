@@ -8,14 +8,14 @@ import {
     blockHasWorkerPriority,
     blockHandlesFood,
     blockDeletesClean
-} from "./activeblock.js";
+} from "./activeBlock.js";
 import { blockHasRandomizedOutput } from "./blockAddon_HasRandomizedOutput";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const foragepost = mapsquare => {
+export const foragePost = mapsquare => {
     let state = {
-        name: "foragepost",
+        name: "foragePost",
         tile: mapsquare,
         id: game.getNextBlockId(),
         counter: 0,
@@ -68,7 +68,7 @@ export const foragepost = mapsquare => {
             state.processCraft(1); // this function now handles checking & using workPoints.
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Foraging Post</b><br />
                 <br />
@@ -98,25 +98,35 @@ export const foragepost = mapsquare => {
                     <span class="sidepanelbutton"
                           id="sidepanelgetseeds"
                           title="Allow collecting seeds, in addition to edible items"
-                          style="background-color: ${state.getSeeds ? "green" : "red"}">Get Seeds</span>
+                          style="background-color: ${
+                              state.getSeeds ? "green" : "red"
+                          }">Get Seeds</span>
                     <br />
                     <span class="sidepanelbutton"
                           id="sidepaneloutput"
                           title="Allow items to be output"
-                          style="background-color: ${state.allowOutput ? "green" : "red"}">Output Items</span>
+                          style="background-color: ${
+                              state.allowOutput ? "green" : "red"
+                          }">Output Items</span>
                 `);
                 document
                     .getElementById("sidepanelgetseeds")
-                    .addEventListener("click", () => game.blockList.getById(state.id).toggleSeeds());
+                    .addEventListener("click", () =>
+                        game.blockList.getById(state.id).toggleSeeds()
+                    );
                 document
                     .getElementById("sidepaneloutput")
-                    .addEventListener("click", () => game.blockList.getById(state.id).toggleOutput());
+                    .addEventListener("click", () =>
+                        game.blockList.getById(state.id).toggleOutput()
+                    );
             }
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelonhand").html(state.displayItemsOnHand());
-            $("#sidepanelprogress").html(Math.floor((state.counter / state.craftTime) * 100));
+            $("#sidepanelprogress").html(
+                Math.floor((state.counter / state.craftTime) * 100)
+            );
         },
 
         toggleSeeds() {
@@ -126,16 +136,24 @@ export const foragepost = mapsquare => {
             if (state.getSeeds) {
                 state.outputItems = [...state.outputItems, ...state.seedsList];
             } else {
-                state.outputItems = state.outputItems.filter(ele => !state.seedsList.includes(ele));
+                state.outputItems = state.outputItems.filter(
+                    ele => !state.seedsList.includes(ele)
+                );
             }
-            $("#sidepanelgetseeds").css("background-color", state.getSeeds ? "green" : "red");
+            $("#sidepanelgetseeds").css(
+                "background-color",
+                state.getSeeds ? "green" : "red"
+            );
         },
 
         toggleOutput() {
             // Enables or disabled output of items that this block generates
 
             state.allowOutput = !state.allowOutput;
-            $("#sidepaneloutput").css("background-color", state.allowOutput ? "green" : "red");
+            $("#sidepaneloutput").css(
+                "background-color",
+                state.allowOutput ? "green" : "red"
+            );
         },
 
         deleteblock() {
@@ -151,15 +169,17 @@ export const foragepost = mapsquare => {
     // Now, provide a way to show when new options become available for this block type
     const genHandle = game.blockDemands.find(ele => ele.name === state.name);
     if (genHandle.hasNewOptions === undefined) {
-        genHandle.hasNewOptions = itemname => {
-            return itemname === "Flint Hoe";
-            // Aka if the itemname passed to this function is a flint hoe, return true.
+        genHandle.hasNewOptions = itemName => {
+            return itemName === "Flint Hoe";
+            // Aka if the itemName passed to this function is a flint hoe, return true.
         };
     }
 
     game.blockList.push(state);
     mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/foragepost.png" />');
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/foragePost.png" />'
+    );
     return Object.assign(
         state,
         blockOutputsItems(state),

@@ -3,17 +3,17 @@
 // Uses fire and water to cut through rocks using thermal shock
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority } from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority } from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { blockCooksItems } from "./blockAddon_CooksItems.js";
 import { item } from "../index.js";
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import $ from "jquery";
 
-export const fireminer = mapsquare => {
+export const fireMiner = mapSquare => {
     let state = {
-        name: "fireminer",
-        tile: mapsquare,
+        name: "fireMiner",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0, // This is used in the clearing process, but not the heating process
         depth: 10, // How deep this mine currently is. Mines have to get to a certain depth before they begin yielding metal ores
@@ -40,7 +40,7 @@ export const fireminer = mapsquare => {
         ],
         rockTemp: 0,
 
-        possibleoutputs() {
+        possibleOutputs() {
             // Returns all possible outputs that this block can produce
             // In order to output ores, when we don't know what kind of ores we might have, we need to consider what is in the
             //return ["Gravel", "Boulder"];
@@ -55,16 +55,16 @@ export const fireminer = mapsquare => {
             return [...state.waterContainers, ...state.fuelTypes.map(ele => ele.name)];
         },
 
-        willOutput(itemname) {
+        willOutput(itemName) {
             // Returns true if this block can output the specified item right now
-            return state.onhand.some(ele => ele.name === itemname);
+            return state.onhand.some(ele => ele.name === itemName);
         },
 
-        or_willAccept(itemname) {
+        or_willAccept(itemName) {
             // Returns true if this block will accept the given item
             //console.log("Check for acceptable items");
-            if (state.waterContainers.includes(itemname)) return state.water.length < 10;
-            if (state.fuelTypes.some(ele => ele.name === itemname)) return state.toBurn.length < 10;
+            if (state.waterContainers.includes(itemName)) return state.water.length < 10;
+            if (state.fuelTypes.some(ele => ele.name === itemName)) return state.toBurn.length < 10;
             return false;
         },
 
@@ -72,6 +72,7 @@ export const fireminer = mapsquare => {
             // Handles receiving an item as input. Returns true if successful, or false if not
             if (state.waterContainers.includes(item.name) && state.water.length < 10) {
                 //console.log(state.water.push(item));
+                state.water.push(item);
                 return true;
             }
             if (state.fuelTypes.some(ele => ele.name === item.name) && state.toBurn.length < 10) {
@@ -165,7 +166,7 @@ export const fireminer = mapsquare => {
             state.depth++;
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b><center>Fire Miner</center></b>
                 <br />
@@ -195,7 +196,7 @@ export const fireminer = mapsquare => {
             state.showTools(true);
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelstatus").html(state.modeConverter.find(ele => state.mode === ele.source).show);
             $("#sidepaneldepth").html(state.depth);
             $("#sidepaneltemp").html(state.temp);
@@ -208,8 +209,8 @@ export const fireminer = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/minerspost.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/fireMiner.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

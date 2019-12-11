@@ -2,16 +2,16 @@
 // for DanIdle version 4
 // Provides an early shelter for colonists
 
-import { blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { blockIsStructure } from "./blockAddon_IsStructure.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const leanto = mapsquare => {
+export const leanto = mapSquare => {
     let state = {
         name: "leanto",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         inItems: [],
         mode: "collect",
@@ -28,7 +28,7 @@ export const leanto = mapsquare => {
         buildTime: 120,
 
         // getItem() is now handled by blockIsStructure
-        // possibleoutputs() is now handled by blockIsStructure
+        // possibleOutputs() is now handled by blockIsStructure
         // inputsAccepted() is now handled by blockIsStructure
         // willOutput() is now handled by blockIsStructure
         // willAccept() is now handled by blockIsStructure
@@ -41,7 +41,7 @@ export const leanto = mapsquare => {
             state.handleUpdate();
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Lean-To</b><br />
                 Before food, even before water, one must find shelter from the elements. It is the first requirement for survival; for the
@@ -61,14 +61,14 @@ export const leanto = mapsquare => {
             }
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelstate").html(state.showStatus());
             if (game.unlockedItems.includes("Flint Stabber")) {
                 state.updateToolPanel();
             }
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         },
 
@@ -81,14 +81,14 @@ export const leanto = mapsquare => {
     // Provide a way to show when new options become available for a specific block type
     const genHandle = game.blockDemands.find(ele => ele.name === state.name);
     if (genHandle.hasNewOptions === undefined) {
-        genHandle.hasNewOptions = itemname => {
-            const helpertools = ["Flint Stabber", "Flint Hatchet"];
-            return helpertools.includes(itemname);
+        genHandle.hasNewOptions = itemName => {
+            const helperTools = ["Flint Stabber", "Flint Hatchet"];
+            return helperTools.includes(itemName);
         };
     }
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/leanto.png" />');
     return Object.assign(
         state,

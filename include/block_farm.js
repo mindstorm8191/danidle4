@@ -10,15 +10,15 @@ import {
     blockDeletesClean,
     blockHandlesFood,
     blockShowsOutputItems
-} from "./activeblock.js";
+} from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import $ from "jquery";
 
-export const farm = mapsquare => {
+export const farm = mapSquare => {
     let state = {
         name: "farm",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         decayCounter: 0, // This is used during harvest time. If this exceeds a certain amount, the crops will no longer be usable
@@ -73,7 +73,7 @@ export const farm = mapsquare => {
 
         // getItem() is already defined in blockOutputsItems
 
-        possibleoutputs() {
+        possibleOutputs() {
             // Returns an array containing all the possible outputs that this block will have.
 
             // Since the crop we are growing stays here a long time, we have reason to show only outputs of that crop type. Start by
@@ -92,11 +92,11 @@ export const farm = mapsquare => {
 
         //willOutput(name) is already defined in blockOutputsItems
 
-        willAccept(itemname) {
+        willAccept(itemName) {
             // Returns true if this block will accept the given item right now.
 
             // Unlike other block types, this block can only accept one item as input at a time. Farming, unfortunately, will require a lot of land
-            const result = state.inItems === null && state.outputItems.map(ele => ele.name).includes(itemname);
+            const result = state.inItems === null && state.outputItems.map(ele => ele.name).includes(itemName);
             console.log("farm.willAccept = " + result);
             return result;
         },
@@ -214,7 +214,7 @@ export const farm = mapsquare => {
             }
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles drawing the right side panel when this block is selected by the user
             $("#sidepanel").html(`
                 <b>Farm Plot</b><br />
@@ -240,7 +240,7 @@ export const farm = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the content on the right side panel, whenever this block is selected
             $("#sidepanelstate").html(state.mode);
             $("#sidepanelprogress").html(state.getProgressPercent());
@@ -274,7 +274,7 @@ export const farm = mapsquare => {
             }
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Handles starting the deletion process for this block
             // There is nothing critical that needs to happen before this block is destroyed, so just delete it
             state.finishDelete();
@@ -282,7 +282,7 @@ export const farm = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html('<img src="img/farm.png">');
     return Object.assign(
         state,

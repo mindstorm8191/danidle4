@@ -2,15 +2,19 @@
 // For DanIdle version 4
 // Provides warmth for the colonists, as well as a way to cook meats they collect
 
-import { blockOutputsItems, blockHasWorkerPriority, blockHandlesFood } from "./activeblock.js";
+import {
+    blockOutputsItems,
+    blockHasWorkerPriority,
+    blockHandlesFood
+} from "./activeBlock.js";
 import { blockCooksItems } from "./blockAddon_CooksItems.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const campfire = mapsquare => {
+export const campfire = mapSquare => {
     let state = {
         name: "campfire",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -79,7 +83,7 @@ export const campfire = mapsquare => {
         // this is not in use
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockCooksItems
+        // possibleOutputs() is already defined in blockCooksItems
         // inputsAccepted() is already defined in blockCooksItems
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockCooksItems
@@ -108,7 +112,7 @@ export const campfire = mapsquare => {
             state.findCookables();
         },
 
-        drawpanel() {
+        drawPanel() {
             // Before starting, determine how much progress to show in the item progress (even if we're working on nothing)
             $("#sidepanel").html(`
                 <b>Fire Pit</b><br />
@@ -123,17 +127,29 @@ export const campfire = mapsquare => {
             state.showPriority();
             $("#sidepanel").append(`
                 <br />
-                Fire temperature: <span id="sidepaneltemp">${state.temp}</span><br />
+                Fire temperature: <span id="sidepaneltemp">${
+                    state.temp
+                }</span><br />
                 Current item progress: <span id="sidepanelprogress">${state.getCookProgress()}</span>%<br />
-                Firewood on hand: <span id="sidepanelfuel">${state.toBurn.length}</span><br />
-                Cookable items on hand: <span id="sidepanelcook">${state.toCook.length}</span><br />
+                Firewood on hand: <span id="sidepanelfuel">${
+                    state.toBurn.length
+                }</span><br />
+                Cookable items on hand: <span id="sidepanelcook">${
+                    state.toCook.length
+                }</span><br />
                 <a href="#" id="sidepaneldelete">Delete Block</a><br />
-                Completed items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Completed items on hand: <span id="sidepanelonhand">${
+                    state.onhand.length
+                }</span><br />
             `);
-            document.getElementById("sidepaneldelete").addEventListener("click", () => game.blockSelect.deleteblock());
+            document
+                .getElementById("sidepaneldelete")
+                .addEventListener("click", () =>
+                    game.blockSelect.deleteBlock()
+                );
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepaneltemp").html(state.temp);
             $("#sidepanelprogress").html(state.getCookProgress());
             $("#sidepanelfuel").html(state.toBurn.length);
@@ -148,11 +164,14 @@ export const campfire = mapsquare => {
 
             if (state.toCook.length === 0) return "N/A";
             return Math.floor(
-                (state.counter * 100) / state.itemsConversion.find(ele => ele.name === state.toCook[0].name).craftTime
+                (state.counter * 100) /
+                    state.itemsConversion.find(
+                        ele => ele.name === state.toCook[0].name
+                    ).craftTime
             );
         },
 
-        deleteblock() {
+        deleteBlock() {
             // This block can delete clean, but it requires that the fire not be really hot. We will wait for the fire to cool down
             // before making this block disappear.
 
@@ -168,7 +187,10 @@ export const campfire = mapsquare => {
         finishDelete() {
             // Handle the actual deletion process. Note that this matches what we do with other clean-delete blocks.
 
-            $("#" + state.tile.id + "progress").css({ width: 0, "background-color": "green" });
+            $("#" + state.tile.id + "progress").css({
+                width: 0,
+                "background-color": "green"
+            });
             $("#" + state.tile.id + "imageholder").html("");
             state.tile.structure = null;
             $("#sidepanel").html(" ");
@@ -178,8 +200,10 @@ export const campfire = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/campfire.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/campfire.png" />'
+    );
     return Object.assign(
         state,
         blockOutputsItems(state),

@@ -3,15 +3,15 @@
 // Cuts wood from logs into various items
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import $ from "jquery";
 
-export const woodcrafter = mapsquare => {
+export const woodCrafter = mapSquare => {
     let state = {
-        name: "woodcrafter",
-        tile: mapsquare,
+        name: "woodCrafter",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         maxOutput: 5,
@@ -79,7 +79,7 @@ export const woodcrafter = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // possibleOutputs() is already defined in blockHasSelectableCrafting
         // inputsAccepted() is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -97,7 +97,7 @@ export const woodcrafter = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <center><b>Woodcrafter</b></center>
                 <br />
@@ -124,7 +124,7 @@ export const woodcrafter = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the side panel, once every tick
             // Update the sections that require updating
             // Priority doesn't need anything changed, unless interacted with
@@ -135,7 +135,7 @@ export const woodcrafter = mapsquare => {
             state.updateToolPanel();
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Handles deleting this block when the user chooses to delete it.
             // This block doesn't do anything special when deleting
             state.finishDelete();
@@ -143,8 +143,8 @@ export const woodcrafter = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/woodcrafter.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/woodCrafter.png" />');
 
     return Object.assign(
         state,

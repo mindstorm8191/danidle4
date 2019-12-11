@@ -3,14 +3,16 @@
         <title>Dan Idle (version 4)</title>
         <link rel="stylesheet" type="text/css" href="include/style.css" />
     </head>
-    <body onresize="updatemapsize()">
+    <body onresize="updateMapSize()">
         <div style="display:flex; justify-content: center; width:100%;">
             <div style="max-width:210px;">
                 <div>
-                    Idle: <span id="showpopulation">3/4</span> Food: <span id="showfood">0</span><br />
-                    Lvngqtr: <span id="showhousingspace">0</span> Clthng: <span id="showclothing">0</span><br />
-                    <a href="#" onclick="savegame()">Save Game</a> / <a href="#" onclick="loadgame()">Load Game</a
-                    ><br />
+                    Idle: <span id="showpopulation">3/4</span> Food:
+                    <span id="showfood">0</span><br />
+                    Lvngqtr: <span id="showhousingspace">0</span> Clthng:
+                    <span id="showclothing">0</span><br />
+                    <a href="#" onclick="savegame()">Save Game</a> /
+                    <a href="#" onclick="loadgame()">Load Game</a><br />
                 </div>
                 <br />
                 <div id="blockselector">
@@ -25,8 +27,9 @@
                     id="tutorialblock"
                     style="padding:6px; border:2px solid; border-color:red; background-color:white; z-index:1; position:absolute; top:6px; left:6px;"
                 >
-                    Welcome! I'll help you get started. Step 1: Select the center-screen tool (with the 4 arrows). Click
-                    the map to re-center
+                    Welcome! I'll help you get started. Step 1: Select the
+                    center-screen tool (with the 4 arrows). Click the map to
+                    re-center
                 </div>
                 <div id="game">
                     Building map...

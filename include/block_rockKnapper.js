@@ -1,20 +1,24 @@
 // Rock Knapper
 // for DanIdle version 4
-// Produces primitive tools out of rocks
+// Produces primitive tools and parts out of rocks
 
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import {
+    blockOutputsItems,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const rockknapper = mapsquare => {
+export const rockKnapper = mapSquare => {
     let state = {
-        name: "rockknapper",
-        tile: mapsquare,
+        name: "rockKnapper",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
-        currentcraft: "None", // What this block is currently working on. Note that this is only changed when the crafting cycle resets
+        currentCraft: "None", // What this block is currently working on. Note that this is only changed when the crafting cycle resets
         targetcraft: "None", // What the user wants this block to work on.
         maxOutput: 8, // Max number of output items this block can have before stopping
         outputItems: [
@@ -49,7 +53,8 @@ export const rockknapper = mapsquare => {
             },
             {
                 name: "Flint Hatchet Head",
-                info: "Combine with short stick & twine at the Flint Toolmaker.",
+                info:
+                    "Combine with short stick & twine at the Flint Toolmaker.",
                 prereq: ["Twine"],
                 parts: [],
                 craftTime: 40,
@@ -73,7 +78,7 @@ export const rockknapper = mapsquare => {
             }
         ],
 
-        // possibleoutputs is already defined in blockHasSelectableCrafting
+        // possibleOutputs is already defined in blockHasSelectableCrafting
         // inputsAccepted is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -84,7 +89,7 @@ export const rockknapper = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Rock Knapper</b><br />
                 <br />
@@ -98,8 +103,12 @@ export const rockknapper = mapsquare => {
             state.showPriority();
             $("#sidepanel").append(`
                 <br />
-                Items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
-                Currently building: <span id="sidepaneltarget">${state.currentcraft}</span><br />
+                Items on hand: <span id="sidepanelonhand">${
+                    state.onhand.length
+                }</span><br />
+                Currently building: <span id="sidepaneltarget">${
+                    state.currentCraft
+                }</span><br />
                 Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
             `);
             state.showDeleteLink();
@@ -107,7 +116,7 @@ export const rockknapper = mapsquare => {
             state.drawOutputChoices();
         },
 
-        updatepanel() {
+        updatePanel() {
             // This only manages the few stats shown before the output selection
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepaneltarget").html(state.currentCraft);
@@ -115,7 +124,7 @@ export const rockknapper = mapsquare => {
             state.updateOutputChoices();
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
@@ -123,14 +132,16 @@ export const rockknapper = mapsquare => {
     // Provide a way to show when new options become available for this block
     const genHandle = game.blockDemands.find(ele => ele.name === state.name);
     if (genHandle.hasNewOptions === undefined) {
-        genHandle.hasNewOptions = itemname => {
-            return itemname === "Twine";
+        genHandle.hasNewOptions = itemName => {
+            return itemName === "Twine";
         };
     }
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/rockknapper.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/rockKnapper.png" />'
+    );
     return Object.assign(
         state,
         blockOutputsItems(state),

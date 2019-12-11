@@ -11,15 +11,15 @@ import {
     blockHandlesFood,
     blockDeletesClean,
     blockShowsOutputItems
-} from "./activeblock.js";
+} from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { blockHasOutputsPerInput } from "./blockAddon_HasOutputsPerInput.js";
 import $ from "jquery";
 
-export const kitchen = mapsquare => {
+export const kitchen = mapSquare => {
     let state = {
         name: "kitchen",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         alloutOutput: true,
@@ -42,7 +42,7 @@ export const kitchen = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasOutputsPerInput
+        // possibleOutputs() is already defined in blockHasOutputsPerInput
         // inputsAccepted() is already defined in blockHasOutputsPerInput
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasOutputsPerInput
@@ -64,7 +64,7 @@ export const kitchen = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             let curjob = "n/a";
             let craftPercent = "n/a";
             if (state.inItems.length > 0) {
@@ -104,7 +104,7 @@ export const kitchen = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelinput").html(state.inItems.length);
             if (state.inItems.length > 0) {
                 $("#sidepanelworking").html(state.inItems[0].name);
@@ -124,14 +124,14 @@ export const kitchen = mapsquare => {
             state.updateToolPanel();
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Nothing extra to do here
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html(
         '<img src="img/kitchen.png" />'
     );

@@ -3,14 +3,18 @@
 // Forms wet clay into appropriate shapes for their uses
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import {
+    blockOutputsItems,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import $ from "jquery";
 
-export const clayformer = mapsquare => {
+export const clayFormer = mapSquare => {
     let state = {
-        name: "clayformer",
-        tile: mapsquare,
+        name: "clayFormer",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: true,
@@ -27,7 +31,7 @@ export const clayformer = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // possibleOutputs() is already defined in blockHasSelectableCrafting
         // inputsAccepted() is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -43,7 +47,7 @@ export const clayformer = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles drawing the content on the right side of the page whenever this block is selected
             $("#sidepanel").html(`
                 <center><b>Clay Form Maker</b></center>
@@ -59,8 +63,12 @@ export const clayformer = mapsquare => {
             $("#sidepanel").append(`
                 <br />
                 <div id="sidepanelparts">${state.drawStocks()}</div>
-                Finished items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
-                Currently building: <span id="sidepanelcurrent">${state.currentcraft}</span><br />
+                Finished items on hand: <span id="sidepanelonhand">${
+                    state.onhand.length
+                }</span><br />
+                Currently building: <span id="sidepanelcurrent">${
+                    state.currentCraft
+                }</span><br />
                 Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
             `);
             state.showDeleteLink();
@@ -68,22 +76,24 @@ export const clayformer = mapsquare => {
             state.drawOutputChoices();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelparts").html(state.drawStocks());
             $("#sidepanelonhand").html(state.onhand.length);
-            $("#sidepanelcurrent").html(state.currentcraft);
+            $("#sidepanelcurrent").html(state.currentCraft);
             $("#sidepanelprogress").html(state.drawProgressPercent());
             state.updateOutputChoices();
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/clayformmaker.png">');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/clayFormer.png">'
+    );
     return Object.assign(
         state,
         blockOutputsItems(state),

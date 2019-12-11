@@ -8,12 +8,12 @@ import { game } from "./game.js";
 import { storage } from "./block_storage.js";
 import $ from "jquery";
 
-export const autoprovider = mapsquare => {
+export const autoProvider = mapSquare => {
     // This is a cheat-block. When placed, it will generate multiple storage blocks (to its right) to provide the resources needed below
     // This may also set other game states, such as unlocked items and blocks
     let state = {
-        name: "autoprovider",
-        tile: mapsquare,
+        name: "autoProvider",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         allowOutput: false, // Determines if this block will output items. Later in the game, we will allow this item to output items,
@@ -44,7 +44,7 @@ export const autoprovider = mapsquare => {
         isActivated: false, // On this block's first run, we will generate all the storage blocks we need. This determines if we have
         // done that already or not.
 
-        possibleoutputs() {
+        possibleOutputs() {
             return [];
         },
 
@@ -114,7 +114,7 @@ export const autoprovider = mapsquare => {
                             );
                             break;
                         case "tool":
-                            console.log("In autoprovider: " + ele.efficiency);
+                            console.log("In autoProvider: " + ele.efficiency);
                             ele.hand.onhand.push(
                                 tool(ele.name, ele.efficiency, ele.endurance)
                             );
@@ -127,7 +127,7 @@ export const autoprovider = mapsquare => {
             game.population = Math.max(game.population, state.fixedPopulation);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>AutoProvider</b><br />
                 <br />
@@ -135,11 +135,11 @@ export const autoprovider = mapsquare => {
             `);
         },
 
-        updatepanel() {} // We probably won't need this for anything here
+        updatePanel() {} // We probably won't need this for anything here
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
+    mapSquare.structure = state;
     $("#" + state.tile.id + "imageholder").html(
         '<img src="img/axe_flint.png" />'
     );

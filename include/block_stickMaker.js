@@ -2,23 +2,21 @@
 // for DanIdle version 4
 // Allows the user to cut branches from trees for sticks, of various uses
 
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const stickmaker = mapsquare => {
+export const stickMaker = mapSquare => {
     let state = {
-        name: "stickmaker",
-        tile: mapsquare,
+        name: "stickMaker",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         maxOutput: 8,
         allowOutput: true,
         toolChoices: [{ groupName: "Chopper", isRequired: true, choices: ["None", "Flint Stabber", "Flint Hatchet"] }],
-        currenttool: null,
-        targettool: "None",
         outputItems: [
             { name: "None", prereq: [], parts: [], isTool: false },
             { name: "Short Stick", info: "Used for flint tools", prereq: [], parts: [], isTool: false, craftTime: 30 },
@@ -34,7 +32,7 @@ export const stickmaker = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // possibleOutputs() is already defined in blockHasSelectableCrafting
         // inputsAccepted() is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -49,7 +47,7 @@ export const stickmaker = mapsquare => {
             state.processCraft(eff);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Stick Maker</b><br />
                 <br />
@@ -63,7 +61,7 @@ export const stickmaker = mapsquare => {
             $("#sidepanel").append(`
                 <br />
                 Items on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
-                Currently building: <span id="sidepanelcurrent">${state.currentcraft}</span><br />
+                Currently building: <span id="sidepanelcurrent">${state.currentCraft}</span><br />
                 Current progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span>%<br />
             `);
             state.showDeleteLink();
@@ -72,15 +70,15 @@ export const stickmaker = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelonhand").html(state.onhand.length);
-            $("#sidepanelcurrent").html(state.currentcraft);
+            $("#sidepanelcurrent").html(state.currentCraft);
             $("#sidepanelprogress").html(state.drawProgressPercent());
             state.updateToolPanel();
             state.updateOutputChoices();
         },
 
-        deleteblock() {
+        deleteBlock() {
             state.finishDelete();
         }
     };
@@ -88,14 +86,14 @@ export const stickmaker = mapsquare => {
     // Provide a way to show the user when new options become available for this block type
     const genHandle = game.blockDemands.find(ele => ele.name === state.name);
     if (genHandle.hasNewOptions === undefined) {
-        genHandle.hasNewOptions = itemname => {
-            return itemname === "Flint Hatchet";
+        genHandle.hasNewOptions = itemName => {
+            return itemName === "Flint Hatchet";
         };
     }
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/stickmaker.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/stickMaker.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

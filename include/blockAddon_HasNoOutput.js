@@ -9,7 +9,7 @@ export const blockHasNoOutput = state => ({
         return null;
     },
 
-    possibleoutputs() {
+    possibleOutputs() {
         // Returns a list of items that this block can output.
         // This block won't have anything to return
         return [];

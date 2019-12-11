@@ -2,17 +2,17 @@
 // for DanIdle version 4
 // Cuts bark off certain trees in the forests to produce twine, for use as a primitive rope
 
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { item } from "../index.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const twinemaker = mapsquare => {
+export const twineMaker = mapSquare => {
     // Early tech block to produce twine rope.  Minimum tool is a flint knife. Has no automation abilities
     let state = {
         name: "Twine Maker",
-        tile: mapsquare,
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         craftTime: 20,
@@ -21,7 +21,7 @@ export const twinemaker = mapsquare => {
         // List of tools this block can use. There's only one possible tool at this time, though
         // Later on we will move this list to an external source, and utilize all knives possible
 
-        possibleoutputs() {
+        possibleOutputs() {
             // Unlike other block types, this will only have one available output item
             return ["Twine"];
         },
@@ -64,7 +64,7 @@ export const twinemaker = mapsquare => {
             $("#" + state.tile.id + "progress").css({ width: (state.counter / state.craftTime) * 60 });
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Twine Maker</b><br />
                 <br />
@@ -87,21 +87,21 @@ export const twinemaker = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             $("#sidepanelonhand").html(state.onhand.length);
             $("#sidepanelprogress").html(Math.floor((state.counter * 100) / state.craftTime));
             state.updateToolPanel();
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Need to finish this
             state.finishDelete();
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/twinemaker.png" />');
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html('<img src="img/twineMaker.png" />');
     return Object.assign(
         state,
         blockOutputsItems(state),

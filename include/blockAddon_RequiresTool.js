@@ -3,7 +3,7 @@
 // Provides functionality for any block that requires a tool to function
 
 import { game } from "./game.js";
-import { danCommon } from "./dancommon.js";
+import { danCommon } from "./danCommon.js";
 import $ from "jquery";
 
 // We will also need a block where tools are optional - call it blockVoluntaryTool
@@ -220,7 +220,7 @@ export const blockRequiresTool = state => ({
     },
 
     updateToolPanel() {
-        // Handles updating the color of the tools that are shown on the side panel.  Call this during updatepanel().
+        // Handles updating the color of the tools that are shown on the side panel.  Call this during updatePanel().
         state.toolChoices.forEach(group => {
             group.choices
                 .filter(tool => {
@@ -240,10 +240,10 @@ export const blockRequiresTool = state => ({
         });
     },
 
-    chooseToolColor(gName, toolname) {
+    chooseToolColor(gName, toolName) {
         // Returns a color name that should be used to show this tool. Color is decided on whether it is selected and if any are available
 
-        // We should start by 'resolving' the toolname to a tool group (we use that a lot here, to determine if it's the current one in use)
+        // We should start by 'resolving' the toolName to a tool group (we use that a lot here, to determine if it's the current one in use)
         const group = state.toolChoices.find(g => g.groupName === gName);
         if (group === undefined) {
             console.log("Failed to find tool group (name given = " + gName);
@@ -256,7 +256,7 @@ export const blockRequiresTool = state => ({
             group.currentTool = null;
         }
 
-        if (toolname === "None") {
+        if (toolName === "None") {
             // 'none' fits a different category than other tools. It is always available
             if (group.targetTool === "None") {
                 return "green"; // active & in use, available
@@ -283,37 +283,37 @@ export const blockRequiresTool = state => ({
             } else {
                 if (!(crafting.toolsUsable === undefined)) {
                     // We only want to show white when a tool isn't available for this crafting option. Anything else will be as normal
-                    if (!crafting.toolsUsable.includes(toolname))
+                    if (!crafting.toolsUsable.includes(toolName))
                         return "white";
                     // Any other condition will behave as normal
                 }
             }
         }
 
-        if (game.blockList.isInStorage(toolname)) {
+        if (game.blockList.isInStorage(toolName)) {
             //console.log("Tool found in storage");
-            if (group.targetTool === toolname) {
+            if (group.targetTool === toolName) {
                 return "green"; // active & in use, with more available
             }
             return "grey"; // not active, but available
         }
-        //console.log("Tool " + toolname + " not found in storage");
-        if (group.targetTool === toolname) {
+        //console.log("Tool " + toolName + " not found in storage");
+        if (group.targetTool === toolName) {
             return "orange"; // active in use, but no more are available
         }
         return "red"; // not in use, none are available
     },
 
-    // Note, we don't have a function to be used in updatepanel(); we have nothing to update in there that is specific to tools
+    // Note, we don't have a function to be used in updatePanel(); we have nothing to update in there that is specific to tools
 
-    picktool(toolgroup, newtool) {
+    picktool(toolGroup, newTool) {
         // Handles updating which tool the user wants to make use of. This is called through the DOM; the block doesn't
         // need to access it directly
         const group = state.toolChoices.find(
-            group => group.groupName === toolgroup
+            group => group.groupName === toolGroup
         );
         const lasttool = group.targetTool;
-        group.targetTool = newtool;
+        group.targetTool = newTool;
         $("#sidepaneltool" + danCommon.multiReplace(lasttool, " ", "")).css({
             "background-color": state.chooseToolColor(group.groupName, lasttool)
         });
@@ -325,7 +325,7 @@ export const blockRequiresTool = state => ({
                 group.targetTool
             )
         });
-        //console.log("Group " + toolgroup + ", tool " + group.targetTool);
+        //console.log("Group " + toolGroup + ", tool " + group.targetTool);
     },
 
     returnTool() {

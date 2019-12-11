@@ -5,14 +5,14 @@
 
 import { blockRequiresTool } from "./blockAddon_RequiresTool.js";
 import { blockIsStructure } from "./blockAddon_IsStructure.js";
-import { blockHasWorkerPriority } from "./activeblock.js";
+import { blockHasWorkerPriority } from "./activeBlock.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
-export const boulderwall = mapsquare => {
+export const boulderWall = mapSquare => {
     let state = {
-        name: "boulderwall",
-        tile: mapsquare,
+        name: "boulderWall",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         inItems: [],
         mode: "collect",
@@ -20,16 +20,27 @@ export const boulderwall = mapsquare => {
         endurance: 0,
         allowOutput: false,
         toolChoices: [
-            { groupName: "Crane", isRequired: true, choices: ["None", "Pole Crane"] },
-            { groupName: "Spreader", isRequired: true, choices: ["None", "Flint Hoe"] }
+            {
+                groupName: "Crane",
+                isRequired: true,
+                choices: ["None", "Pole Crane"]
+            },
+            {
+                groupName: "Spreader",
+                isRequired: true,
+                choices: ["None", "Flint Hoe"]
+            }
         ],
-        buildRequirements: [{ name: "Boulder", qty: 5 }, { name: "Gravel", qty: 4 }],
+        buildRequirements: [
+            { name: "Boulder", qty: 5 },
+            { name: "Gravel", qty: 4 }
+        ],
         baseEndurance: 20, // How much endurance is gained each tick, reguarless of tools
         toolEndurance: 5, // This is multiplied by all the tools' endurance value, then added to the accumulated endurance, per tick
         buildTime: 300,
 
         // getItem() is now handled by blockIsStorage
-        // possibleoutputs() is now handled in blockIsStructure
+        // possibleOutputs() is now handled in blockIsStructure
         // inputsAccepted() is now handled in blockIsStructure
         // willOutput() is now handled in blockIsStructure
         // willAccept() is now handled in blockIsStructure
@@ -42,7 +53,7 @@ export const boulderwall = mapsquare => {
             state.handleUpdate();
         },
 
-        drawpanel() {
+        drawPanel() {
             // Handles displaying content that is shown on the right side, for this block
             $("#sidepanel").html(`
                 <center><b>Boulder Wall</b></center>
@@ -58,14 +69,21 @@ export const boulderwall = mapsquare => {
             state.showTools();
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the side panel content, when displayed, once per tick
             $("#sidepanelstatus").html(state.showStatus());
         }
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/boulderwall.png" />');
-    return Object.assign(state, blockIsStructure(state), blockHasWorkerPriority(state), blockRequiresTool(state));
+    mapSquare.structure = state;
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/boulderWall.png" />'
+    );
+    return Object.assign(
+        state,
+        blockIsStructure(state),
+        blockHasWorkerPriority(state),
+        blockRequiresTool(state)
+    );
 };

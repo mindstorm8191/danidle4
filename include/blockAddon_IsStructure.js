@@ -27,9 +27,9 @@ export const blockIsStructure = state => ({
         return null;
     },
 
-    possibleoutputs() {
+    possibleOutputs() {
         // Returns a list of items that this block can output
-        if (state.or_possibleoutputs != undefined) return state.or_posibleoutputs();
+        if (state.or_possibleOutputs != undefined) return state.or_posibleoutputs();
         return [];
     },
 
@@ -47,15 +47,15 @@ export const blockIsStructure = state => ({
         return false;
     },
 
-    willAccept(itemname) {
+    willAccept(itemName) {
         // Returns true if this block will accept the given item
         if (state.or_willAccept != undefined) return state.or_willAccept();
         const { mode, buildRequirements, inItems } = state;
         return (
             mode === "collect" &&
             buildRequirements.length > 0 &&
-            inItems.filter(ele => ele.name === itemname).length <
-                buildRequirements.find(ele => ele.name === itemname).qty
+            inItems.filter(ele => ele.name === itemName).length <
+                buildRequirements.find(ele => ele.name === itemName).qty
         );
     },
 

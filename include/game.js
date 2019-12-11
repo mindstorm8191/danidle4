@@ -3,29 +3,29 @@
 // Contains all the management code that is shared with all the other blocks
 
 import $ from "jquery";
-import { setcursor } from "../index.js";
+import { setCursor } from "../index.js";
 import { hauler } from "./block_hauler.js";
 import { storage } from "./block_storage.js";
 import { leanto } from "./block_leanto.js";
-import { foragepost } from "./block_foragepost.js";
-import { rockknapper } from "./block_rockknapper.js";
-import { twinemaker } from "./block_twinemaker.js";
-import { stickmaker } from "./block_stickmaker.js";
-import { flinttoolmaker } from "./block_flinttoolmaker.js";
-import { huntingpost } from "./block_huntingpost.js";
+import { foragePost } from "./block_foragePost.js";
+import { rockKnapper } from "./block_rockKnapper.js";
+import { twineMaker } from "./block_twineMaker.js";
+import { stickMaker } from "./block_stickMaker.js";
+import { flintToolMaker } from "./block_flintToolMaker.js";
+import { huntingPost } from "./block_huntingPost.js";
 import { campfire } from "./block_campfire.js";
-import { firewoodmaker } from "./block_firewoodmaker.js";
-import { butchershop } from "./block_butchershop.js";
+import { firewoodMaker } from "./block_firewoodMaker.js";
+import { butcherShop } from "./block_butcherShop.js";
 import { farm } from "./block_farm.js";
 import { kitchen } from "./block_kitchen.js";
-import { woodcrafter } from "./block_woodcrafter.js";
-import { waterfiller } from "./block_waterfiller.js";
-import { fireminer } from "./block_fireminer.js";
-import { gravelroad } from "./block_gravelroad.js";
-import { boulderwall } from "./block_boulderwall.js";
-import { dirtmaker } from "./block_dirtmaker.js";
-import { claymaker } from "./block_claymaker.js";
-import { clayformer } from "./block_clayformer.js";
+import { woodCrafter } from "./block_woodCrafter.js";
+import { waterFiller } from "./block_waterFiller.js";
+import { fireMiner } from "./block_fireMiner.js";
+import { gravelRoad } from "./block_gravelRoad.js";
+import { boulderWall } from "./block_boulderWall.js";
+import { dirtMaker } from "./block_dirtMaker.js";
+import { clayMaker } from "./block_clayMaker.js";
+import { clayFormer } from "./block_clayFormer.js";
 import { dryer } from "./block_dryer.js";
 
 const TILE_GRASS = 1; // land type of grass
@@ -63,25 +63,11 @@ export const game = {
     // whenever that block type has newly available functionality (whenever new item types become available). This is called within
     // blockDemands.unlock(), and will then set that block's border green (on the left side panel)
     blockDemands: [
-        /*        {
-            name: "selector",
-            canBuildOn: [],
-            image: "img/cursormove.png",
-            state: 0,
-            highlight: "Move cursor: Recenter the map to the square clicked",
-            prereq: [],
-            sourcePath: "",
-            generate: () => {
-                console.log(
-                    "Error: attempted to use game.blockDemands[...].generate for the selector block - this shouldn't have one!"
-                );
-            }
-        }, */ // This was a specialty block, to allow players to move the screen around.
-        // This is no longer needed, as mouse dragging now moves the map
+        // We no longer need the selector block, since the map allows us to scroll around
         {
             name: "hauler",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/bucketline_right.png",
+            image: "img/hauler.png",
             state: 0,
             highlight: "Item hauler: Move items between blocks",
             prereq: [],
@@ -109,74 +95,75 @@ export const game = {
             generate: leanto
         }, // Uses blockHasWorkerPriority, blockDeletesClean, blockRequiresTool, blockIsStructure
         {
-            name: "foragepost",
+            name: "foragePost",
             canBuildOn: [TILE_GRASS],
-            image: "img/foragepost.png",
+            image: "img/foragePost.png",
             state: 0,
             highlight: "Forage Post; College food from surrounding lands",
             prereq: [],
-            sourcePath: "./block_foragepost.js",
-            generate: foragepost
+            sourcePath: "./block_foragePost.js",
+            generate: foragePost
         }, // uses blockOutputsItems, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
-            name: "rockknapper",
+            name: "rockKnapper",
             canBuildOn: [TILE_ROCK],
-            image: "img/rockknapper.png",
+            image: "img/rockKnapper.png",
             state: 0,
             highlight: "Rock Knapper; Smash rocks into basic tools",
             prereq: [],
-            sourcePath: "./block_rockknapper.js",
-            generate: rockknapper
+            sourcePath: "./block_rockKnapper.js",
+            generate: rockKnapper
         }, // uses blockOutputsItems, blockHasSelectableCrafting, blockHasWorkerPriority
         {
-            name: "firewoodmaker",
+            name: "firewoodMaker",
             canBuildOn: [TILE_FOREST],
-            image: "img/firewoodmaker.png",
+            image: "img/firewoodMaker.png",
             state: 0,
             highlight: "Firewood Collector; collect dead wood for fires",
             prereq: [],
-            sourcePath: "./block_firewoodmaker.js",
-            generate: firewoodmaker
+            sourcePath: "./block_firewoodMaker.js",
+            generate: firewoodMaker
         }, // uses blockOutputsItems, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
-            name: "twinemaker",
+            name: "twineMaker",
             canBuildOn: [TILE_FOREST],
-            image: "img/twinemaker.png",
+            image: "img/twineMaker.png",
             state: 0,
             highlight: "Twine Maker; cuts bark from trees to make rope",
             prereq: [["Flint Knife"]],
-            sourcePath: "./block_twinemaker.js",
-            generate: twinemaker
+            sourcePath: "./block_twineMaker.js",
+            generate: twineMaker
         }, // uses blockOutputsItems, blockRequiresTools, blockHasWorkerPriority
         {
-            name: "stickmaker",
+            name: "stickMaker",
             canBuildOn: [TILE_FOREST],
-            image: "img/stickmaker.png",
+            image: "img/stickMaker.png",
             state: 0,
             highlight: "Stick Maker; cuts branches from trees for sticks",
             prereq: [["Flint Stabber"]],
-            sourcePath: "./block_stickmaker.js",
-            generate: stickmaker
+            sourcePath: "./block_stickMaker.js",
+            generate: stickMaker
         }, // uses blockOutputsItems, blockRequiresTools, blockHasSelectableCrafting, blockHasWorkerPriority
         {
-            name: "flinttoolmaker",
+            name: "flintToolMaker",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/flinttoolset.png",
+            image: "img/flintToolMaker.png",
             state: 0,
-            highlight: "Flint Toolshop; makes larger tools from flint, wood & twine",
+            highlight:
+                "Flint Toolshop; makes larger tools from flint, wood & twine",
             prereq: [["Twine"], ["Short Stick", "Long Stick"]],
-            sourcePath: "./block_flinttoolmaker.js",
-            generate: flinttoolmaker
+            sourcePath: "./block_flintToolMaker.js",
+            generate: flintToolMaker
         }, // uses blockOutputsItems, blockHasSelectableCrafting, blockHasWorkerPriority
         {
-            name: "huntingpost",
+            name: "huntingPost",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/huntingpost.png",
+            image: "img/huntingPost.png",
             state: 0,
             highlight: "Hunting Post; Hunts for animals in local area",
             prereq: [["Flint Spear"]],
-            sourcePath: "./block_huntingpost.js",
-            generate: huntingpost
+            sourcePath: "./block_huntingPost.js",
+            generate: huntingPost
         }, // uses blockOutputsItems, blockRequiresTools, blockHasRandomizedOutput, blockHasWorkerPriority, blockShowsOutputItems
         {
             name: "campfire",
@@ -189,14 +176,15 @@ export const game = {
             generate: campfire
         }, // uses blockOutputsItems, blockHasWorkerPriority. Needs blockHasOutputsPerInput
         {
-            name: "butchershop",
+            name: "butcherShop",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/butcher.png",
+            image: "img/butcherShop.png",
             state: 0,
-            highlight: "Butcher Shop: turn dead animals into meats & byproducts",
+            highlight:
+                "Butcher Shop: turn dead animals into meats & byproducts",
             prereq: [["Dead Deer", "Dead Wolf", "Dead Chicken"]],
-            sourcePath: "./block_butchershop.js",
-            generate: butchershop
+            sourcePath: "./block_butcherShop.js",
+            generate: butcherShop
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockHasOutputsPerInput, blockShowsOutputItems, blockRequiresTool
         {
             name: "farm",
@@ -219,84 +207,85 @@ export const game = {
             generate: kitchen
         },
         {
-            name: "woodcrafter",
+            name: "woodCrafter",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/woodcrafter.png",
+            image: "img/woodCrafter.png",
             state: 0,
             highlight: "Woodcrafter: craft stuff out of wood",
             prereq: [["Log"]],
-            sourcePath: "./block_woodcrafter.js",
-            generate: woodcrafter
+            sourcePath: "./block_woodCrafter.js",
+            generate: woodCrafter
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting, blockRequiresTool
         {
-            name: "waterfiller",
+            name: "waterFiller",
             canBuildOn: [TILE_WATER],
-            image: "img/watercup.png",
+            image: "img/waterFiller.png",
             state: 0,
-            highlight: "Water Filler: fills liquid-holding items with water. Place in water",
+            highlight:
+                "Water Filler: fills liquid-holding items with water. Place in water",
             prereq: [["Wooden Bowl"]],
-            sourcePath: "./block_waterfiller.js",
-            generate: waterfiller
+            sourcePath: "./block_waterFiller.js",
+            generate: waterFiller
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockDeletesClean, blockHasOutputsPerInput
         {
-            name: "fireminer",
+            name: "fireMiner",
             canBuildOn: [TILE_ROCK],
-            image: "img/minerspost.png",
+            image: "img/fireMiner.png",
             state: 0,
             highlight: "Fire Miner: Use fire & water to cut through rocks",
             prereq: [["Wooden Bowl"], ["Basic Crane"]],
-            sourcePath: "./block_fireminer.js",
-            generate: fireminer
+            sourcePath: "./block_fireMiner.js",
+            generate: fireMiner
         }, // uses blockOutputsItems, blockShowsOutputItems, blockHasWorkerPriority, blockRequiresTool, blockCooksItems
         {
-            name: "gravelroad",
+            name: "gravelRoad",
             canBuildOn: [TILE_ROCK, TILE_GRASS],
-            image: "img/gravelroad.png",
+            image: "img/gravelRoad.png",
             state: 0,
             highlight: "Gravel road, to make travel easier",
             prereq: [["Gravel"]],
-            sourcePath: "./block_gravelroad.js",
-            generate: gravelroad
+            sourcePath: "./block_gravelRoad.js",
+            generate: gravelRoad
         }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
         {
-            name: "boulderwall",
+            name: "boulderWall",
             canBuildOn: [TILE_ROCK, TILE_GRASS],
-            image: "img/boulderwall.png",
+            image: "img/boulderWall.png",
             state: 0,
             highlight: "Boulder wall, to protect your camp",
             prereq: [["Boulder", "Gravel"]],
-            sourcePath: "./block_boulderwall.js",
-            generate: boulderwall
+            sourcePath: "./block_boulderWall.js",
+            generate: boulderWall
         }, // uses blockRequiresTool, blockHasWorkerPriority, blockIsStructure
         {
-            name: "dirtmaker",
+            name: "dirtMaker",
             canBuildOn: [TILE_GRASS],
-            image: "img/dirt.png",
+            image: "img/dirtMaker.png",
             state: 0,
             highlight: "Dirt maker, to craft with dirt",
             prereq: [["Flint Hoe"]],
-            sourcePath: "./block_dirtmaker.js",
-            generate: dirtmaker
+            sourcePath: "./block_dirtMaker.js",
+            generate: dirtMaker
         }, // uses blockOutputsitems, blockRequiresTool, blockHasWorkerPriority, blockDeletesClean
         {
-            name: "claymaker",
+            name: "clayMaker",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/claymaker.png",
+            image: "img/clayMaker.png",
             state: 0,
             highlight: "Clay maker, extract clay from dirt",
             prereq: [["Dirt"]],
-            sourcePath: "./block_claymaker.js",
-            generate: claymaker
+            sourcePath: "./block_clayMaker.js",
+            generate: clayMaker
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting
         {
-            name: "clayformer",
+            name: "clayFormer",
             canBuildOn: [TILE_GRASS, TILE_FOREST, TILE_ROCK],
-            image: "img/clayformmaker.png",
+            image: "img/clayFormer.png",
             state: 0,
             highlight: "Clay former, turn clay into shapes for uses",
             prereq: [["Clay"]],
-            sourcePath: "./block_clayformer.js",
-            generate: clayformer
+            sourcePath: "./block_clayFormer.js",
+            generate: clayFormer
         }, // uses blockOutputsItems, blockHasWorkerPriority, blockDeletesClean, blockHasSelectableCrafting
         {
             name: "dryer",
@@ -319,12 +308,13 @@ export const game = {
     // This tutorial object is set up to handle what is displayed at the top for the tutorial section, as well as when that section
     // moves to the next tutorial task
     tutorial: {
-        curlevel: 0,
+        curLevel: 0,
         choices: [
             {
                 level: 0,
                 unlock: "movemap",
-                show: "Welcome! I'll help you get started. Step 1: Click and drag on the map to move the view around"
+                show:
+                    "Welcome! I'll help you get started. Step 1: Click and drag on the map to move the view around"
             },
             {
                 level: 1,
@@ -335,12 +325,13 @@ export const game = {
             },
             {
                 level: 2,
-                unlock: "build=foragepost",
-                show: "Step 3: Food. Place a foraging post in a nearby grass area"
+                unlock: "build=foragePost",
+                show:
+                    "Step 3: Food. Place a foraging post in a nearby grass area"
             },
             {
                 level: 3,
-                unlock: "build=rockknapper",
+                unlock: "build=rockKnapper",
                 show:
                     "Step 4: Tools. Find a rock area and place a Rock Knapper. Set them to build Flint Knives and Stabbers (you may want 2 Rock " +
                     "Knappers with different outputs)"
@@ -385,17 +376,19 @@ game.blockList.lastPriority = function() {
 
 game.blockList.findOnGrid = function(xpos, ypos) {
     // Returns an Activeblock based on its coordinates, or undefined if it isn't found
-    return game.blockList.find(ele => ele.tile.xpos === xpos && ele.tile.ypos === ypos);
+    return game.blockList.find(
+        ele => ele.tile.xpos === xpos && ele.tile.ypos === ypos
+    );
     // find() returns the first element that the attached function returns true for
 };
 
-game.blockList.neighbors = function(mappos) {
+game.blockList.neighbors = function(mapPos) {
     // Returns a list of all blocks that neighbor the provided block
     return [
-        game.blockList.findOnGrid(mappos.xpos, mappos.ypos - 1),
-        game.blockList.findOnGrid(mappos.xpos + 1, mappos.ypos),
-        game.blockList.findOnGrid(mappos.xpos, mappos.ypos + 1),
-        game.blockList.findOnGrid(mappos.xpos - 1, mappos.ypos)
+        game.blockList.findOnGrid(mapPos.xpos, mapPos.ypos - 1),
+        game.blockList.findOnGrid(mapPos.xpos + 1, mapPos.ypos),
+        game.blockList.findOnGrid(mapPos.xpos, mapPos.ypos + 1),
+        game.blockList.findOnGrid(mapPos.xpos - 1, mapPos.ypos)
     ].filter(ele => !(typeof ele === "undefined"));
 };
 
@@ -403,30 +396,33 @@ game.blockList.getById = function(id) {
     return game.blockList.find(ele => ele.id === id);
 };
 
-game.blockList.getInStorage = function(targetitem) {
+game.blockList.getInStorage = function(targetItem) {
     let hold = game.blockList.find(ele => {
         // find will only return elements, but we're not really after that, this time
         if (ele.name !== "storage") return false; // ignore any non-storage blocks
-        return ele.onhand.some(item => item.name == targetitem);
+        return ele.onhand.some(item => item.name == targetItem);
     });
     // 'hold' now contains the storage block which has the tool we are after
     if (hold === undefined) return null; // aka the item was not found in any storage unit
-    let item = hold.onhand.splice(hold.onhand.findIndex(ele => ele.name === targetitem), 1)[0];
+    let item = hold.onhand.splice(
+        hold.onhand.findIndex(ele => ele.name === targetItem),
+        1
+    )[0];
     // Here, we need to add the storage source to the item before returning it
     item.storageSource = hold.id;
     return item;
 };
 
-game.blockList.isInStorage = function(targetitem) {
+game.blockList.isInStorage = function(targetItem) {
     return game.blockList.includes(ele => {
-        // we want to return true if any activeblock satisfies the search function
+        // we want to return true if any activeBlock satisfies the search function
         if (ele.name !== "storage") return false;
-        return ele.onhand.find(item => item.name === targetitem);
+        return ele.onhand.find(item => item.name === targetItem);
         // return true if any item matches the search function
     });
 };
 
-game.blockDemands.unlock = function(itemname) {
+game.blockDemands.unlock = function(itemName) {
     // Determines when a new block can be displayed on the left side of the screen.  This depends heavily on the contents of the
     // unlockeditems array
 
@@ -435,7 +431,7 @@ game.blockDemands.unlock = function(itemname) {
     game.blockDemands
         .filter(slot => slot.state === 1)
         .filter(slot => !(slot.hasNewOptions === undefined))
-        .filter(slot => slot.hasNewOptions(itemname))
+        .filter(slot => slot.hasNewOptions(itemName))
         .map(slot => {
             $("#cursor" + slot.name).css("background-color", "green");
         });
@@ -464,14 +460,18 @@ game.blockDemands.unlock = function(itemname) {
                     <img src="${element.image}" />
                 </div>
             `);
-            document.getElementById("cursor" + element.name).addEventListener("click", () => setcursor(element.name));
+            document
+                .getElementById("cursor" + element.name)
+                .addEventListener("click", () => setCursor(element.name));
         });
 };
 
 game.tutorial.checkAdvance = function(action) {
     // Handles updating whether the displayed tutorial mode is advanced or not, based on the action recieved
-    if (game.tutorial.choices[game.tutorial.curlevel].unlock != action) return;
+    if (game.tutorial.choices[game.tutorial.curLevel].unlock != action) return;
 
-    game.tutorial.curlevel++;
-    $("#tutorialblock").html(game.tutorial.choices[game.tutorial.curlevel].show);
+    game.tutorial.curLevel++;
+    $("#tutorialblock").html(
+        game.tutorial.choices[game.tutorial.curLevel].show
+    );
 };

@@ -3,17 +3,17 @@
 // uses dirt and water to produce clay
 
 import { game } from "./game.js";
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeblock.js";
+import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import $ from "jquery";
 
 // HasSelectableCrafting is designed to allow for multiple output choices, but this block will only ever handle one type. We can simply set the
 // output choice via code, and leave out the displayed selection choices on the drawPanel call.
 
-export const claymaker = mapsquare => {
+export const clayMaker = mapSquare => {
     let state = {
-        name: "claymaker",
-        tile: mapsquare,
+        name: "clayMaker",
+        tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
         maxOutput: 10,
@@ -31,7 +31,7 @@ export const claymaker = mapsquare => {
         ],
 
         // getItem() is already defined in blockOutputsItems
-        // possibleoutputs() is already defined in blockHasSelectableCrafting
+        // possibleOutputs() is already defined in blockHasSelectableCrafting
         // inputsAccepted() is already defined in blockHasSelectableCrafting
         // willOutput() is already defined in blockOutputsItems
         // willAccept() is already defined in blockHasSelectableCrafting
@@ -44,7 +44,7 @@ export const claymaker = mapsquare => {
             state.processCraft(1);
         },
 
-        drawpanel() {
+        drawPanel() {
             $("#sidepanel").html(`
                 <b>Clay Maker</b><br />
                 <br />
@@ -67,14 +67,14 @@ export const claymaker = mapsquare => {
             `);
         },
 
-        updatepanel() {
+        updatePanel() {
             // Handles updating the side panel once per tick, while this block is selected
             $("#sidepanelparts").html(state.drawStocks());
             $("#sidepanelprogress").html(state.drawProgressPercent());
             $("#sidepanelonhand").html(state.onhand.length);
         },
 
-        deleteblock() {
+        deleteBlock() {
             // Handles deleting this block when the users chooses to delete it.
             // This block doesn't do anything special when deleting
             state.finishDelete();
@@ -82,8 +82,8 @@ export const claymaker = mapsquare => {
     };
 
     game.blockList.push(state);
-    mapsquare.structure = state;
-    $(`#${state.tile.id}imageholder`).html('<img src="img/claymaker.png" />');
+    mapSquare.structure = state;
+    $(`#${state.tile.id}imageholder`).html('<img src="img/clayMaker.png" />');
     const output = Object.assign(
         state,
         blockOutputsItems(state),
