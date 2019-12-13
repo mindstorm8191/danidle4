@@ -22,9 +22,17 @@ export const blockOutputsItems = state => ({
                 console.log(
                     "This block (" + state.name + ") has outputs disabled"
                 );
+            if (state.debugOutput != undefined && state.debugOutput === true) {
+                console.log(
+                    "This block (" + state.name + ") has outputs disabled"
+                );
+            }
             return null;
         }
-        if (debug === true)
+        if (
+            debug === true ||
+            (state.debugOutput != undefined && state.debugOutput === true)
+        )
             console.log(
                 "Searching for: " +
                     findList.join(",") +
@@ -41,11 +49,18 @@ export const blockOutputsItems = state => ({
                 .indexOf(findList[i]);
             //console.log("Comparing " + findList[i] + ", found at " + spot);
             if (spot === -1) {
-                if (debug === true)
+                if (
+                    debug === true ||
+                    (state.debugOutput != undefined &&
+                        state.debugOutput === true)
+                )
                     console.log("Did not find " + findList[i] + " in list");
                 continue;
             }
-            if (debug === true)
+            if (
+                debug === true ||
+                (state.debugOutput != undefined && state.debugOutput === true)
+            )
                 console.log(
                     "Found " + state.onhand[spot].name + ", sending away"
                 );
@@ -57,7 +72,32 @@ export const blockOutputsItems = state => ({
     willOutput(itemName) {
         // Returns true if the specific item will be output, if getItem is called for that specific item
         // Anything in the onhand array can be output here.
-        if (state.allowOutput === false) return false;
+
+        // First, ensure that we have the correct objects in the onhand array. This is caused only by coding errors
+        if (state.onhand.length > 0 && typeof state.onhand[0] != "object") {
+            console.log(
+                `Error: block type of ${state.name} needs to have items() in onhand array, not item names`
+            );
+        }
+
+        if (state.allowOutput === false) {
+            if (state.debugOutput != undefined) {
+                console.log(
+                    `Debug in ${state.name}: tried willOutput but allowOuput=false`
+                );
+            }
+            return false;
+        }
+        if (state.debugOutput != undefined) {
+            let result = state.onhand.some(e => e.name === itemName);
+            console.log(
+                `Debug in ${state.name}: willOutput result=${result}`
+            ); /*. Onhand=${state.onhand
+                    .map(e => JSON.parse(e))
+                    .join(",")}`
+            );*/
+            console.log(state.onhand[0]);
+        }
         return state.onhand.some(ele => ele.name === itemName);
     }
 });

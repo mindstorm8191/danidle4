@@ -1,5 +1,5 @@
 // Stick Maker
-// for DanIdle version 4
+// for DanIdle version 4 
 // Allows the user to cut branches from trees for sticks, of various uses
 
 import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
@@ -84,6 +84,10 @@ export const stickMaker = mapSquare => {
     };
 
     // Provide a way to show the user when new options become available for this block type
+    // We want to add a new function to the blockDemands list, called hasNewOptions. To
+    // ensure that we're not creating & re-creating this, determine if it exists before
+    // trying to generate it again. This function will be called (if it exists) when new
+    // items are completed. It accepts an itemName parameter, and output true if
     const genHandle = game.blockDemands.find(ele => ele.name === state.name);
     if (genHandle.hasNewOptions === undefined) {
         genHandle.hasNewOptions = itemName => {

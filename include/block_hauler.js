@@ -154,9 +154,7 @@ export const hauler = mapSquare => {
                         }
                         if (!dest.receiveItem(state.carry)) {
                             console.log(
-                                "Error - item refused from block (name=" +
-                                    dest.name +
-                                    ")"
+                                `Error - item refused (block=${dest.name}, item=${state.carry})`
                             );
                             state.mode = "return";
                             return;
@@ -522,9 +520,7 @@ export const hauler = mapSquare => {
     };
     game.blockList.push(state);
     mapSquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html(
-        '<img src="img/hauler.png" />'
-    );
+    $("#" + state.tile.id + "imageholder").html('<img src="img/hauler.png" />');
     return Object.assign(
         state,
         blockDeletesClean(state),

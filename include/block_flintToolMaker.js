@@ -2,14 +2,18 @@
 // for DanIdle version 4
 // Produces more advanced (aka less primitive) tools out of flint, sticks and twine
 
-import { blockOutputsItems, blockHasWorkerPriority, blockDeletesClean } from "./activeBlock.js";
+import {
+    blockOutputsItems,
+    blockHasWorkerPriority,
+    blockDeletesClean
+} from "./activeBlock.js";
 import { blockHasSelectableCrafting } from "./blockAddon_HasSelectableCrafting.js";
 import { game } from "./game.js";
 import $ from "jquery";
 
 export const flintToolMaker = mapSquare => {
     let state = {
-        name: "Flint Tool Maker",
+        name: "flintToolMaker",
         tile: mapSquare,
         id: game.getNextBlockId(),
         counter: 0,
@@ -40,7 +44,11 @@ export const flintToolMaker = mapSquare => {
                 name: "Flint Hoe",
                 info: "Opens up farming",
                 prereq: [],
-                parts: [{ name: "Long Stick", qty: 1 }, { name: "Twine", qty: 1 }, { name: "Flint Hoe Head", qty: 1 }],
+                parts: [
+                    { name: "Long Stick", qty: 1 },
+                    { name: "Twine", qty: 1 },
+                    { name: "Flint Hoe Head", qty: 1 }
+                ],
                 craftTime: 20,
                 isTool: true,
                 endurance: 100,
@@ -72,7 +80,11 @@ export const flintToolMaker = mapSquare => {
                 name: "Twine Table",
                 info: "Elevate your working tasks",
                 prereq: [],
-                parts: [{ name: "Long Stick", qty: 5 }, { name: "Short Stick", qty: 16 }, { name: "Twine", qty: 5 }],
+                parts: [
+                    { name: "Long Stick", qty: 5 },
+                    { name: "Short Stick", qty: 16 },
+                    { name: "Twine", qty: 5 }
+                ],
                 craftTime: 20,
                 isTool: true,
                 endurance: 100,
@@ -86,7 +98,11 @@ export const flintToolMaker = mapSquare => {
                 name: "Twine Sled",
                 info: "Move things more easily",
                 prereq: [],
-                parts: [{ name: "Long Stick", qty: 8 }, { name: "Short Stick", qty: 8 }, { name: "Twine", qty: 5 }],
+                parts: [
+                    { name: "Long Stick", qty: 8 },
+                    { name: "Short Stick", qty: 8 },
+                    { name: "Twine", qty: 5 }
+                ],
                 craftTime: 20,
                 isTool: true,
                 endurance: 100,
@@ -100,7 +116,11 @@ export const flintToolMaker = mapSquare => {
                 name: "Twine Raft",
                 info: "Move things over water",
                 prereq: [],
-                parts: [{ name: "Long Stick", qty: 6 }, { name: "Short Stick", qty: 3 }, { name: "Twine", qty: 3 }],
+                parts: [
+                    { name: "Long Stick", qty: 6 },
+                    { name: "Short Stick", qty: 3 },
+                    { name: "Twine", qty: 3 }
+                ],
                 craftTime: 20,
                 isTool: true,
                 endurance: 100,
@@ -109,6 +129,17 @@ export const flintToolMaker = mapSquare => {
                 efficiency: 1,
                 efficiencyGain: 0,
                 efficiencyTaper: 0
+            },
+            {
+                name: "Thatch Shingle",
+                info: "Create a roof",
+                prereq: ["Wheat Stalks"],
+                parts: [
+                    { name: "Wheat Stalks", qty: 10 },
+                    { name: "Twine", qty: 1 }
+                ],
+                craftTime: 10,
+                isTool: false
             }
         ],
 
@@ -142,7 +173,9 @@ export const flintToolMaker = mapSquare => {
                 <b>Items Needed</b><br />
                 <div id="sidepanelparts">${state.drawStocks()}</div>
                 Progress: <span id="sidepanelprogress">${state.drawProgressPercent()}</span></br>
-                Finished tools on hand: <span id="sidepanelonhand">${state.onhand.length}</span><br />
+                Finished tools on hand: <span id="sidepanelonhand">${
+                    state.onhand.length
+                }</span><br />
             `);
             state.showDeleteLink();
             $("#sidepanel").append("<br /><br />");
@@ -162,9 +195,18 @@ export const flintToolMaker = mapSquare => {
         }
     };
 
+    const genHandle = game.blockDemands.find(ele => ele.name === state.name);
+    if (genHandle.hasNewOptions === undefined) {
+        genHandle.hasNewOptions = itemName => {
+            return itemName === "Wheat Stalks";
+        };
+    }
+
     game.blockList.push(state);
     mapSquare.structure = state;
-    $("#" + state.tile.id + "imageholder").html('<img src="img/flintToolMaker.png" />');
+    $("#" + state.tile.id + "imageholder").html(
+        '<img src="img/flintToolMaker.png" />'
+    );
     return Object.assign(
         state,
         blockOutputsItems(state),

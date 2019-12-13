@@ -29,7 +29,7 @@ export const kitchen = mapSquare => {
                 craftTime: 5,
                 output: [
                     { name: "Wheat Seeds", qty: 1 },
-                    { name: "Wheat Stems", qty: 1 }
+                    { name: "Wheat Stalks", qty: 1 }
                 ]
             }
         ],

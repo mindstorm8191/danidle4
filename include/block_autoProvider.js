@@ -26,7 +26,16 @@ export const autoProvider = mapSquare => {
                 efficiency: 1,
                 endurance: 10000
             },
-            { name: "Whole Wheat", class: "item", lifetime: 10000 }
+            { name: "Wet Bloomery Block", class: "item" },
+            {
+                name: "Flint Hatchet",
+                class: "tool",
+                efficiency: 2,
+                endurance: 10000
+            },
+            { name: "Pole", class: "item" },
+            { name: "Thatch Shingle", class: "item" },
+            { name: "Long Stick", class: "item" }
         ],
         fixedPopulation: 20,
         unlockItems: [
@@ -37,7 +46,9 @@ export const autoProvider = mapSquare => {
             "Flint Stabber",
             "Flint Knife",
             "Log",
-            "Wooden Bowl"
+            "Wooden Bowl",
+            "Clay",
+            "Wheat Stalks"
         ],
         // These items are added to the unlocked array, but not generated
 
