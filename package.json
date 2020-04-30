@@ -4,7 +4,7 @@
     "description": "An Idle game climbing a tech tree, starting from nothing but sticks & dirt, working up to advanced tech through automation",
     "main": "index.js",
     "dependencies": {
-        "jquery": "^3.4.1",
+        "jquery": "^3.5.0",
         "jquery-ui-bundle": "^1.12.1-migrate"
     },
     "devDependencies": {
